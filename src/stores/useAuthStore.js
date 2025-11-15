@@ -1,39 +1,32 @@
 import create from "zustand";
-import api from "../services/api";
+import { AuthAPI } from "../services/api";
 
-const initialUser = JSON.parse(localStorage.getItem("user") || "null");
-const initialToken = localStorage.getItem("token") || null;
-
-const useAuthStore = create((set, get) => ({
-  user: initialUser,
-  token: initialToken,
+const useAuthStore = create((set) => ({
+  user: JSON.parse(localStorage.getItem("user") || "null"),
+  token: localStorage.getItem("token") || null,
   loading: false,
   error: null,
 
-  register: async (payload) => {
+  login: async (payload) => {
     set({ loading: true, error: null });
+
     try {
-      const res = await api.post("/auth/register", payload);
-      const { user, token } = res.data;
-      localStorage.setItem("token", token);
-      localStorage.setItem("user", JSON.stringify(user));
-      set({ user, token, loading: false });
+      const data = await AuthAPI.login(payload); // <— API CALL
+      set({ user: data.user, token: data.token, loading: false });
     } catch (err) {
-      set({ loading: false, error: err?.response?.data?.message || err.message });
+      set({ loading: false, error: err.response?.data?.message });
       throw err;
     }
   },
 
-  login: async ({ email, password }) => {
+  register: async (payload) => {
     set({ loading: true, error: null });
+
     try {
-      const res = await api.post("/auth/login", { email, password });
-      const { user, token } = res.data;
-      localStorage.setItem("token", token);
-      localStorage.setItem("user", JSON.stringify(user));
-      set({ user, token, loading: false });
+      const data = await AuthAPI.register(payload); // <— API CALL
+      set({ user: data.user, token: data.token, loading: false });
     } catch (err) {
-      set({ loading: false, error: err?.response?.data?.message || err.message });
+      set({ loading: false, error: err.response?.data?.message });
       throw err;
     }
   },
@@ -44,16 +37,9 @@ const useAuthStore = create((set, get) => ({
     set({ user: null, token: null });
   },
 
-  refreshUser: async () => {
-    const token = localStorage.getItem("token");
-    if (!token) return;
-    try {
-      const res = await api.get("/auth/me");
-      set({ user: res.data });
-      localStorage.setItem("user", JSON.stringify(res.data));
-    } catch (err) {
-      console.warn("refreshUser failed", err);
-    }
+  getProfile: async () => {
+    const res = await AuthAPI.getProfile(); // <— API CALL
+    set({ user: res.data });
   },
 }));
 

@@ -22,7 +22,7 @@ export default function Header() {
         <div className="flex items-center gap-4">
           <button onClick={() => navigate("/cart")} className="relative">
             Cart
-            <span className="ml-2 inline-block bg-black text-white text-xs px-2 py-0.5 rounded-full">{cart.length}</span>
+            <span className="ml-2 inline-block bg-black text-white text-xs px-2 py-0.5 rounded-full">{cart?.length}</span>
           </button>
 
           {user ? (

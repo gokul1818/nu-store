@@ -13,7 +13,7 @@ export default function Login() {
   const submit = async (e) => {
     e.preventDefault();
     try {
-      await login({ email, password });
+      await login({ emailOrPhone:email, password });
       navigate("/");
     } catch (err) {
       alert(err?.response?.data?.message || err.message);
