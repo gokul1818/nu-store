@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate,Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import useAuthStore from "../stores/useAuthStore";
 
 import { showSuccess, showError } from "../components/AppToast";
@@ -103,7 +103,7 @@ export default function Register() {
           </AppButton>
           <div className="mt-4 text-sm text-center">
             <span>Already have an account? </span>
-            <Link to="/login" className="text-blue-600 font-medium">
+            <Link to="/login" className="text-secondary font-semibold">
               Login
             </Link>
           </div>

@@ -8,7 +8,6 @@ import { AuthAPI } from "../services/api";
 
 function ProfileView() {
   const authStore = useAuthStore();
-  const user = authStore.user;
 
   const [form, setForm] = useState({
     firstName: "",
@@ -22,6 +21,7 @@ function ProfileView() {
       },
     ],
   });
+
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [editMode, setEditMode] = useState(false);
@@ -36,15 +36,13 @@ function ProfileView() {
           lastName: res.lastName || "",
           addresses:
             res.addresses?.length > 0
-              ? res.addresses
-              : [
-                  {
-                    house: "",
-                    street: "",
-                    city: "",
-                    state: "",
-                  },
-                ],
+              ? res.addresses.map((addr) => ({
+                  house: addr.house || "",
+                  street: addr.street || "",
+                  city: addr.city || "",
+                  state: addr.state || "",
+                }))
+              : [{ house: "", street: "", city: "", state: "" }],
         });
       } catch (err) {
         showError("Failed to fetch profile");
@@ -93,11 +91,11 @@ function ProfileView() {
         lastName: form.lastName,
         addresses: form.addresses,
       };
-      await AuthAPI.updateProfile(payload);
+      await authStore.updateProfile(payload); // use store method that updates localStorage
       showSuccess("Profile updated successfully!");
-      authStore.getProfile();
       setEditMode(false);
     } catch (err) {
+      console.log('err: ', err);
       showError(err?.response?.data?.message || "Update failed");
     } finally {
       setLoading(false);
@@ -111,7 +109,7 @@ function ProfileView() {
           <h2 className="text-2xl font-bold">Profile</h2>
           {!editMode && (
             <button
-              className="text-blue-600 text-sm"
+              className="text-secondary text-sm"
               onClick={() => setEditMode(true)}
             >
               Edit
@@ -131,10 +129,10 @@ function ProfileView() {
             <div>
               <strong>Address:</strong>
               <div className="ml-4 mt-1 space-y-1">
-                <div>House/Flat No: {form.addresses[0]?.house}</div>
-                <div>Street: {form.addresses[0]?.street}</div>
-                <div>City: {form.addresses[0]?.city}</div>
-                <div>State: {form.addresses[0]?.state}</div>
+                <div>House/Flat No: {form.addresses[0].house}</div>
+                <div>Street: {form.addresses[0].street}</div>
+                <div>City: {form.addresses[0].city}</div>
+                <div>State: {form.addresses[0].state}</div>
               </div>
             </div>
           </div>
@@ -158,54 +156,46 @@ function ProfileView() {
             <div>
               <label className="block font-medium mb-2">Address</label>
               <div className="space-y-2">
-                <input
-                  type="text"
+                <AppInput
                   placeholder="House/Flat No"
                   value={form.addresses[0].house}
                   onChange={(e) =>
                     handleChange("addresses", e.target.value, 0, "house")
                   }
-                  className={`border rounded p-2 w-full ${
-                    errors.addresses?.[0]?.house ? "border-red-500" : ""
-                  }`}
+                  error={errors.addresses?.[0]?.house}
                 />
-                <input
-                  type="text"
+                <AppInput
                   placeholder="Street"
                   value={form.addresses[0].street}
                   onChange={(e) =>
                     handleChange("addresses", e.target.value, 0, "street")
                   }
-                  className={`border rounded p-2 w-full ${
-                    errors.addresses?.[0]?.street ? "border-red-500" : ""
-                  }`}
+                  error={errors.addresses?.[0]?.street}
                 />
-                <input
-                  type="text"
+                <AppInput
                   placeholder="City"
                   value={form.addresses[0].city}
                   onChange={(e) =>
                     handleChange("addresses", e.target.value, 0, "city")
                   }
-                  className={`border rounded p-2 w-full ${
-                    errors.addresses?.[0]?.city ? "border-red-500" : ""
-                  }`}
+                  error={errors.addresses?.[0]?.city}
                 />
-                <input
-                  type="text"
+                <AppInput
                   placeholder="State"
                   value={form.addresses[0].state}
                   onChange={(e) =>
                     handleChange("addresses", e.target.value, 0, "state")
                   }
-                  className={`border rounded p-2 w-full ${
-                    errors.addresses?.[0]?.state ? "border-red-500" : ""
-                  }`}
+                  error={errors.addresses?.[0]?.state}
                 />
               </div>
             </div>
 
-            <AppButton loading={loading} onClick={handleSubmit} className="w-full">
+            <AppButton
+              loading={loading}
+              onClick={handleSubmit}
+              className="w-full"
+            >
               Save Changes
             </AppButton>
           </div>

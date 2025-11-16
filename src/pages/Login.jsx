@@ -80,7 +80,7 @@ export default function Login() {
 
         <div className="mt-4 text-sm text-center">
           <span>Don't have an account? </span>
-          <Link to="/register" className="text-blue-600 font-medium">
+          <Link to="/register" className="text-secondary font-semibold">
             Register
           </Link>
         </div>

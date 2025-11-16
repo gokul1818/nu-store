@@ -42,9 +42,15 @@ const useAuthStore = create((set) => ({
     set({ user: res.data });
   },
 
-  updateProfile: async () => {
-    const res = await AuthAPI.updateProfile();
-    set({ user: res.data });
+  updateProfile: async (payload) => {
+    try {
+      const updatedUser = await AuthAPI.updateProfile(payload);
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+      set({ user: updatedUser });
+      return updatedUser;
+    } catch (err) {
+      throw err;
+    }
   },
 }));
 
