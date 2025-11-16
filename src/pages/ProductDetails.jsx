@@ -165,21 +165,22 @@ export default function ProductDetails() {
                   Color: <span className="font-normal">{selectedColor}</span>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  {colors.map((color, idx) => (
-                    <div
-                      key={color}
-                      onClick={() => setSelectedColorIndex(idx)}
-                      className={`relative cursor-pointer border-2 rounded-lg p-1 transition-all ${
-                        idx === safeColorIndex
-                          ? "border-orange-500 shadow-md"
-                          : "border-gray-300 hover:border-gray-400"
-                      }`}
-                    >
-                      <div className="w-16 h-16 bg-gray-100 rounded flex items-center justify-center text-xs text-center p-1">
-                        {color}
-                      </div>
-                    </div>
-                  ))}
+                  {colors.map((color, idx) => {
+                    const isSelected = idx === safeColorIndex;
+
+                    return (
+                      <div
+                        key={color}
+                        onClick={() => setSelectedColorIndex(idx)}
+                        className={`w-8 h-8 rounded-full border-2 cursor-pointer transition-all ${
+                          isSelected
+                            ? "border-orange-500 shadow-md"
+                            : "border-gray-300 hover:border-gray-400"
+                        }`}
+                        style={{ backgroundColor: color }} // show actual color
+                      />
+                    );
+                  })}
                 </div>
               </div>
             )}
