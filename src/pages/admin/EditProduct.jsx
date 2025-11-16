@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ProductAPI } from "../../services/api";
+import { ProductAPI, CategoryAPI } from "../../services/api";
 
 export default function EditProduct() {
   const { id } = useParams();
@@ -9,56 +9,75 @@ export default function EditProduct() {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const loadProduct = async () => {
+  const [categories, setCategories] = useState([]);
+
+  /** ================================
+   *  LOAD PRODUCT + CATEGORY DATA
+   *  ================================ */
+  const loadData = async () => {
     try {
-      const res = await ProductAPI.getOne(id);
-      setProduct(res.data);
+      const [productRes, categoryRes] = await Promise.all([
+        ProductAPI.getOne(id),
+        CategoryAPI.getAll()
+      ]);
+
+      setProduct(productRes.data);
+      setCategories(categoryRes.data);
       setLoading(false);
+
     } catch (err) {
       console.error(err);
-      alert("Failed to load product");
+      alert("Failed to load data");
     }
   };
 
   useEffect(() => {
-    loadProduct();
+    loadData();
   }, []);
 
+  /** ================================
+   *  FORM UPDATING FUNCTIONS
+   *  ================================ */
   const updateField = (field, value) => {
-    setProduct((p) => ({ ...p, [field]: value }));
+    setProduct(prev => ({ ...prev, [field]: value }));
   };
 
   const updateVariant = (index, field, value) => {
-    const copy = [...product.variants];
-    copy[index][field] = value;
-    setProduct((p) => ({ ...p, variants: copy }));
+    const updated = [...product.variants];
+    updated[index][field] = value;
+    setProduct(prev => ({ ...prev, variants: updated }));
   };
 
   const addVariant = () => {
-    setProduct((p) => ({
-      ...p,
-      variants: [...p.variants, { size: "", color: "", sku: "", stock: 0 }],
+    setProduct(prev => ({
+      ...prev,
+      variants: [...prev.variants, { size: "", color: "", sku: "", stock: 0 }]
     }));
   };
 
   const removeVariant = (idx) => {
-    const copy = product.variants.filter((_, i) => i !== idx);
-    setProduct((p) => ({ ...p, variants: copy }));
+    setProduct(prev => ({
+      ...prev,
+      variants: prev.variants.filter((_, i) => i !== idx)
+    }));
   };
 
+  /** ================================
+   *  SAVE PRODUCT
+   *  ================================ */
   const handleSave = async () => {
     try {
       await ProductAPI.updateProduct(product._id, product);
-      alert("Product updated");
+      alert("Product updated successfully!");
       navigate("/admin/products");
     } catch (err) {
       console.error(err);
-      alert("Failed to update");
+      alert("Failed to update product");
     }
   };
 
   if (loading) return <div className="p-4">Loading...</div>;
-  if (!product) return <div className="p-4">Product not found</div>;
+  if (!product) return <div className="p-4">Product Not Found</div>;
 
   return (
     <div className="container mx-auto p-6">
@@ -79,12 +98,24 @@ export default function EditProduct() {
 
         {/* Price */}
         <div>
-          <label className="block font-semibold mb-1">Price</label>
+          <label className="block font-semibold mb-1">Selling Price</label>
           <input
             type="number"
             value={product.price}
             onChange={(e) => updateField("price", Number(e.target.value))}
             className="border p-2 rounded w-full"
+          />
+        </div>
+
+        {/* MRP */}
+        <div>
+          <label className="block font-semibold mb-1">MRP Price</label>
+          <input
+            type="number"
+            value={product.mrp || ""}
+            onChange={(e) => updateField("mrp", Number(e.target.value))}
+            className="border p-2 rounded w-full"
+            placeholder="Enter MRP price"
           />
         </div>
 
@@ -114,6 +145,23 @@ export default function EditProduct() {
           />
         </div>
 
+        {/* Category */}
+        <div>
+          <label className="block mb-1 font-semibold">Category</label>
+          <select
+            className="border p-2 rounded w-full"
+            value={product.category || ""}
+            onChange={(e) => updateField("category", e.target.value)}
+          >
+            <option value="">Select Category</option>
+            {categories.map((cat) => (
+              <option key={cat._id} value={cat._id}>
+                {cat.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
       </div>
 
       {/* Description */}
@@ -127,7 +175,7 @@ export default function EditProduct() {
         ></textarea>
       </div>
 
-      {/* VARIANTS */}
+      {/* VARIANTS TABLE */}
       <h3 className="text-lg font-semibold mt-6">Variants</h3>
 
       <table className="w-full border mt-2 text-sm">

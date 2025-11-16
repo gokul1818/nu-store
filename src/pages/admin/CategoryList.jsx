@@ -37,7 +37,6 @@ export default function CategoryList() {
         <thead className="bg-gray-100">
           <tr>
             <th className="border p-2">Category Name</th>
-            <th className="border p-2">Parent</th>
             <th className="border p-2">Actions</th>
           </tr>
         </thead>
@@ -46,9 +45,6 @@ export default function CategoryList() {
           {categories.map((c) => (
             <tr key={c._id}>
               <td className="border p-2">{c.name}</td>
-              <td className="border p-2">
-                {c.parent ? categories.find((p) => p._id === c.parent)?.name : "-"}
-              </td>
               <td className="border p-2">
                 <Link
                   to={`/admin/categories/edit/${c._id}`}
