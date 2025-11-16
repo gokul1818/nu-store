@@ -55,11 +55,11 @@ export const AuthAPI = {
     PRODUCTS
 --------------------------------------------------------- */
 export const ProductAPI = {
-  getAll: (query = "") => api.get(`/api/products${query ? `?${query}` : ""}`),
-  getOne: (id) => api.get(`/api/products/${id}`),
-  updateProduct: (id, data) => api.put(`/api/products/${id}`, data),
-  deleteOne: (id) => api.delete(`/api/products/${id}`),
-  create: (data) => api.post("/api/products", data),
+    getAll: (query = "") => api.get(`/api/products${query ? `?${query}` : ""}`),
+    getOne: (id) => api.get(`/api/products/${id}`),
+    updateProduct: (id, data) => api.put(`/api/products/${id}`, data),
+    deleteOne: (id) => api.delete(`/api/products/${id}`),
+    create: (data) => api.post("/api/products", data),
 };
 
 /* -------------------------------------------------------
@@ -89,6 +89,15 @@ export const AdminAPI = {
   getOrders: () => api.get("/api/orders/all"),
   updateOrderStatus: (id, data) => api.put(`/api/orders/${id}/status`, data),
   deleteUser: (id) => api.delete(`/api/admin/users/${id}`),
+};
+
+
+export const CategoryAPI = {
+    getAll: () => axios.get("/api/categories"),
+    getOne: (id) => axios.get(`/api/categories/${id}`),
+    create: (data) => axios.post("/api/categories", data),
+    update: (id, data) => axios.put(`/api/categories/${id}`, data),
+    delete: (id) => axios.delete(`/api/categories/${id}`)
 };
 
 export default api;

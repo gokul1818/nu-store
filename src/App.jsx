@@ -21,6 +21,8 @@ import AddProduct from "./pages/admin/AddProducts";
 import AdminLogin from "./pages/admin/AdminLogin";
 import Dashboard from "./pages/admin/Dashboard";
 import EditProduct from "./pages/admin/EditProduct";
+import CategoryList from "./pages/admin/CategoryList";
+import CategoryForm from "./pages/admin/CategoryForm";
 import OrderList from "./pages/admin/OrderList";
 import ProductList from "./pages/admin/ProductList";
 
@@ -51,18 +53,14 @@ export default function App() {
         <Route path="/admin/login" element={<AdminLogin />} />
 
         {/* Admin Layout */}
-        <Route
-          element={
-            <AdminRoute>
-              <AdminLayout />
-            </AdminRoute>
-          }
-        >
+        <Route element={<AdminRoute><AdminLayout /></AdminRoute>}>
           <Route path="/admin/" element={<Dashboard />} />
           <Route path="/admin/products" element={<ProductList />} />
           <Route path="/admin/products/add" element={<AddProduct />} />
           <Route path="/admin/products/edit/:id" element={<EditProduct />} />
-
+          <Route path="/admin/categories" element={<CategoryList />} />
+          <Route path="/admin/categories/add" element={<CategoryForm />} />
+          <Route path="/admin/categories/edit/:id" element={<CategoryForm />} />
           <Route path="/admin/orders" element={<OrderList />} />
         </Route>
       </Routes>
