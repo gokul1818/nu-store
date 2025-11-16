@@ -92,27 +92,11 @@ export const AdminAPI = {
 };
 
 export const CategoryAPI = {
-  getAll: async () => {
-    const res = await api.get("/api/categories");
-    return res.data;
-  },
-
-  getOne: async (id) => {
-    const res = await api.get(`/api/categories/${id}`);
-    return res.data;
-  },
-  create: async (data) => {
-    const res = await api.post("/api/categories", data);
-    return res.data;
-  },
-  update: async (id, data) => {
-    const res = await api.put(`/api/categories/${id}`, data);
-    return res.data;
-  },
-  delete: async (id) => {
-    const res = await api.delete(`/api/categories/${id}`);
-    return res.data;
-  },
+    getAll: () => api.get("/api/categories"),
+    getOne: (id) => api.get(`/api/categories/${id}`),
+    create: (data) => api.post("/api/categories", data),
+    update: (id, data) => api.put(`/api/categories/${id}`, data),
+    delete: (id) => api.delete(`/api/categories/${id}`)
 };
 
 export default api;

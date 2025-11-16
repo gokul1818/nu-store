@@ -1,20 +1,33 @@
-import { useState } from "react";
-import { ProductAPI } from "../../services/api";
+import { useState, useEffect } from "react";
+import { ProductAPI, CategoryAPI } from "../../services/api";
 import { useNavigate } from "react-router-dom";
 
 export default function AddProduct() {
   const navigate = useNavigate();
+
+  const [categories, setCategories] = useState([]);
+
   const [form, setForm] = useState({
     title: "",
+    mrp: "",
     price: "",
     gender: "Men",
     description: "",
     thumbnail: "",
-    variants: [
-      { size: "M", color: "Black", sku: "", stock: 0 }
-    ]
+    category: "",
+    variants: [{ size: "M", color: "Black", sku: "", stock: 0 }]
   });
 
+  // Load categories
+  useEffect(() => {
+    const loadCategories = async () => {
+      const res = await CategoryAPI.getAll();
+      setCategories(res.data);
+    };
+    loadCategories();
+  }, []);
+
+  // Update variant fields
   const updateVariant = (index, key, value) => {
     const updated = [...form.variants];
     updated[index][key] = value;
@@ -50,13 +63,22 @@ export default function AddProduct() {
         onChange={(e) => setForm({ ...form, title: e.target.value })}
       />
 
-      {/* Price */}
+      {/* MRP Price */}
       <input
         className="border p-2 w-full mb-3"
-        placeholder="Price"
+        placeholder="MRP Price"
+        type="number"
+        value={form.mrp}
+        onChange={(e) => setForm({ ...form, mrp: e.target.value })}
+      />
+
+      {/* Selling Price */}
+      <input
+        className="border p-2 w-full mb-3"
+        placeholder="Selling Price"
+        type="number"
         value={form.price}
         onChange={(e) => setForm({ ...form, price: e.target.value })}
-        type="number"
       />
 
       {/* Gender */}
@@ -67,7 +89,23 @@ export default function AddProduct() {
       >
         <option>Men</option>
         <option>Women</option>
-        <option>Couple</option>
+        <option>Kids</option>
+        <option>Unisex</option>
+      </select>
+
+      {/* Category */}
+      <label className="block mb-1 font-semibold">Category</label>
+      <select
+        className="border p-2 w-full mb-3"
+        value={form.category}
+        onChange={(e) => setForm({ ...form, category: e.target.value })}
+      >
+        <option value="">Select Category</option>
+        {categories.map((cat) => (
+          <option value={cat._id} key={cat._id}>
+            {cat.name}
+          </option>
+        ))}
       </select>
 
       {/* Thumbnail URL */}
@@ -78,28 +116,35 @@ export default function AddProduct() {
         onChange={(e) => setForm({ ...form, thumbnail: e.target.value })}
       />
 
+      {/* Variants */}
       <h3 className="font-semibold mt-4 mb-2">Variants</h3>
 
       {form.variants.map((v, i) => (
-        <div key={i} className="border p-3 rounded mb-3 grid md:grid-cols-4 gap-3">
+        <div
+          key={i}
+          className="border p-3 rounded mb-3 grid md:grid-cols-4 gap-3"
+        >
           <input
             className="border p-2"
             placeholder="Size"
             value={v.size}
             onChange={(e) => updateVariant(i, "size", e.target.value)}
           />
+
           <input
             className="border p-2"
             placeholder="Color"
             value={v.color}
             onChange={(e) => updateVariant(i, "color", e.target.value)}
           />
+
           <input
             className="border p-2"
             placeholder="SKU"
             value={v.sku}
             onChange={(e) => updateVariant(i, "sku", e.target.value)}
           />
+
           <input
             type="number"
             className="border p-2"
@@ -110,13 +155,11 @@ export default function AddProduct() {
         </div>
       ))}
 
-      <button
-        className="px-4 py-2 border rounded mb-4"
-        onClick={addVariant}
-      >
+      <button className="px-4 py-2 border rounded mb-4" onClick={addVariant}>
         + Add Variant
       </button>
 
+      {/* Save Button */}
       <button
         className="w-full bg-primary text-white py-2 rounded"
         onClick={submit}

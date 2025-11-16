@@ -9,8 +9,9 @@ export default function AdminSidebar() {
 
   const menu = [
     { name: "Dashboard", path: "/admin" },
-    { name: "Products", path: "/admin/products" },
     { name: "Categories", path: "/admin/categories" },
+    { name: "Products", path: "/admin/products" },
+    { name: "Add Product", path: "/admin/products/add" },
     { name: "Orders", path: "/admin/orders" },
   ];
 

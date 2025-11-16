@@ -8,8 +8,6 @@ export default function CategoryForm() {
   const navigate = useNavigate();
 
   const [name, setName] = useState("");
-  const [parent, setParent] = useState("");
-  const [categories, setCategories] = useState([]);
 
   const load = async () => {
     const res = await CategoryAPI.getAll();
@@ -27,7 +25,7 @@ export default function CategoryForm() {
   }, []);
 
   const save = async () => {
-    const body = { name, parent: parent || null };
+    const body = { name, };
 
     if (isEdit) await CategoryAPI.update(id, body);
     else await CategoryAPI.create(body);
@@ -50,23 +48,7 @@ export default function CategoryForm() {
         />
       </div>
 
-      <div className="mb-4">
-        <label className="block mb-1">Parent Category</label>
-        <select
-          className="border p-2 rounded w-full"
-          value={parent}
-          onChange={(e) => setParent(e.target.value)}
-        >
-          <option value="">None (Top Level)</option>
-          {categories
-            .filter((c) => c._id !== id)
-            .map((c) => (
-              <option value={c._id} key={c._id}>
-                {c.name}
-              </option>
-            ))}
-        </select>
-      </div>
+    
 
       <button
         onClick={save}
