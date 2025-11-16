@@ -4,3 +4,21 @@
 
 /* small helpers */
 body { @apply bg-gray-50 text-gray-800; }
+
+@keyframes enter {
+  0% { opacity: 0; transform: translateY(-10px) scale(0.9); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes leave {
+  0% { opacity: 1; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(-10px) scale(0.9); }
+}
+
+.animate-enter {
+  animation: enter 0.2s ease-out forwards;
+}
+
+.animate-leave {
+  animation: leave 0.2s ease-in forwards;
+}
