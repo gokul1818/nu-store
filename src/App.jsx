@@ -23,6 +23,8 @@ import AddProduct from "./pages/admin/AddProducts";
 import OrderList from "./pages/admin/OrderList";
 import AdminLogin from "./pages/admin/AdminLogin";
 import EditProduct from "./pages/admin/EditProduct";
+import CategoryList from "./pages/admin/CategoryList";
+import CategoryForm from "./pages/admin/CategoryForm";
 
 export default function App() {
   return (
@@ -53,6 +55,9 @@ export default function App() {
         <Route path="/admin/products" element={<ProductList />} />
         <Route path="/admin/products/add" element={<AddProduct />} />
         <Route path="/admin/products/edit/:id" element={<EditProduct />} />
+        <Route path="/admin/categories" element={<CategoryList />} />
+        <Route path="/admin/categories/add" element={<CategoryForm />} />
+        <Route path="/admin/categories/edit/:id" element={<CategoryForm />} />
 
         <Route path="/admin/orders" element={<OrderList />} />
       </Route>
