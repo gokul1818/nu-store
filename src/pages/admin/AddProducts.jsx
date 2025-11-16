@@ -161,7 +161,7 @@ export default function AddProduct() {
 
       {/* Save Button */}
       <button
-        className="w-full bg-black text-white py-2 rounded"
+        className="w-full bg-primary text-white py-2 rounded"
         onClick={submit}
       >
         Save Product

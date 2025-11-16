@@ -21,7 +21,7 @@ export default function AdminSidebar() {
   };
 
   return (
-    <div className="w-64 bg-black text-white min-h-screen flex flex-col p-6">
+    <div className="w-64 bg-primary text-white min-h-screen flex flex-col p-6">
       {/* Header */}
       <h2 className="text-xl font-bold mb-6">Admin Panel</h2>
 

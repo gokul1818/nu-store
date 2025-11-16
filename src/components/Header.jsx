@@ -44,17 +44,17 @@ export default function Header() {
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
         {/* Logo */}
         <Link to="/" className="text-2xl font-bold">
-          NU<span className="text-black">Store</span>
+          NU<span className="text-primary">Store</span>
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-6">
+        {/* <nav className="hidden md:flex items-center gap-6">
           {user && (
             <Link to="/products" className="hover:underline">
               Shop
             </Link>
           )}
-        </nav>
+        </nav> */}
 
         {/* Right Side */}
         <div className="flex items-center gap-4 relative">
@@ -64,7 +64,7 @@ export default function Header() {
               onClick={() => navigate("/cart")}
               className="relative p-1 rounded hover:bg-gray-100 transition-all duration-200"
             >
-              <FiShoppingCart className="w-6 h-6 text-black hover:text-gray-700 transition-colors duration-200" />
+              <FiShoppingCart className="w-6 h-6 text-primary hover:text-gray-700 transition-colors duration-200" />
               {cart?.length > 0 && (
                 <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs px-1.5 py-0.5 rounded-full">
                   {cart.length}
@@ -79,7 +79,7 @@ export default function Header() {
               onClick={handleUserClick}
               className="p-1 rounded-full hover:bg-gray-100 transition-all duration-200 focus:outline-none"
             >
-              <FiUser className="w-8 h-8 text-black hover:text-gray-700 transition-colors duration-200" />
+              <FiUser className="w-8 h-8 text-primary hover:text-gray-700 transition-colors duration-200" />
             </button>
 
             {/* Dropdown Menu */}
@@ -127,7 +127,7 @@ export default function Header() {
       </div>
 
       {/* Mobile Menu */}
-      {mobileMenuOpen && (
+      {/* {mobileMenuOpen && (
         <div className="md:hidden bg-white border-t shadow-md">
           <div className="flex flex-col px-4 py-2 space-y-2">
             {user && (
@@ -137,7 +137,7 @@ export default function Header() {
             )}
           </div>
         </div>
-      )}
+      )} */}
     </header>
   );
 }

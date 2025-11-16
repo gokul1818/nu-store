@@ -251,7 +251,7 @@ export default function EditProduct() {
       <div className="mt-6">
         <button
           onClick={handleSave}
-          className="px-4 py-2 bg-black text-white rounded"
+          className="px-4 py-2 bg-primary text-white rounded"
         >
           Save Changes
         </button>
