@@ -2,7 +2,14 @@ import { Link, useNavigate } from "react-router-dom";
 import useAuthStore from "../stores/useAuthStore";
 import useCartStore from "../stores/useCartStore";
 import { useState, useEffect, useRef } from "react";
-import { FiShoppingCart, FiUser, FiMenu, FiX } from "react-icons/fi";
+import {
+  FiShoppingCart,
+  FiUser,
+  FiShoppingBag,
+  FiLogOut,
+  FiMenu,
+  FiX,
+} from "react-icons/fi";
 
 export default function Header() {
   const { user, logout } = useAuthStore();
@@ -75,34 +82,31 @@ export default function Header() {
               <FiUser className="w-8 h-8 text-black hover:text-gray-700 transition-colors duration-200" />
             </button>
 
-            {/* Animated Dropdown */}
+            {/* Dropdown Menu */}
             {user && showUserMenu && (
-              <div
-                className="absolute right-0 mt-2 w-40 bg-white border rounded shadow-lg py-2 z-50 
-                  origin-top-right transform transition-all duration-200 scale-95 opacity-0 animate-dropdown"
-              >
+              <div className="absolute right-0 mt-2 w-48 bg-white border rounded shadow-lg py-2 z-50">
                 <Link
                   to="/profile"
-                  className="block px-4 py-2 text-sm hover:bg-gray-100 transition-colors duration-200"
+                  className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-100 transition-colors duration-200"
                   onClick={() => setShowUserMenu(false)}
                 >
-                  Profile
+                  <FiUser className="w-4 h-4" /> Profile
                 </Link>
                 <Link
                   to="/orders"
-                  className="block px-4 py-2 text-sm hover:bg-gray-100 transition-colors duration-200"
+                  className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-100 transition-colors duration-200"
                   onClick={() => setShowUserMenu(false)}
                 >
-                  Orders
+                  <FiShoppingBag className="w-4 h-4" /> Orders
                 </Link>
                 <button
                   onClick={() => {
                     logout();
                     setShowUserMenu(false);
                   }}
-                  className="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 transition-colors duration-200"
+                  className="w-full flex items-center gap-2 text-left px-4 py-2 text-sm hover:bg-gray-100 transition-colors duration-200"
                 >
-                  Logout
+                  <FiLogOut className="w-4 h-4" /> Logout
                 </button>
               </div>
             )}
