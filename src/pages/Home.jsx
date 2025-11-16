@@ -1,3 +1,4 @@
+import { motion } from 'framer-motion';
 import useProductStore from "../stores/useProductStore";
 import ProductCard from "../components/ProductCard";
 import useCartStore from "../stores/useCartStore";
@@ -22,8 +23,20 @@ export default function Home() {
 
   return (
     <div className="container mx-auto px-4 py-6">
-      <h1 className="text-3xl font-bold mb-6">Featured Products</h1>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      <h1 className="text-3xl font-bold mb-6 text-gray-900">Featured Products</h1>
+      <motion.div
+        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
+        initial="hidden"
+        animate="visible"
+        variants={{
+          hidden: {},
+          visible: {
+            transition: {
+              staggerChildren: 0.08
+            }
+          }
+        }}
+      >
         {products?.map((p) => (
           <ProductCard
             key={p._id}
@@ -31,7 +44,7 @@ export default function Home() {
             onAdd={(prod) => addItem(prod)}
           />
         ))}
-      </div>
+      </motion.div>
     </div>
   );
 }

@@ -27,7 +27,7 @@ export default function CategoryList() {
         <h2 className="text-xl font-semibold">Categories</h2>
         <Link
           to="/admin/categories/add"
-          className="px-3 py-2 bg-black text-white rounded"
+          className="px-3 py-2 bg-primary text-white rounded"
         >
           + Add Category
         </Link>

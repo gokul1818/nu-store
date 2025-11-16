@@ -48,7 +48,7 @@ export default function Checkout() {
           <textarea className="border p-2 w-full rounded"></textarea>
         </div>
 
-        <button type="submit" className="bg-black text-white px-4 py-2 rounded" disabled={loading}>
+        <button type="submit" className="bg-primary text-white px-4 py-2 rounded" disabled={loading}>
           {loading ? "Placing..." : "Place order"}
         </button>
       </form>

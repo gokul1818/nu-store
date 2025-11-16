@@ -47,7 +47,7 @@ export default function Cart() {
               <div className="flex justify-between mt-2"><span>Shipping</span><span>{formatCurrency(shipping)}</span></div>
               <div className="flex justify-between mt-2"><span>Tax</span><span>{formatCurrency(tax)}</span></div>
               <div className="flex justify-between mt-4 font-bold"><span>Total</span><span>{formatCurrency(total)}</span></div>
-              <button onClick={() => navigate("/checkout")} className="mt-4 w-full bg-black text-white py-2 rounded">Checkout</button>
+              <button onClick={() => navigate("/checkout")} className="mt-4 w-full bg-primary text-white py-2 rounded">Checkout</button>
             </div>
           </div>
         </div>

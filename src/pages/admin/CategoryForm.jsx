@@ -70,7 +70,7 @@ export default function CategoryForm() {
 
       <button
         onClick={save}
-        className="px-4 py-2 bg-black text-white rounded"
+        className="px-4 py-2 bg-primary text-white rounded"
       >
         Save
       </button>

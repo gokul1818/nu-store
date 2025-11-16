@@ -25,7 +25,7 @@ export default function AppLoader() {
 
   return (
     <div className="flex flex-col items-center justify-center h-screen space-y-4 bg-gray-100">
-      <div className="text-4xl animate-bounce text-black">{icons[index]}</div>
+      <div className="text-4xl animate-bounce text-primary">{icons[index]}</div>
       <div className="flex space-x-2 text-2xl">
         <span className="font-semibold text-secondary">{texts[0]}</span>
       </div>

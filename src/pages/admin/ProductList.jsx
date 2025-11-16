@@ -24,7 +24,7 @@ export default function ProductList() {
     <div className="container mx-auto p-6">
       <div className="flex justify-between mb-4">
         <h2 className="text-xl font-semibold">Products</h2>
-        <Link to="/admin/products/add" className="px-3 py-2 bg-black text-white rounded">
+        <Link to="/admin/products/add" className="px-3 py-2 bg-primary text-white rounded">
           + Add Product
         </Link>
       </div>

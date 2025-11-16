@@ -27,12 +27,11 @@ export default function ProductDetails() {
     if (id) loadProduct();
   }, [id, fetchProductById]);
 
-  // Compute all derived values before conditional return
   const images = selectedProduct?.images?.length
     ? selectedProduct.images
     : ["/placeholder.png"];
-
   const variants = selectedProduct?.variants || [];
+
   const colors = useMemo(
     () => Array.from(new Set(variants.map((v) => v.color))),
     [variants]
@@ -41,22 +40,11 @@ export default function ProductDetails() {
   const safeColorIndex = Math.min(selectedColorIndex, colors.length - 1);
   const selectedColor = colors[safeColorIndex] || "";
 
-  // Compute available sizes for selected color
   const availableSizes = useMemo(
     () => variants.filter((v) => v.color === selectedColor).map((v) => v.size),
     [variants, selectedColor]
   );
 
-  useEffect(() => {
-    async function loadProduct() {
-      setLoading(true);
-      await fetchProductById(id);
-      setLoading(false);
-    }
-    if (id) loadProduct();
-  }, [id, fetchProductById]);
-
-  // Set default selectedSize safely
   useEffect(() => {
     if (availableSizes.length > 0 && !availableSizes.includes(selectedSize)) {
       setSelectedSize(availableSizes[0]);
@@ -196,7 +184,7 @@ export default function ProductDetails() {
               </div>
             )}
 
-            {/* Size selection based on selected color */}
+            {/* Size selection */}
             {variants.length > 0 && (
               <div className="space-y-3">
                 <div className="font-medium text-sm">
@@ -205,13 +193,16 @@ export default function ProductDetails() {
                 <div className="flex flex-wrap gap-2">
                   {allSizes.map((size) => {
                     const isAvailable = availableSizes.includes(size);
+                    const isSelected = selectedSize === size;
                     return (
                       <button
                         key={size}
                         disabled={!isAvailable}
                         onClick={() => isAvailable && setSelectedSize(size)}
                         className={`px-4 py-2 border rounded-lg text-sm font-medium transition-all ${
-                          isAvailable
+                          isSelected
+                            ? "border-orange-500 bg-orange-100 text-orange-800"
+                            : isAvailable
                             ? "border-gray-300 hover:bg-gray-50 cursor-pointer"
                             : "border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed"
                         }`}
@@ -232,20 +223,16 @@ export default function ProductDetails() {
               </p>
             </div>
 
-            {/* Quantity */}
+            {/* Quantity input */}
             <div className="mt-4 flex items-center gap-4">
               <label className="font-medium text-sm">Quantity:</label>
-              <select
+              <input
+                type="number"
+                min={1}
                 value={qty}
-                onChange={(e) => setQty(parseInt(e.target.value))}
-                className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-gray-50 cursor-pointer focus:outline-none focus:ring-2 focus:ring-orange-500"
-              >
-                {[...Array(10).keys()].map((n) => (
-                  <option key={n + 1} value={n + 1}>
-                    {n + 1}
-                  </option>
-                ))}
-              </select>
+                onChange={(e) => setQty(Math.max(1, parseInt(e.target.value)))}
+                className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-500 w-20"
+              />
             </div>
           </div>
         </div>
