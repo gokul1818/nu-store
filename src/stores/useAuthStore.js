@@ -11,7 +11,7 @@ const useAuthStore = create((set) => ({
     set({ loading: true, error: null });
 
     try {
-      const data = await AuthAPI.login(payload); // <— API CALL
+      const data = await AuthAPI.login(payload);
       set({ user: data.user, token: data.token, loading: false });
     } catch (err) {
       set({ loading: false, error: err.response?.data?.message });
@@ -23,7 +23,7 @@ const useAuthStore = create((set) => ({
     set({ loading: true, error: null });
 
     try {
-      const data = await AuthAPI.register(payload); // <— API CALL
+      const data = await AuthAPI.register(payload);
       set({ user: data.user, token: data.token, loading: false });
     } catch (err) {
       set({ loading: false, error: err.response?.data?.message });
@@ -38,7 +38,12 @@ const useAuthStore = create((set) => ({
   },
 
   getProfile: async () => {
-    const res = await AuthAPI.getProfile(); // <— API CALL
+    const res = await AuthAPI.getProfile();
+    set({ user: res.data });
+  },
+
+  updateProfile: async () => {
+    const res = await AuthAPI.updateProfile();
     set({ user: res.data });
   },
 }));
