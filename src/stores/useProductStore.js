@@ -9,6 +9,7 @@ const useProductStore = create((set) => ({
   fetchProducts: async () => {
     set({ loading: true });
     const res = await ProductAPI.getAll();  // <— API CALL
+    console.log('res: ', res);
     set({ products: res.data, loading: false });
   },
 

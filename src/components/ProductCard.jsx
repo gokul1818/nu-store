@@ -1,7 +1,10 @@
 import { Link } from "react-router-dom";
 import { formatCurrency } from "../utils/helpers";
+import useCartStore from "../stores/useCartStore";
 
-export default function ProductCard({ product, onAdd }) {
+export default function ProductCard({ product, onAdd = () => { } }) {
+    const addItem = useCartStore((s) => s.addItem);
+  
   return (
     <div className="bg-white rounded shadow p-3 flex flex-col">
       <Link to={`/product/${product._id}`} className="block">
@@ -12,7 +15,7 @@ export default function ProductCard({ product, onAdd }) {
       <div className="mt-auto">
         <div className="flex items-center justify-between mt-3">
           <div className="text-lg font-bold">{formatCurrency(product.price)}</div>
-          <button onClick={() => onAdd(product)} className="px-3 py-1 bg-black text-white rounded">Add</button>
+          <button onClick={() => addItem(product)} className="px-3 py-1 bg-black text-white rounded">Add</button>
         </div>
       </div>
     </div>

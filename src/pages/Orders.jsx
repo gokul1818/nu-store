@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import api from "../services/api";
+import api, { OrderAPI } from "../services/api";
 import useAuthStore from "../stores/useAuthStore";
 import ProtectedRoute from "../components/ProtectedRoute";
 
@@ -9,7 +9,7 @@ function OrdersList() {
 
   useEffect(() => {
     async function load() {
-      const res = await api.get("/orders/my"); // backend: GET /orders/my
+      const res = await OrderAPI.getMyOrders() ; // backend: GET /orders/my
       setOrders(res.data);
     }
     load();

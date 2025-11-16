@@ -4,8 +4,7 @@ import ProductCard from "../components/ProductCard";
 import useCartStore from "../stores/useCartStore";
 
 export default function Products() {
-  const { items, fetchProducts } = useProductStore();
-  const addItem = useCartStore((s) => s.addItem);
+  const { products, fetchProducts } = useProductStore();
   const [q, setQ] = useState("");
 
   useEffect(() => { fetchProducts(q ? `search=${encodeURIComponent(q)}` : ""); }, [q]);
@@ -18,7 +17,7 @@ export default function Products() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {items.map((p) => <ProductCard key={p._id} product={p} onAdd={addItem} />)}
+        {products.map((p) => <ProductCard key={p._id} product={p} />)}
       </div>
     </div>
   );
