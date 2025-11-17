@@ -164,15 +164,20 @@ export default function AddProduct() {
               </option>
             ))}
           </AppSelect>
-
-          <AppInput
+ <FileUpload
+        label="Gallery Images"
+        mode="multiple"
+        value={form.images}
+        onChange={(urls) => setForm({ ...form, images: urls })}
+      />
+          {/* <AppInput
             label="Thumbnail URL"
             placeholder="Thumbnail Image URL"
             value={form.thumbnail}
             onChange={(e) => setForm({ ...form, thumbnail: e.target.value })}
             className="md:col-span-2"
             error={errors.thumbnail}
-          />
+          /> */}
 
           <AppInput
             label="Description"
