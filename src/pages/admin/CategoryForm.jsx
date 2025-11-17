@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { CategoryAPI } from "../../services/api";
 import { useNavigate, useParams } from "react-router-dom";
+import AppInput from "../../components/AppInput";
+import AppButton from "../../components/AppButton";
+import { showSuccess, showError } from "../../components/AppToast";
 
 export default function CategoryForm() {
   const { id } = useParams();
@@ -8,15 +11,17 @@ export default function CategoryForm() {
   const navigate = useNavigate();
 
   const [name, setName] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const load = async () => {
-    const res = await CategoryAPI.getAll();
-    setCategories(res.data);
-
-    if (isEdit) {
-      const res2 = await CategoryAPI.getOne(id);
-      setName(res2.data.name);
-      setParent(res2.data.parent || "");
+    try {
+      if (isEdit) {
+        const res = await CategoryAPI.getOne(id);
+        setName(res.data.name);
+      }
+    } catch (err) {
+      showError("Failed to load category");
     }
   };
 
@@ -25,37 +30,50 @@ export default function CategoryForm() {
   }, []);
 
   const save = async () => {
-    const body = { name, };
+    if (!name.trim()) {
+      setError("Category name is required");
+      return;
+    }
 
-    if (isEdit) await CategoryAPI.update(id, body);
-    else await CategoryAPI.create(body);
+    setLoading(true);
+    try {
+      const body = { name };
 
-    navigate("/admin/categories");
+      if (isEdit) await CategoryAPI.update(id, body);
+      else await CategoryAPI.create(body);
+
+      setLoading(false);
+      showSuccess(`Category ${isEdit ? "updated" : "created"} successfully!`);
+      navigate("/admin/categories");
+    } catch (err) {
+      setLoading(false);
+      const message = err?.response?.data?.message || "Failed to save category";
+      showError(message);
+    }
   };
 
   return (
-    <div className="p-6 max-w-lg mx-auto">
-      <h2 className="text-xl font-bold mb-4">
+    <div className="p-6 max-w-lg mx-auto bg-white rounded-2xl shadow-lg">
+      <h2 className="text-2xl font-bold mb-6 text-center">
         {isEdit ? "Edit Category" : "Add Category"}
       </h2>
 
-      <div className="mb-4">
-        <label className="block mb-1">Name</label>
-        <input
-          className="border p-2 rounded w-full"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
+      <AppInput
+        label="Category Name"
+        placeholder="Enter category name"
+        value={name}
+        onChange={(e) => {
+          setName(e.target.value);
+          if (error) setError("");
+        }}
+        error={error}
+      />
+
+      <div className="mt-4 flex justify-center">
+        <AppButton loading={loading} onClick={save} className="w-40">
+          Save
+        </AppButton>
       </div>
-
-    
-
-      <button
-        onClick={save}
-        className="px-4 py-2 bg-primary text-white rounded"
-      >
-        Save
-      </button>
     </div>
   );
 }
