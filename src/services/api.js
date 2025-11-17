@@ -55,11 +55,11 @@ export const AuthAPI = {
     PRODUCTS
 --------------------------------------------------------- */
 export const ProductAPI = {
-    getAll: (query = "") => api.get(`/api/products${query ? `?${query}` : ""}`),
-    getOne: (id) => api.get(`/api/products/${id}`),
-    updateProduct: (id, data) => api.put(`/api/products/${id}`, data),
-    deleteOne: (id) => api.delete(`/api/products/${id}`),
-    create: (data) => api.post("/api/products", data),
+  getAll: (query = "") => api.get(`/api/products${query ? `?${query}` : ""}`),
+  getOne: (id) => api.get(`/api/products/${id}`),
+  updateProduct: (id, data) => api.put(`/api/products/${id}`, data),
+  deleteOne: (id) => api.delete(`/api/products/${id}`),
+  create: (data) => api.post("/api/products", data),
 };
 
 /* -------------------------------------------------------
@@ -90,7 +90,6 @@ export const AdminAPI = {
   updateOrderStatus: (id, data) => api.put(`/api/orders/${id}/status`, data),
   deleteUser: (id) => api.delete(`/api/admin/users/${id}`),
 };
-
 
 export const CategoryAPI = {
     getAll: () => api.get("/api/categories"),
