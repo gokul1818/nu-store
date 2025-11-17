@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { ProductAPI, CategoryAPI } from "../../services/api";
 import { useNavigate } from "react-router-dom";
+import FileUpload from "../../components/FileUpload";
 
 export default function AddProduct() {
   const navigate = useNavigate();
@@ -115,6 +116,14 @@ export default function AddProduct() {
         value={form.thumbnail}
         onChange={(e) => setForm({ ...form, thumbnail: e.target.value })}
       />
+      <FileUpload
+        label="Gallery Images"
+        mode="multiple"
+        value={form.images}
+        onChange={(urls) => setForm({ ...form, images: urls })}
+      />
+
+
 
       {/* Variants */}
       <h3 className="font-semibold mt-4 mb-2">Variants</h3>
