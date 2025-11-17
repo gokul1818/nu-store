@@ -99,4 +99,15 @@ export const CategoryAPI = {
     delete: (id) => api.delete(`/api/categories/${id}`)
 };
 
+export const UploadAPI = {
+  thumbnail: (formData) =>
+    api.post("/api/upload/image", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }),
+};
+
+
+
 export default api;

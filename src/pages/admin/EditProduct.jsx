@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ProductAPI, CategoryAPI } from "../../services/api";
+import FileUpload from "../../components/FileUpload";
 
 export default function EditProduct() {
   const { id } = useParams();
@@ -134,14 +135,15 @@ export default function EditProduct() {
           </select>
         </div>
 
-        {/* Thumbnail */}
+      
         <div>
-          <label className="block font-semibold mb-1">Thumbnail URL</label>
-          <input
-            type="text"
-            value={product.thumbnail}
-            onChange={(e) => updateField("thumbnail", e.target.value)}
-            className="border p-2 rounded w-full"
+          <label className="block font-semibold mb-1">Gallery Images</label>
+
+          <FileUpload
+            label="Upload Images"
+            mode="multiple"
+            value={product.images || []}
+            onChange={(urls) => updateField("images", urls)}
           />
         </div>
 

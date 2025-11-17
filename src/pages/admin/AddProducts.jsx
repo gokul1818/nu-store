@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { ProductAPI, CategoryAPI } from "../../services/api";
 import { useNavigate } from "react-router-dom";
+import FileUpload from "../../components/FileUpload";
 import AppInput from "../../components/AppInput";
 import AppSelect from "../../components/AppSelect";
 import AppButton from "../../components/AppButton";
