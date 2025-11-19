@@ -12,6 +12,14 @@ const dummyOrders = Array.from({ length: 45 }, (_, i) => ({
   ],
 }));
 
+const statusBorderColors = {
+  Processing: "border-l-4 border-yellow-500",
+  Packed: "border-l-4 border-blue-500",
+  Shipped: "border-l-4 border-indigo-500",
+  Delivered: "border-l-4 border-green-500",
+  Cancelled: "border-l-4 border-red-500",
+};
+
 export default function OrderList() {
   const [orders, setOrders] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -94,45 +102,54 @@ export default function OrderList() {
         {orders.map((o) => (
           <div
             key={o._id}
-            className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300"
+            className={`bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 hover:scale-[1.01] ${
+              statusBorderColors[o.status]
+            }`}
           >
-            <div className="flex justify-between items-start">
-              <div>
-                <div className="flex items-center mb-2">
-                  <div className="font-semibold text-lg mr-3">
-                    Order #{o._id}
-                  </div>
-                  <span
-                    className={`text-sm px-2 py-1 rounded ${
-                      statusColors[o.status]
-                    }`}
-                  >
-                    {o.status}
-                  </span>
-                </div>
-                <div className="text-sm text-gray-500 mb-2">{o.user.email}</div>
-                <div className="flex flex-wrap gap-2">
-                  {o.items.map((item) => (
-                    <span
-                      key={item.productId}
-                      className="bg-gray-100 px-2 py-1 rounded text-sm"
-                    >
-                      {item.title} (x{item.qty})
-                    </span>
-                  ))}
-                </div>
+            {/* Header */}
+            <div className="flex justify-between items-center mb-4">
+              <div className="flex flex-col">
+                <div className="font-bold text-lg">Order #{o._id}</div>
+                <div className="text-gray-500 text-sm">{o.user.email}</div>
               </div>
-              <div>
-                <select
-                  value={o.status}
-                  onChange={(e) => updateStatus(o._id, e.target.value)}
-                  className="border rounded p-2 text-sm"
+              <span
+                className={`text-sm font-medium px-3 py-1 rounded-full ${
+                  statusColors[o.status]
+                }`}
+              >
+                {o.status}
+              </span>
+            </div>
+            <div className="flex flex-col gap-3 mb-4">
+              {o.items.map((item) => (
+                <div
+                  key={item.productId}
+                  className="flex items-center gap-3"
                 >
-                  {statuses.map((s) => (
-                    <option key={s}>{s}</option>
-                  ))}
-                </select>
-              </div>
+                  {/* Item details */}
+                  <div className="flex-1 flex flex-col">
+                    <span className="font-medium text-gray-700">
+                      {item.title}
+                    </span>
+                    <span className="text-gray-500 text-sm">
+                      Quantity: {item.qty}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Status Dropdown */}
+            <div className="flex justify-end">
+              <select
+                value={o.status}
+                onChange={(e) => updateStatus(o._id, e.target.value)}
+                className="border rounded-lg p-2 text-sm hover:border-orange-400 focus:outline-none focus:ring-1 focus:ring-orange-300"
+              >
+                {statuses.map((s) => (
+                  <option key={s}>{s}</option>
+                ))}
+              </select>
             </div>
           </div>
         ))}
