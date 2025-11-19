@@ -54,7 +54,8 @@ export default function AddProduct() {
       if (!v.size.trim()) temp[`size-${i}`] = "Size is required";
       if (!v.color.trim()) temp[`color-${i}`] = "Color is required";
       if (!v.sku.trim()) temp[`sku-${i}`] = "SKU is required";
-      if (v.stock === "" || v.stock === null) temp[`stock-${i}`] = "Stock is required";
+      if (v.stock === "" || v.stock === null)
+        temp[`stock-${i}`] = "Stock is required";
     });
 
     setErrors(temp);
@@ -75,7 +76,11 @@ export default function AddProduct() {
     updated[index][key] = value;
 
     if (form.title && updated[index].size && updated[index].color) {
-      updated[index].sku = generateSKU(form.title, updated[index].size, updated[index].color);
+      updated[index].sku = generateSKU(
+        form.title,
+        updated[index].size,
+        updated[index].color
+      );
     }
 
     setForm({ ...form, variants: updated });
@@ -164,12 +169,12 @@ export default function AddProduct() {
               </option>
             ))}
           </AppSelect>
- <FileUpload
-        label="Gallery Images"
-        mode="multiple"
-        value={form.images}
-        onChange={(urls) => setForm({ ...form, images: urls })}
-      />
+          <FileUpload
+            label="Gallery Images"
+            mode="multiple"
+            value={form.images}
+            onChange={(urls) => setForm({ ...form, images: urls })}
+          />
           {/* <AppInput
             label="Thumbnail URL"
             placeholder="Thumbnail Image URL"
@@ -235,11 +240,7 @@ export default function AddProduct() {
               + Add Variant
             </AppButton>
 
-            <AppButton
-              className="w-40"
-              loading={loading}
-              onClick={submit}
-            >
+            <AppButton className="w-40" loading={loading} onClick={submit}>
               Save Product
             </AppButton>
           </div>
