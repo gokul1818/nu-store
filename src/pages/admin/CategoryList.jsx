@@ -13,7 +13,12 @@ export default function CategoryList() {
     setLoading(true);
     try {
       const res = await CategoryAPI.getAll();
-      setCategories(res.data);
+      // Map categories to flatten parent name
+      const formatted = res.data.map((cat) => ({
+        ...cat,
+        parent: cat.parent?.name || "-", // safely get parent name
+      }));
+      setCategories(formatted);
     } finally {
       setLoading(false);
     }
@@ -35,7 +40,10 @@ export default function CategoryList() {
   }, []);
 
   // Table columns
-  const columns = [{ key: "name", label: "Category Name" }];
+  const columns = [
+    { key: "name", label: "Category Name" },
+    { key: "parent", label: "Parent Category" }, // Display parent name
+  ];
 
   // Actions
   const actions = [
@@ -66,12 +74,7 @@ export default function CategoryList() {
         </Link>
       </div>
 
-      <AppTable
-        columns={columns}
-        data={categories}
-        actions={actions}
-        loading={loading}
-      />
+      <AppTable columns={columns} data={categories} actions={actions} loading={loading} />
     </div>
   );
 }

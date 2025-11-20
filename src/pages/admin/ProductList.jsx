@@ -1,27 +1,29 @@
 import { useEffect, useState } from "react";
 import { FaTrash } from "react-icons/fa";
 import { TbEdit } from "react-icons/tb";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import AppTable from "../../components/AppTable";
 import { ProductAPI } from "../../services/api";
 import { formatCurrencyINR } from "../../utils/helpers";
+
 export default function ProductList() {
   const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(false); // <-- new
+  const [loading, setLoading] = useState(false);
 
+  const navigate = useNavigate();
   const load = async () => {
-    setLoading(true); // <-- start loader
+    setLoading(true);
     try {
       const res = await ProductAPI.getAll();
       setProducts(res.data);
     } finally {
-      setLoading(false); // <-- stop loader
+      setLoading(false);
     }
   };
 
   const deleteProduct = async (id) => {
     if (!confirm("Delete product?")) return;
-    setLoading(true); // optional, show loader while deleting
+    setLoading(true);
     try {
       await ProductAPI.deleteOne(id);
       await load();
@@ -35,20 +37,45 @@ export default function ProductList() {
   }, []);
 
   const columns = [
+    {
+      key: "thumbnail",
+      label: "Thumbnail",
+      render: (row) =>
+        row.thumbnail ? (
+          <img
+            src={row.thumbnail}
+            alt={row.title}
+            className="w-12 h-12 object-cover rounded"
+          />
+        ) : (
+          "-"
+        ),
+    },
     { key: "title", label: "Title" },
-    { key: "price", label: "Price", render: (row) => `${formatCurrencyINR(row.price)}` },
+    {
+      key: "category",
+      label: "Category",
+      render: (row) => row.category?.name || "-",
+    },
+    {
+      key: "price",
+      label: "Price",
+      render: (row) => formatCurrencyINR(row.price),
+    },
     {
       key: "stock",
       label: "Stock",
-      render: (row) => row.variants.reduce((acc, v) => acc + v.stock, 0),
+      render: (row) =>
+        row.variants?.length
+          ? row.variants.reduce((acc, v) => acc + (v.stock || 0), 0)
+          : 0,
     },
   ];
 
   const actions = [
     {
       icon: <TbEdit className="w-5 h-5 text-primary" />,
-      onClick: (row) =>
-        (window.location.href = `/admin/products/edit/${row._id}`),
+      onClick: (row) => navigate(`/admin/products/add/${row._id}`),
       title: "Edit Product",
       className: "hover:bg-blue-100",
     },
@@ -72,7 +99,12 @@ export default function ProductList() {
         </Link>
       </div>
 
-      <AppTable columns={columns} data={products} actions={actions} loading={loading} />
+      <AppTable
+        columns={columns}
+        data={products}
+        actions={actions}
+        loading={loading}
+      />
     </div>
   );
 }

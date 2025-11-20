@@ -3,6 +3,7 @@ import { CategoryAPI } from "../../services/api";
 import { useNavigate, useParams } from "react-router-dom";
 import AppInput from "../../components/AppInput";
 import AppButton from "../../components/AppButton";
+import FileUpload from "../../components/FileUpload";
 import { showSuccess, showError } from "../../components/AppToast";
 
 export default function CategoryForm() {
@@ -11,14 +12,21 @@ export default function CategoryForm() {
   const navigate = useNavigate();
 
   const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [icon, setIcon] = useState(null);
+  const [parent, setParent] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState({ name: "", parent: "" });
 
-  const load = async () => {
+  // Load existing category for editing
+  const loadCategory = async () => {
     try {
       if (isEdit) {
         const res = await CategoryAPI.getOne(id);
         setName(res.data.name);
+        setDescription(res.data.description || "");
+        setIcon(res.data.icon || null);
+        setParent(res.data.parent || "");
       }
     } catch (err) {
       showError("Failed to load category");
@@ -26,18 +34,30 @@ export default function CategoryForm() {
   };
 
   useEffect(() => {
-    load();
-  }, []);
+    loadCategory();
+  }, [id]);
 
-  const save = async () => {
+  const saveCategory = async () => {
+    let hasError = false;
+    const newError = { name: "", parent: "" };
+
     if (!name.trim()) {
-      setError("Category name is required");
-      return;
+      newError.name = "Category name is required";
+      hasError = true;
     }
 
+    if (!parent) {
+      newError.parent = "Please select a parent category";
+      hasError = true;
+    }
+
+    setError(newError);
+    if (hasError) return;
+
     setLoading(true);
+
     try {
-      const body = { name };
+      const body = { name, description, icon, parent };
 
       if (isEdit) await CategoryAPI.update(id, body);
       else await CategoryAPI.create(body);
@@ -58,19 +78,64 @@ export default function CategoryForm() {
         {isEdit ? "Edit Category" : "Add Category"}
       </h2>
 
+      {/* Parent Category Selector */}
+      <div className="my-4">
+        <label className="block font-semibold mb-1">Parent Category</label>
+        <select
+          value={parent}
+          onChange={(e) => {
+            setParent(e.target.value);
+            if (error.parent) setError({ ...error, parent: "" });
+          }}
+          className={`w-full p-3 border rounded-lg focus:outline-none focus:ring ${
+            error.parent ? "border-red-500" : "border-gray-300"
+          }`}
+        >
+          <option value="">Select Parent Category</option>
+          <option value="Men">Men</option>
+          <option value="Women">Women</option>
+          <option value="Kids">Kids</option>
+        </select>
+        {error.parent && <p className="text-red-500 text-sm mt-1">{error.parent}</p>}
+      </div>
+
+      {/* Category Name */}
       <AppInput
         label="Category Name"
         placeholder="Enter category name"
         value={name}
         onChange={(e) => {
           setName(e.target.value);
-          if (error) setError("");
+          if (error.name) setError({ ...error, name: "" });
         }}
-        error={error}
+        error={error.name}
       />
 
-      <div className="mt-4 flex justify-center">
-        <AppButton loading={loading} onClick={save} className="w-40">
+      {/* Description */}
+      <div className="my-4">
+        <label className="block font-semibold mb-1">Description</label>
+        <textarea
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          placeholder="Enter category description"
+          className="w-full p-3 border rounded-lg focus:outline-none focus:ring border-gray-300"
+          rows={4}
+        />
+      </div>
+
+      {/* Icon Upload */}
+      <div className="mb-6">
+        <FileUpload
+          label="Category Icon"
+          value={icon}
+          onChange={(url) => setIcon(url)}
+          mode="single"
+        />
+      </div>
+
+      {/* Save Button */}
+      <div className="flex justify-center">
+        <AppButton loading={loading} onClick={saveCategory} className="w-80">
           Save
         </AppButton>
       </div>

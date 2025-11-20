@@ -1,14 +1,20 @@
 import { useState, useEffect } from "react";
 import { ProductAPI, CategoryAPI } from "../../services/api";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import FileUpload from "../../components/FileUpload";
 import AppInput from "../../components/AppInput";
 import AppSelect from "../../components/AppSelect";
 import AppButton from "../../components/AppButton";
 import { showSuccess, showError } from "../../components/AppToast";
 
-export default function AddProduct() {
+// Static colors for variants
+const COLORS = ["Red", "Blue", "Green", "Black", "White", "Yellow", "Pink", "Orange"];
+
+export default function ProductForm() {
+  const { id } = useParams();
+  const isEdit = Boolean(id);
   const navigate = useNavigate();
+
   const [categories, setCategories] = useState([]);
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
@@ -20,27 +26,45 @@ export default function AddProduct() {
     gender: "Men",
     description: "",
     thumbnail: "",
+    images: [],
     category: "",
-    variants: [{ size: "", color: "", sku: "", stock: 0 }],
+    variants: [{ size: "", color: COLORS[0], sku: "", stock: 0 }],
   });
 
+  // Load categories and existing product for edit
   useEffect(() => {
-    const loadCategories = async () => {
+    const loadData = async () => {
       try {
         const res = await CategoryAPI.getAll();
         setCategories(res.data);
+
+        if (isEdit) {
+          const product = await ProductAPI.getOne(id);
+          setForm({
+            title: product.data.title,
+            mrp: product.data.mrp,
+            price: product.data.price,
+            gender: product.data.gender || "Men",
+            description: product.data.description,
+            thumbnail: product.data.thumbnail || "",
+            images: product.data.images || [],
+            category: product.data.category?._id || "",
+            variants:
+              product.data.variants.length > 0
+                ? product.data.variants
+                : [{ size: "", color: COLORS[0], sku: "", stock: 0 }],
+          });
+        }
       } catch (err) {
-        showError("Failed to load categories");
+        showError("Failed to load data");
       }
     };
-    loadCategories();
-  }, []);
+    loadData();
+  }, [id]);
 
-  // Validate all fields
+  // Validation
   const validate = () => {
     const temp = {};
-
-    // Product fields
     if (!form.title.trim()) temp.title = "Title is required";
     if (!form.mrp) temp.mrp = "MRP is required";
     if (!form.price) temp.price = "Price is required";
@@ -49,20 +73,18 @@ export default function AddProduct() {
     if (!form.thumbnail.trim()) temp.thumbnail = "Thumbnail is required";
     if (!form.description.trim()) temp.description = "Description is required";
 
-    // Variants
     form.variants.forEach((v, i) => {
       if (!v.size.trim()) temp[`size-${i}`] = "Size is required";
       if (!v.color.trim()) temp[`color-${i}`] = "Color is required";
       if (!v.sku.trim()) temp[`sku-${i}`] = "SKU is required";
-      if (v.stock === "" || v.stock === null)
-        temp[`stock-${i}`] = "Stock is required";
+      if (v.stock === "" || v.stock === null) temp[`stock-${i}`] = "Stock is required";
     });
 
     setErrors(temp);
     return Object.keys(temp).length === 0;
   };
 
-  // Generate SKU from Title + Size + Color
+  // Generate SKU: Title + Size + Color
   const generateSKU = (title, size, color) => {
     if (!title || !size || !color) return "";
     const words = title.split(" ");
@@ -70,17 +92,12 @@ export default function AddProduct() {
     return `${code}-${size.toUpperCase()}-${color.slice(0, 3).toUpperCase()}`;
   };
 
-  // Update variant and auto-generate SKU
   const updateVariant = (index, key, value) => {
     const updated = [...form.variants];
     updated[index][key] = value;
 
     if (form.title && updated[index].size && updated[index].color) {
-      updated[index].sku = generateSKU(
-        form.title,
-        updated[index].size,
-        updated[index].color
-      );
+      updated[index].sku = generateSKU(form.title, updated[index].size, updated[index].color);
     }
 
     setForm({ ...form, variants: updated });
@@ -89,7 +106,7 @@ export default function AddProduct() {
   const addVariant = () => {
     setForm({
       ...form,
-      variants: [...form.variants, { size: "", color: "", sku: "", stock: 0 }],
+      variants: [...form.variants, { size: "", color: COLORS[0], sku: "", stock: 0 }],
     });
   };
 
@@ -98,13 +115,15 @@ export default function AddProduct() {
 
     setLoading(true);
     try {
-      await ProductAPI.create(form);
+      if (isEdit) await ProductAPI.update(id, form);
+      else await ProductAPI.create(form);
+
       setLoading(false);
-      showSuccess("Product added successfully!");
+      showSuccess(`Product ${isEdit ? "updated" : "added"} successfully!`);
       navigate("/admin/products");
     } catch (err) {
       setLoading(false);
-      const message = err?.response?.data?.message || "Failed to add product";
+      const message = err?.response?.data?.message || "Failed to save product";
       showError(message);
     }
   };
@@ -113,7 +132,7 @@ export default function AddProduct() {
     <div className="container mx-auto p-6">
       <div className="bg-white shadow-lg rounded-2xl p-6">
         <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">
-          Add New Product
+          {isEdit ? "Edit Product" : "Add New Product"}
         </h2>
 
         {/* Product Details */}
@@ -169,20 +188,13 @@ export default function AddProduct() {
               </option>
             ))}
           </AppSelect>
+
           <FileUpload
             label="Gallery Images"
             mode="multiple"
             value={form.images}
             onChange={(urls) => setForm({ ...form, images: urls })}
           />
-          {/* <AppInput
-            label="Thumbnail URL"
-            placeholder="Thumbnail Image URL"
-            value={form.thumbnail}
-            onChange={(e) => setForm({ ...form, thumbnail: e.target.value })}
-            className="md:col-span-2"
-            error={errors.thumbnail}
-          /> */}
 
           <AppInput
             label="Description"
@@ -210,12 +222,20 @@ export default function AddProduct() {
                 onChange={(e) => updateVariant(i, "size", e.target.value)}
                 error={errors[`size-${i}`]}
               />
-              <AppInput
-                placeholder="Color"
+
+              {/* Color select from static colors */}
+              <AppSelect
                 value={v.color}
                 onChange={(e) => updateVariant(i, "color", e.target.value)}
                 error={errors[`color-${i}`]}
-              />
+              >
+                {COLORS.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
+              </AppSelect>
+
               <AppInput
                 placeholder="SKU"
                 value={v.sku}
