@@ -19,12 +19,13 @@ import Register from "./pages/Register";
 import { Toaster } from "react-hot-toast";
 import AddProduct from "./pages/admin/AddProducts";
 import AdminLogin from "./pages/admin/AdminLogin";
-import Dashboard from "./pages/admin/Dashboard";
-import EditProduct from "./pages/admin/EditProduct";
-import CategoryList from "./pages/admin/CategoryList";
 import CategoryForm from "./pages/admin/CategoryForm";
+import CategoryList from "./pages/admin/CategoryList";
+import Dashboard from "./pages/admin/Dashboard";
 import OrderList from "./pages/admin/OrderList";
 import ProductList from "./pages/admin/ProductList";
+import CustomerList from "./pages/admin/CustomerList";
+import CustomerProfile from "./pages/admin/CustomerProfile";
 
 export default function App() {
   return (
@@ -55,13 +56,23 @@ export default function App() {
         {/* Admin Layout */}
         <Route element={<AdminRoute><AdminLayout /></AdminRoute>}>
           <Route path="/admin/" element={<Dashboard />} />
+
+          {/* Products */}
           <Route path="/admin/products" element={<ProductList />} />
           <Route path="/admin/products/add" element={<AddProduct />} />
-          <Route path="/admin/products/edit/:id" element={<EditProduct />} />
+          <Route path="/admin/products/add/:id" element={<AddProduct />} />
+
+          {/* Categories */}
           <Route path="/admin/categories" element={<CategoryList />} />
           <Route path="/admin/categories/add" element={<CategoryForm />} />
           <Route path="/admin/categories/edit/:id" element={<CategoryForm />} />
+
+          {/* Orders */}
           <Route path="/admin/orders" element={<OrderList />} />
+
+          {/* Customers */}
+          <Route path="/admin/users" element={<CustomerList />} />
+          <Route path="/admin/users/:id" element={<CustomerProfile />} />
         </Route>
       </Routes>
     </>

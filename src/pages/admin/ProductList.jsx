@@ -5,12 +5,17 @@ import { Link, useNavigate } from "react-router-dom";
 import AppTable from "../../components/AppTable";
 import { ProductAPI } from "../../services/api";
 import { formatCurrencyINR } from "../../utils/helpers";
+import { Pagination } from "../../components/Pagination"; // import pagination
 
 export default function ProductList() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  const [currentPage, setCurrentPage] = useState(1); // pagination state
+  const itemsPerPage = 8;
+
   const navigate = useNavigate();
+
   const load = async () => {
     setLoading(true);
     try {
@@ -87,6 +92,13 @@ export default function ProductList() {
     },
   ];
 
+  // Pagination logic
+  const totalPages = Math.ceil(products.length / itemsPerPage);
+  const paginatedData = products.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
   return (
     <div className="container mx-auto p-6">
       <div className="flex justify-between items-center mb-6">
@@ -101,10 +113,19 @@ export default function ProductList() {
 
       <AppTable
         columns={columns}
-        data={products}
+        data={paginatedData}
         actions={actions}
         loading={loading}
       />
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <Pagination
+          totalPages={totalPages}
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
+        />
+      )}
     </div>
   );
 }

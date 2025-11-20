@@ -1,5 +1,10 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import {
+  HiOutlineMail,
+  HiOutlinePhone,
+  HiOutlineCheckCircle,
+} from "react-icons/hi";
 
 export default function CustomerProfile() {
   const { id } = useParams();
@@ -12,21 +17,11 @@ export default function CustomerProfile() {
     phone: "+91 9876543210",
     status: "Active",
     registered: "2025-01-10",
-    wishlist: ["Red T-Shirt", "Blue Jeans"],
-    cart: ["Black Shoes"],
     addresses: [
       {
         label: "Home",
         address: "123 Main Street, City, Country",
       },
-      {
-        label: "Work",
-        address: "456 Office Road, City, Country",
-      },
-    ],
-    orders: [
-      { id: "O1001", date: "2025-11-01", total: 2500, status: "Delivered" },
-      { id: "O1005", date: "2025-11-15", total: 1500, status: "Pending" },
     ],
     communication: {
       email: true,
@@ -40,68 +35,91 @@ export default function CustomerProfile() {
     setCustomer(dummyCustomer);
   }, [id]);
 
-  if (!customer) return <p className="p-6">Loading...</p>;
+  if (!customer) return <p className="p-6 text-gray-500">Loading...</p>;
 
   return (
-    <div className="container mx-auto p-6">
-      <h2 className="text-2xl font-semibold mb-4">Customer Profile: {customer.name}</h2>
+    <div className="container mx-auto p-6 space-y-6">
+      <h2 className="text-3xl font-bold mb-4 text-gray-800">
+        Customer Profile
+      </h2>
 
       {/* Personal Details */}
-      <div className="bg-white shadow rounded p-4 mb-6">
-        <h3 className="text-lg font-semibold mb-2">Personal Details</h3>
-        <p><strong>Email:</strong> {customer.email}</p>
-        <p><strong>Phone:</strong> {customer.phone}</p>
-        <p><strong>Status:</strong> {customer.status}</p>
-        <p><strong>Registered On:</strong> {customer.registered}</p>
-      </div>
-
-      {/* Order History */}
-      <div className="bg-white shadow rounded p-4 mb-6">
-        <h3 className="text-lg font-semibold mb-2">Order History</h3>
-        {customer.orders.map((o) => (
-          <div key={o.id} className="flex justify-between border-b py-2">
-            <span>{o.id}</span>
-            <span>{o.date}</span>
-            <span>{o.total}</span>
-            <span>{o.status}</span>
-          </div>
-        ))}
-      </div>
-
-      {/* Wishlist */}
-      <div className="bg-white shadow rounded p-4 mb-6">
-        <h3 className="text-lg font-semibold mb-2">Wishlist</h3>
-        <ul className="list-disc pl-5">
-          {customer.wishlist.map((item, idx) => (
-            <li key={idx}>{item}</li>
-          ))}
-        </ul>
-      </div>
-
-      {/* Cart */}
-      <div className="bg-white shadow rounded p-4 mb-6">
-        <h3 className="text-lg font-semibold mb-2">Cart Items</h3>
-        <ul className="list-disc pl-5">
-          {customer.cart.map((item, idx) => (
-            <li key={idx}>{item}</li>
-          ))}
-        </ul>
+      <div className="bg-white shadow-md rounded-lg p-6 flex flex-col md:flex-row md:justify-between md:items-center mb-6">
+        <div className="mb-4 md:mb-0">
+          <h3 className="text-xl font-semibold text-gray-700 mb-2">
+            {customer.name}
+          </h3>
+          <p className="text-gray-600 flex items-center gap-2">
+            <HiOutlineMail className="text-primary w-5 h-5" /> {customer.email}
+          </p>
+          <p className="text-gray-600 flex items-center gap-2">
+            <HiOutlinePhone className="text-primary w-5 h-5" /> {customer.phone}
+          </p>
+        </div>
+        <div className="flex flex-col gap-2 text-gray-600">
+          <span className="flex items-center gap-2">
+            <HiOutlineCheckCircle
+              className={`w-5 h-5 ${
+                customer.status === "Active" ? "text-green-500" : "text-red-500"
+              }`}
+            />
+            Status: {customer.status}
+          </span>
+          <span>Registered On: {customer.registered}</span>
+        </div>
       </div>
 
       {/* Address Book */}
-      <div className="bg-white shadow rounded p-4 mb-6">
-        <h3 className="text-lg font-semibold mb-2">Address Book</h3>
-        {customer.addresses.map((a, idx) => (
-          <p key={idx}><strong>{a.label}:</strong> {a.address}</p>
-        ))}
+      <div className="bg-white shadow-md rounded-lg p-6 mb-6">
+        <h3 className="text-xl font-semibold text-gray-700 mb-4">
+          Address Book
+        </h3>
+        <div className="space-y-2">
+          {customer.addresses.map((a, idx) => (
+            <div
+              key={idx}
+              className="border-l-4 border-primary pl-3 bg-gray-50 p-2 rounded"
+            >
+              <p className="font-medium">{a.label}</p>
+              <p className="text-gray-600">{a.address}</p>
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* Communication Preferences */}
-      <div className="bg-white shadow rounded p-4 mb-6">
-        <h3 className="text-lg font-semibold mb-2">Communication Preferences</h3>
-        <p>Email: {customer.communication.email ? "Enabled" : "Disabled"}</p>
-        <p>SMS: {customer.communication.sms ? "Enabled" : "Disabled"}</p>
-        <p>Marketing: {customer.communication.marketing ? "Enabled" : "Disabled"}</p>
+      <div className="bg-white shadow-md rounded-lg p-6">
+        <h3 className="text-xl font-semibold text-gray-700 mb-4">
+          Communication Preferences
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="flex items-center gap-2">
+            <span
+              className={`w-3 h-3 rounded-full ${
+                customer.communication.email ? "bg-green-500" : "bg-gray-300"
+              }`}
+            ></span>
+            Email
+          </div>
+          <div className="flex items-center gap-2">
+            <span
+              className={`w-3 h-3 rounded-full ${
+                customer.communication.sms ? "bg-green-500" : "bg-gray-300"
+              }`}
+            ></span>
+            SMS
+          </div>
+          <div className="flex items-center gap-2">
+            <span
+              className={`w-3 h-3 rounded-full ${
+                customer.communication.marketing
+                  ? "bg-green-500"
+                  : "bg-gray-300"
+              }`}
+            ></span>
+            Marketing
+          </div>
+        </div>
       </div>
     </div>
   );

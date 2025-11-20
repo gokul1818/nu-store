@@ -6,6 +6,7 @@ import {
   FaBoxOpen,
   FaTags,
   FaShoppingCart,
+  FaUsers,
   FaSignOutAlt,
   FaBars,
 } from "react-icons/fa";
@@ -23,6 +24,7 @@ export default function AdminSidebar() {
     { name: "Categories", path: "/admin/categories", icon: <FaTags /> },
     { name: "Products", path: "/admin/products", icon: <FaBoxOpen /> },
     { name: "Orders", path: "/admin/orders", icon: <FaShoppingCart /> },
+    { name: "Customers", path: "/admin/users", icon: <FaUsers /> }, // <-- New Menu Item
   ];
 
   const handleLogout = () => {
@@ -71,7 +73,7 @@ export default function AdminSidebar() {
           <Link
             key={item.path}
             to={item.path}
-            onClick={() => setExpanded(false)} // <-- Close menu on click
+            onClick={() => setExpanded(false)} // Close menu on click
             className={`flex items-center px-4 py-2 rounded transition
                 ${pathname === item.path ? "bg-gray-800" : "hover:bg-gray-700"}
               `}
