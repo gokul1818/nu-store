@@ -21,11 +21,13 @@ import AddProduct from "./pages/admin/AddProducts";
 import AdminLogin from "./pages/admin/AdminLogin";
 import CategoryForm from "./pages/admin/CategoryForm";
 import CategoryList from "./pages/admin/CategoryList";
-import Dashboard from "./pages/admin/Dashboard";
-import OrderList from "./pages/admin/OrderList";
-import ProductList from "./pages/admin/ProductList";
 import CustomerList from "./pages/admin/CustomerList";
 import CustomerProfile from "./pages/admin/CustomerProfile";
+import Dashboard from "./pages/admin/Dashboard";
+import OrderDetails from "./pages/admin/OrderDetails";
+import OrderList from "./pages/admin/OrderList";
+import ProductDetailsAdmin from "./pages/admin/ProductDetails";
+import ProductList from "./pages/admin/ProductList";
 
 export default function App() {
   return (
@@ -61,6 +63,7 @@ export default function App() {
           <Route path="/admin/products" element={<ProductList />} />
           <Route path="/admin/products/add" element={<AddProduct />} />
           <Route path="/admin/products/add/:id" element={<AddProduct />} />
+          <Route path="/admin/products/view/:id" element={<ProductDetailsAdmin />} />
 
           {/* Categories */}
           <Route path="/admin/categories" element={<CategoryList />} />
@@ -69,6 +72,8 @@ export default function App() {
 
           {/* Orders */}
           <Route path="/admin/orders" element={<OrderList />} />
+          <Route path="/admin/orders/details/:id" element={<OrderDetails />} />
+
 
           {/* Customers */}
           <Route path="/admin/users" element={<CustomerList />} />

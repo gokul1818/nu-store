@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { FaTrash } from "react-icons/fa";
+import { FaTrash,FaEye } from "react-icons/fa";
 import { TbEdit } from "react-icons/tb";
 import { Link, useNavigate } from "react-router-dom";
 import AppTable from "../../components/AppTable";
@@ -78,6 +78,12 @@ export default function ProductList() {
   ];
 
   const actions = [
+    {
+      icon: <FaEye className="w-4 h-4 text-primary" />,
+      onClick: (row) => navigate(`/admin/products/view/${row._id}`),
+      title: "View Product",
+      className: "hover:bg-red-100",
+    },
     {
       icon: <TbEdit className="w-5 h-5 text-primary" />,
       onClick: (row) => navigate(`/admin/products/add/${row._id}`),

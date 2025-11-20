@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Pagination } from "../../components/Pagination";
+import { Link, useNavigate } from "react-router-dom";
 
 // Dummy data for testing
 const dummyOrders = Array.from({ length: 45 }, (_, i) => ({
@@ -26,6 +27,7 @@ export default function OrderList() {
   const [totalOrders, setTotalOrders] = useState(0);
   const [activeTab, setActiveTab] = useState("New");
   const itemsPerPage = 10;
+  const navigate = useNavigate();
 
   const statuses = [
     "Processing",
@@ -122,10 +124,7 @@ export default function OrderList() {
             </div>
             <div className="flex flex-col gap-3 mb-4">
               {o.items.map((item) => (
-                <div
-                  key={item.productId}
-                  className="flex items-center gap-3"
-                >
+                <div key={item.productId} className="flex items-center gap-3">
                   {/* Item details */}
                   <div className="flex-1 flex flex-col">
                     <span className="font-medium text-gray-700">
@@ -151,6 +150,13 @@ export default function OrderList() {
                 ))}
               </select>
             </div>
+
+            <button
+              className="text-blue-600 hover:underline"
+              onClick={() => navigate(`/admin/orders/details/${o._id}`)}
+            >
+              View details
+            </button>
           </div>
         ))}
 
