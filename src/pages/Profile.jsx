@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import useCartStore from "../stores/useCartStore";
 import useAuthStore from "../stores/useAuthStore";
-import useOrderStore from "../stores/useOrderStore";  // ⬅️ Correct import
+import { useOrderStore } from "../stores/useOrderStore";  // ⬅️ Correct import
 import { useNavigate } from "react-router-dom";
 import { showError, showSuccess } from "../components/AppToast";
 import AppInput from "../components/AppInput";

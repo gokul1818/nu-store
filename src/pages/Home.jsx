@@ -51,35 +51,23 @@ export default function Home() {
 
     }
   }
-  useEffect(() => {
-    async function loadData() {
-      resetProducts();
-      setInitialLoading(true);
-
-      try {
-        await fetchProducts(); // load page 1
-
-        const res = await CategoryAPI.getAll();
-        setCategories(Array.isArray(res.data) ? res.data : []);
-      } catch (err) {
-        console.error("Failed to load products or categories", err);
-      } finally {
-        setInitialLoading(false);
-      }
-    }
-  }, [])
 
   async function loadData() {
     resetProducts();
-    await fetchProducts(); // load page 1
+    setInitialLoading(true);
 
     try {
+      await fetchProducts(); // load page 1
+
       const res = await CategoryAPI.getAll();
       setCategories(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
-      console.error("Failed to load categories", err);
+      console.error("Failed to load products or categories", err);
+    } finally {
+      setInitialLoading(false);
     }
   }
+
   useEffect(() => {
 
     loadData();
