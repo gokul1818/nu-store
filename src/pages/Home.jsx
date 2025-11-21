@@ -4,12 +4,13 @@ import ProductCard from "../components/ProductCard";
 import useCartStore from "../stores/useCartStore";
 import { useEffect, useState, useRef } from "react";
 import AppLoader from "../components/AppLoader";
-import { CategoryAPI } from "../services/api";
+import { BannerAPI, CategoryAPI } from "../services/api";
 import { useNavigate } from "react-router-dom";
 
 // ICONS
 import { FaMale, FaFemale, FaChild } from "react-icons/fa";
 import SpinLoader from "../components/SpinLoader";
+import BannerCarousel from "../components/BannerCarousel";
 
 export default function Home() {
   const {
@@ -28,7 +29,7 @@ export default function Home() {
 
   const [categories, setCategories] = useState([]);
   const [activeMainCat, setActiveMainCat] = useState(null);
-
+  const [banners, setBanners] = useState([]);
   const loaderRef = useRef(null);
 
   const defaultMain = [
@@ -38,20 +39,31 @@ export default function Home() {
   ];
 
   /** INITIAL LOAD */
-  useEffect(() => {
-    async function loadData() {
-      resetProducts();
-      await fetchProducts(); // load page 1
 
-      try {
-        const res = await CategoryAPI.getAll();
-        setCategories(Array.isArray(res.data) ? res.data : []);
-      } catch (err) {
-        console.error("Failed to load categories", err);
-      }
+  const loadBanners = async () => {
+    try {
+      const res = await BannerAPI.getAll();
+      setBanners(res.data);
+    } catch (err) {
+      console.error(err);
     }
+  };
+
+  async function loadData() {
+    resetProducts();
+    await fetchProducts(); // load page 1
+
+    try {
+      const res = await CategoryAPI.getAll();
+      setCategories(Array.isArray(res.data) ? res.data : []);
+    } catch (err) {
+      console.error("Failed to load categories", err);
+    }
+  }
+  useEffect(() => {
 
     loadData();
+    loadBanners()
   }, []);
 
   /** INFINITE SCROLL OBSERVER */
@@ -87,81 +99,85 @@ export default function Home() {
     categories.filter((c) => c.parent === mainSlug);
 
   return (
-    <div className="container mx-auto px-4 py-6">
-      {/* MAIN CATEGORIES */}
-      <h2 className="text-xl font-bold mb-4">Shop by Category</h2>
+    <>
+      <BannerCarousel banners={banners} />
+      <div className="container mx-auto px-4 py-6">
+        {/* MAIN CATEGORIES */}
+        <h2 className="text-xl font-bold mb-4">Shop by Category</h2>
 
-      <div className="flex gap-4 mb-6">
-        {defaultMain.map((main) => {
-          const isActive = activeMainCat === main.slug;
+        <div className="flex gap-4 mb-6">
+          {defaultMain.map((main) => {
+            const isActive = activeMainCat === main.slug;
 
-          return (
-            <div
-              key={main.slug}
-              onClick={() => handleMainCategory(main.slug)}
-              onMouseEnter={() => setActiveMainCat(main.slug)}
-              className={`
+            return (
+              <div
+                key={main.slug}
+                onClick={() => handleMainCategory(main.slug)}
+                onMouseEnter={() => setActiveMainCat(main.slug)}
+                className={`
                 cursor-pointer flex flex-row items-center justify-center
                 bg-white shadow p-3 rounded-lg border min-w-[100px]
                 transition capitalize text-center gap-1
-                ${
-                  isActive
+                ${isActive
                     ? "border-orange-500 bg-orange-50"
                     : "border-gray-300 hover:bg-orange-50 hover:border-orange-400"
-                }
+                  }
               `}
-            >
-              <div
-                className={`${isActive ? "text-orange-600" : "text-gray-700"}`}
               >
-                {main.icon}
+                <div
+                  className={`${isActive ? "text-orange-600" : "text-gray-700"}`}
+                >
+                  {main.icon}
+                </div>
+                <p className="font-semibold">{main.label}</p>
               </div>
-              <p className="font-semibold">{main.label}</p>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
+
+        {/* SUB CATEGORY POPUP */}
+        {activeMainCat && (
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-white shadow p-4 rounded-lg border mb-8 flex gap-3 flex-wrap"
+          >
+            {getSubCategories(activeMainCat).length === 0 ? (
+              <p className="text-base text-gray-500 italic">
+                No subcategories available.
+              </p>
+            ) : (
+              getSubCategories(activeMainCat).map((sub) => (
+                <div
+                  key={sub._id}
+                  onClick={() => navigate(`/products?category=${sub.slug}`)}
+                  className="cursor-pointer bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-md shadow-sm"
+                >
+                  {sub.name}
+                </div>
+              ))
+            )}
+          </motion.div>
+        )}
+        <motion.div
+          className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-6"
+          initial="hidden"
+          animate="visible"
+          variants={{
+            visible: { transition: { staggerChildren: 0.08 } },
+          }}
+        >
+          {products.map((p) => (
+            <ProductCard key={p._id} product={p} onAdd={addItem} />
+          ))}
+        </motion.div>
+        {/* INFINITE SCROLL TRIGGER */}
+        <div ref={loaderRef} className="h-16 flex justify-center items-center">
+          {loading && <SpinLoader />}
+        </div>
       </div>
 
-      {/* SUB CATEGORY POPUP */}
-      {activeMainCat && (
-        <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-white shadow p-4 rounded-lg border mb-8 flex gap-3 flex-wrap"
-        >
-          {getSubCategories(activeMainCat).length === 0 ? (
-            <p className="text-base text-gray-500 italic">
-              No subcategories available.
-            </p>
-          ) : (
-            getSubCategories(activeMainCat).map((sub) => (
-              <div
-                key={sub._id}
-                onClick={() => navigate(`/products?category=${sub.slug}`)}
-                className="cursor-pointer bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-md shadow-sm"
-              >
-                {sub.name}
-              </div>
-            ))
-          )}
-        </motion.div>
-      )}
-      <motion.div
-        className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-6"
-        initial="hidden"
-        animate="visible"
-        variants={{
-          visible: { transition: { staggerChildren: 0.08 } },
-        }}
-      >
-        {products.map((p) => (
-          <ProductCard key={p._id} product={p} onAdd={addItem} />
-        ))}
-      </motion.div>
-      {/* INFINITE SCROLL TRIGGER */}
-      <div ref={loaderRef} className="h-16 flex justify-center items-center">
-        {loading && <SpinLoader />}
-      </div>
-    </div>
+    </>
+
   );
 }

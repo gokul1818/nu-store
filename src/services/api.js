@@ -112,5 +112,16 @@ export const UploadAPI = {
 };
 
 
+export const BannerAPI = {
+  create: (formData) =>
+    api.post("/api/banner", formData),
+  getAll: () => api.get("/api/banner"),
+  getOne: (id) => api.get(`/api/banner/${id}`),
+  delete: (id) => api.delete(`/api/banner/${id}`),
+  update: (id, formData) =>
+    api.put(`/api/banner/${id}`, formData,),
+};
+
+
 
 export default api;

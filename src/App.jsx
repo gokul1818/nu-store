@@ -17,8 +17,10 @@ import Register from "./pages/Register";
 
 // Admin pages
 import { Toaster } from "react-hot-toast";
+import BannerForm from "./pages/admin/AddBanner";
 import AddProduct from "./pages/admin/AddProducts";
 import AdminLogin from "./pages/admin/AdminLogin";
+import BannerList from "./pages/admin/BannerList";
 import CategoryForm from "./pages/admin/CategoryForm";
 import CategoryList from "./pages/admin/CategoryList";
 import CustomerList from "./pages/admin/CustomerList";
@@ -78,6 +80,11 @@ export default function App() {
           {/* Customers */}
           <Route path="/admin/users" element={<CustomerList />} />
           <Route path="/admin/users/:id" element={<CustomerProfile />} />
+
+          {/* Banner */}
+          <Route path="/admin/banner" element={<BannerList />} />
+          <Route path="/admin/banner/add" element={<BannerForm />} />
+          <Route path="/admin/banner/edit/:id" element={<BannerForm />} />
         </Route>
       </Routes>
     </>

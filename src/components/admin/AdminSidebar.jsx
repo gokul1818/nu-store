@@ -9,6 +9,7 @@ import {
   FaUsers,
   FaSignOutAlt,
   FaBars,
+  FaImage,
 } from "react-icons/fa";
 
 export default function AdminSidebar() {
@@ -23,6 +24,7 @@ export default function AdminSidebar() {
     { name: "Categories", path: "/admin/categories", icon: <FaTags /> },
     { name: "Products", path: "/admin/products", icon: <FaBoxOpen /> },
     { name: "Orders", path: "/admin/orders", icon: <FaShoppingCart /> },
+    { name: "Banner", path: "/admin/banner", icon: <FaImage /> },
     { name: "Customers", path: "/admin/users", icon: <FaUsers /> },
   ];
 
