@@ -28,6 +28,7 @@ export default function Home() {
 
   const [categories, setCategories] = useState([]);
   const [activeMainCat, setActiveMainCat] = useState(null);
+  const [initialLoading, setInitialLoading] = useState(true);
 
   const loaderRef = useRef(null);
 
@@ -41,13 +42,17 @@ export default function Home() {
   useEffect(() => {
     async function loadData() {
       resetProducts();
-      await fetchProducts(); // load page 1
+      setInitialLoading(true);
 
       try {
+        await fetchProducts(); // load page 1
+
         const res = await CategoryAPI.getAll();
         setCategories(Array.isArray(res.data) ? res.data : []);
       } catch (err) {
-        console.error("Failed to load categories", err);
+        console.error("Failed to load products or categories", err);
+      } finally {
+        setInitialLoading(false);
       }
     }
 
@@ -78,13 +83,12 @@ export default function Home() {
     fetchProducts();
   };
 
-  /** FIND MAIN CATEGORY (string-based parent) */
-  const findMainCategory = (slug) =>
-    categories.find((c) => c.parent === slug) || null;
-
   /** GET SUBCATEGORIES */
   const getSubCategories = (mainSlug) =>
     categories.filter((c) => c.parent === mainSlug);
+
+  // Show full-page loader during initial load
+  if (initialLoading) return <AppLoader />;
 
   return (
     <div className="container mx-auto px-4 py-6">
@@ -146,6 +150,8 @@ export default function Home() {
           )}
         </motion.div>
       )}
+
+      {/* PRODUCT GRID */}
       <motion.div
         className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-6"
         initial="hidden"
@@ -155,9 +161,29 @@ export default function Home() {
         }}
       >
         {products.map((p) => (
-          <ProductCard key={p._id} product={p} onAdd={addItem} />
+          <ProductCard
+            key={p._id}
+            product={p}
+            onAdd={(product) =>
+              addItem({
+                productId: product._id,
+                name: product.title,
+                price: product.price,
+                thumbnail:
+                  product.thumbnail ||
+                  product.images?.[0] ||
+                  "/placeholder.png",
+                qty: 1,
+                variant: product.variants?.[0] || {
+                  color: "Default",
+                  size: "M",
+                },
+              })
+            }
+          />
         ))}
       </motion.div>
+
       {/* INFINITE SCROLL TRIGGER */}
       <div ref={loaderRef} className="h-16 flex justify-center items-center">
         {loading && <SpinLoader />}

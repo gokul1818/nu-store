@@ -61,6 +61,9 @@ export default function ProductDetails() {
 
     addItem({
       productId: selectedProduct._id,
+      name: selectedProduct.title,
+      price: selectedProduct.price,
+      thumbnail: selectedProduct.images?.[0] || "/placeholder.png",
       qty,
       variant,
     });
@@ -153,9 +156,23 @@ export default function ProductDetails() {
 
             <div className="flex items-baseline gap-2">
               <span className="text-sm text-gray-700">Price:</span>
-              <span className="text-3xl font-normal text-red-700">
-                {formatCurrency(selectedProduct.price)}
-              </span>
+              {selectedProduct.discount > 0 ? (
+                <>
+                  <span className="text-2xl font-normal text-gray-400 line-through">
+                    {formatCurrency(selectedProduct.mrp)}
+                  </span>
+                  <span className="text-3xl font-normal text-green-700">
+                    {formatCurrency(selectedProduct.price)}
+                  </span>
+                  <span className="text-sm text-orange-600 font-medium">
+                    ({selectedProduct.discount}% OFF)
+                  </span>
+                </>
+              ) : (
+                <span className="text-3xl font-normal text-red-700">
+                  {formatCurrency(selectedProduct.price)}
+                </span>
+              )}
             </div>
 
             {/* Color selection */}
