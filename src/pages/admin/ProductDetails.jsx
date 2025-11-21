@@ -1,6 +1,7 @@
-import { useParams, useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
-import { ProductAPI, CategoryAPI } from "../../services/api";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import SpinLoader from "../../components/SpinLoader";
+import { CategoryAPI, ProductAPI } from "../../services/api";
 import { formatCurrencyINR } from "../../utils/helpers";
 
 export default function ProductDetailsAdmin() {
@@ -32,7 +33,7 @@ export default function ProductDetailsAdmin() {
     loadProduct();
   }, [id]);
 
-  if (loading) return <div className="p-6 text-center">Loading...</div>;
+  if (loading) return <SpinLoader/>;
   if (!product) return <div className="p-6 text-center text-gray-500">Product not found</div>;
 
   const totalStock = product.variants?.reduce((acc, v) => acc + (v.stock || 0), 0) || 0;

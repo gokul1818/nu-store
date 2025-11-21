@@ -113,7 +113,7 @@ export default function Header() {
           </div>
 
           {/* Mobile Hamburger Menu */}
-          <button
+          {/* <button
             className="md:hidden p-1 rounded hover:bg-gray-100 transition-all duration-200"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
@@ -122,7 +122,7 @@ export default function Header() {
             ) : (
               <FiMenu className="w-6 h-6" />
             )}
-          </button>
+          </button> */}
         </div>
       </div>
 

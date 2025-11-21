@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 
 // ICONS
 import { FaMale, FaFemale, FaChild } from "react-icons/fa";
+import SpinLoader from "../components/SpinLoader";
 
 export default function Home() {
   const {
@@ -19,7 +20,7 @@ export default function Home() {
     page,
     pages,
     loading,
-    setFilter
+    setFilter,
   } = useProductStore();
 
   const addItem = useCartStore((s) => s.addItem);
@@ -57,11 +58,7 @@ export default function Home() {
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
-        if (
-          entries[0].isIntersecting &&
-          !loading &&
-          page < pages
-        ) {
+        if (entries[0].isIntersecting && !loading && page < pages) {
           loadMoreProducts(); // load next page
         }
       },
@@ -91,7 +88,6 @@ export default function Home() {
 
   return (
     <div className="container mx-auto px-4 py-6">
-
       {/* MAIN CATEGORIES */}
       <h2 className="text-xl font-bold mb-4">Shop by Category</h2>
 
@@ -115,7 +111,9 @@ export default function Home() {
                 }
               `}
             >
-              <div className={`${isActive ? "text-orange-600" : "text-gray-700"}`}>
+              <div
+                className={`${isActive ? "text-orange-600" : "text-gray-700"}`}
+              >
                 {main.icon}
               </div>
               <p className="font-semibold">{main.label}</p>
@@ -132,7 +130,9 @@ export default function Home() {
           className="bg-white shadow p-4 rounded-lg border mb-8 flex gap-3 flex-wrap"
         >
           {getSubCategories(activeMainCat).length === 0 ? (
-            <p className="text-base text-gray-500 italic">No subcategories available.</p>
+            <p className="text-base text-gray-500 italic">
+              No subcategories available.
+            </p>
           ) : (
             getSubCategories(activeMainCat).map((sub) => (
               <div
@@ -146,12 +146,8 @@ export default function Home() {
           )}
         </motion.div>
       )}
-
-      {/* PRODUCTS */}
-      <h1 className="text-3xl font-bold mb-6">Featured Products</h1>
-
       <motion.div
-        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
+        className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-6"
         initial="hidden"
         animate="visible"
         variants={{
@@ -162,10 +158,9 @@ export default function Home() {
           <ProductCard key={p._id} product={p} onAdd={addItem} />
         ))}
       </motion.div>
-
       {/* INFINITE SCROLL TRIGGER */}
       <div ref={loaderRef} className="h-16 flex justify-center items-center">
-        {loading && <p className="text-gray-500">Loading...</p>}
+        {loading && <SpinLoader />}
       </div>
     </div>
   );

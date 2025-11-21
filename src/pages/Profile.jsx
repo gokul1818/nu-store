@@ -12,14 +12,8 @@ function ProfileView() {
   const [form, setForm] = useState({
     firstName: "",
     lastName: "",
-    addresses: [
-      {
-        house: "",
-        street: "",
-        city: "",
-        state: "",
-      },
-    ],
+    mobile: "",
+    addresses: [{ house: "", street: "", city: "", state: "" }],
   });
 
   const [errors, setErrors] = useState({});
@@ -34,6 +28,7 @@ function ProfileView() {
         setForm({
           firstName: res.firstName || "",
           lastName: res.lastName || "",
+          mobile: res.mobile || "",
           addresses:
             res.addresses?.length > 0
               ? res.addresses.map((addr) => ({
@@ -67,6 +62,9 @@ function ProfileView() {
     const newErrors = {};
     if (!form.firstName.trim()) newErrors.firstName = "First name is required";
     if (!form.lastName.trim()) newErrors.lastName = "Last name is required";
+    if (!form.mobile.trim()) newErrors.mobile = "Mobile number is required";
+    else if (!/^[0-9]{10}$/.test(form.mobile.trim()))
+      newErrors.mobile = "Enter a valid 10-digit number";
 
     const addr = form.addresses[0];
     const addrErrors = {};
@@ -89,13 +87,14 @@ function ProfileView() {
       const payload = {
         firstName: form.firstName,
         lastName: form.lastName,
+        mobile: form.mobile,
         addresses: form.addresses,
       };
       await authStore.updateProfile(payload); // use store method that updates localStorage
       showSuccess("Profile updated successfully!");
       setEditMode(false);
     } catch (err) {
-      console.log('err: ', err);
+      console.log("err: ", err);
       showError(err?.response?.data?.message || "Update failed");
     } finally {
       setLoading(false);
@@ -127,6 +126,10 @@ function ProfileView() {
               <strong>Last Name:</strong> {form.lastName}
             </div>
             <div>
+              <strong>Mobile:</strong> {form.mobile}
+            </div>
+
+            <div>
               <strong>Address:</strong>
               <div className="ml-4 mt-1 space-y-1">
                 <div>House/Flat No: {form.addresses[0].house}</div>
@@ -143,16 +146,27 @@ function ProfileView() {
           <div className="space-y-3">
             <AppInput
               label="First Name"
+              placeholder="First Name"
               value={form.firstName}
               onChange={(e) => handleChange("firstName", e.target.value)}
               error={errors.firstName}
             />
             <AppInput
               label="Last Name"
+              placeholder="Last Name"
               value={form.lastName}
               onChange={(e) => handleChange("lastName", e.target.value)}
               error={errors.lastName}
             />
+            <AppInput
+              label="Mobile Number"
+              placeholder="Mobile Number"
+              type="tel"
+              value={form.mobile}
+              onChange={(e) => handleChange("mobile", e.target.value)}
+              error={errors.mobile}
+            />
+
             <div>
               <label className="block font-medium mb-2">Address</label>
               <div className="space-y-2">

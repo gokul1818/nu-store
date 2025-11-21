@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
 import {
+  HiOutlineCheckCircle,
   HiOutlineMail,
   HiOutlinePhone,
-  HiOutlineCheckCircle,
 } from "react-icons/hi";
+import { useParams } from "react-router-dom";
+import SpinLoader from "../../components/SpinLoader";
 
 export default function CustomerProfile() {
   const { id } = useParams();
@@ -35,7 +36,7 @@ export default function CustomerProfile() {
     setCustomer(dummyCustomer);
   }, [id]);
 
-  if (!customer) return <p className="p-6 text-gray-500">Loading...</p>;
+  if (!customer) return <SpinLoader />
 
   return (
     <div className="container mx-auto p-6 space-y-6">

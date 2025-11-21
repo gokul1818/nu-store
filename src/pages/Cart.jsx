@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FaTrash } from "react-icons/fa";
+import { FaTrash, FaPlus, FaMinus } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import { formatCurrency, formatCurrencyINR } from "../utils/helpers";
 
@@ -60,57 +60,70 @@ export default function Cart() {
       <div className="grid md:grid-cols-2 gap-6">
         <div className="space-y-3">
           {cart.map((it) => (
-            <div className="bg-white p-4 rounded-lg flex gap-4 shadow-md hover:shadow-lg transition-all">
-              <Link
-                to={`/product/${it._id}`}
-                key={it._id + JSON.stringify(it.selectedOptions)}
-              >
+            <div
+              key={it._id + JSON.stringify(it.selectedOptions)}
+              className="bg-white p-4 rounded-lg flex gap-4 shadow-md hover:shadow-lg transition-all"
+            >
+              <Link to={`/product/${it._id}`}>
                 <img
                   src={it.thumbnail || "/placeholder.png"}
                   className="w-28 h-28 object-cover rounded shadow"
                 />
               </Link>
               <div className="flex-1">
-                <Link
-                  to={`/product/${it._id}`}
-                  key={it._id + JSON.stringify(it.selectedOptions)}
-                >
+                <Link to={`/product/${it._id}`}>
                   <h3 className="font-semibold text-lg">{it.name}</h3>
                 </Link>
 
                 <div className="mt-2 text-gray-700">
-                  Price: {formatCurrency(it.price)}
+                  {formatCurrency(it.price)}
                 </div>
 
-                <div className="mt-2 flex items-center gap-2">
-                  <input
-                    type="number"
-                    value={it.qty}
-                    onChange={(e) =>
-                      updateQty(
-                        it._id,
-                        Math.max(1, Number(e.target.value)),
-                        it.selectedOptions
-                      )
-                    }
-                    className="w-20 border p-1 rounded shadow-sm"
-                  />
+                {/* Quantity Controls */}
+                <div className="mt-3 flex items-center gap-3">
+                  {/* Decrease / Remove */}
+                  <button
+                    onClick={() => {
+                      if (it.qty === 1) {
+                        removeItem(it._id, it.selectedOptions);
+                      } else {
+                        updateQty(it._id, it.qty - 1, it.selectedOptions);
+                      }
+                    }}
+                    className="px-2 py-1 border rounded shadow-sm hover:bg-gray-100"
+                  >
+                    <FaMinus />
+                  </button>
+
+                  {/* Quantity Display */}
+                  <span className="px-4 py-1 border rounded bg-gray-50">{it.qty}</span>
+
+                  {/* Increase */}
+                  <button
+                    onClick={() => updateQty(it._id, it.qty + 1, it.selectedOptions)}
+                    className="px-2 py-1 border rounded shadow-sm hover:bg-gray-100"
+                  >
+                    <FaPlus />
+                  </button>
+
+                  {/* Remove Button */}
                   <button
                     onClick={() => removeItem(it._id, it.selectedOptions)}
+                    className="ml-3"
                   >
                     <FaTrash className="w-4 h-4 text-error" />
                   </button>
                 </div>
 
                 <div className="mt-1 text-sm text-gray-500">
-                  Color: {it.selectedOptions.color}, Size:{" "}
-                  {it.selectedOptions.size}
+                  Color: {it.selectedOptions.color}, Size: {it.selectedOptions.size}
                 </div>
               </div>
             </div>
           ))}
         </div>
 
+        {/* Order Summary */}
         <div className="bg-white p-5 rounded-lg shadow-lg self-start sticky top-6">
           <h3 className="font-semibold text-xl">Order Summary</h3>
 
