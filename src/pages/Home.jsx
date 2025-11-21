@@ -166,15 +166,9 @@ export default function Home() {
             product={p}
             onAdd={(product) =>
               addItem({
-                productId: product._id,
-                name: product.title,
-                price: product.price,
-                thumbnail:
-                  product.thumbnail ||
-                  product.images?.[0] ||
-                  "/placeholder.png",
+                ...product, // store entire product object
                 qty: 1,
-                variant: product.variants?.[0] || {
+                selectedOptions: product.variants?.[0] || {
                   color: "Default",
                   size: "M",
                 },

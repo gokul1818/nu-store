@@ -60,12 +60,9 @@ export default function ProductDetails() {
     if (!variant) return;
 
     addItem({
-      productId: selectedProduct._id,
-      name: selectedProduct.title,
-      price: selectedProduct.price,
-      thumbnail: selectedProduct.images?.[0] || "/placeholder.png",
+      ...selectedProduct, // store entire product object
       qty,
-      variant,
+      selectedOptions: variant,
     });
   };
 
@@ -78,9 +75,9 @@ export default function ProductDetails() {
     await createOrder({
       items: [
         {
-          productId: selectedProduct._id,
+          ...selectedProduct,
           qty,
-          variant,
+          selectedOptions: variant,
         },
       ],
       paymentMethod: "COD",
@@ -194,7 +191,7 @@ export default function ProductDetails() {
                             ? "border-orange-500 shadow-md"
                             : "border-gray-300 hover:border-gray-400"
                         }`}
-                        style={{ backgroundColor: color }} // show actual color
+                        style={{ backgroundColor: color }}
                       />
                     );
                   })}

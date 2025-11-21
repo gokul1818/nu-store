@@ -1,66 +1,59 @@
 import create from "zustand";
 
 const useCartStore = create((set, get) => ({
-  cart: [],
+  cart: JSON.parse(localStorage.getItem("cart")) || [],
 
   addItem: (item) => {
     const { cart } = get();
 
-    // Check if item with same variant exists
+    // Check if same product + variant already exists
     const index = cart.findIndex(
       (i) =>
-        i._id === item.productId &&
-        JSON.stringify(i.selectedOptions) === JSON.stringify(item.variant)
+        i._id === item._id &&
+        JSON.stringify(i.selectedOptions) ===
+          JSON.stringify(item.selectedOptions)
     );
 
+    let updatedCart;
     if (index > -1) {
-      // Increase qty
-      const updated = [...cart];
-      updated[index].qty += item.qty || 1;
-      set({ cart: updated });
+      updatedCart = [...cart];
+      updatedCart[index].qty += item.qty || 1;
     } else {
-      // Add new item
-      set({
-        cart: [
-          ...cart,
-          {
-            _id: item.productId,
-            name: item.name || "Product",
-            price: item.price || 0,
-            qty: item.qty || 1,
-            thumbnail: item.thumbnail || "/placeholder.png",
-            selectedOptions: item.variant,
-          },
-        ],
-      });
+      updatedCart = [...cart, { ...item, qty: item.qty || 1 }];
     }
+
+    set({ cart: updatedCart });
+    localStorage.setItem("cart", JSON.stringify(updatedCart));
   },
 
   updateQty: (id, qty, selectedOptions) => {
-    set((state) => ({
-      cart: state.cart.map((item) =>
-        item._id === id &&
-        JSON.stringify(item.selectedOptions) === JSON.stringify(selectedOptions)
-          ? { ...item, qty }
-          : item
-      ),
-    }));
+    const updatedCart = get().cart.map((item) =>
+      item._id === id &&
+      JSON.stringify(item.selectedOptions) === JSON.stringify(selectedOptions)
+        ? { ...item, qty }
+        : item
+    );
+    set({ cart: updatedCart });
+    localStorage.setItem("cart", JSON.stringify(updatedCart));
   },
 
   removeItem: (id, selectedOptions) => {
-    set((state) => ({
-      cart: state.cart.filter(
-        (item) =>
-          !(
-            item._id === id &&
-            JSON.stringify(item.selectedOptions) ===
-              JSON.stringify(selectedOptions)
-          )
-      ),
-    }));
+    const updatedCart = get().cart.filter(
+      (item) =>
+        !(
+          item._id === id &&
+          JSON.stringify(item.selectedOptions) ===
+            JSON.stringify(selectedOptions)
+        )
+    );
+    set({ cart: updatedCart });
+    localStorage.setItem("cart", JSON.stringify(updatedCart));
   },
 
-  clearCart: () => set({ cart: [] }),
+  clearCart: () => {
+    set({ cart: [] });
+    localStorage.removeItem("cart");
+  },
 }));
 
 export default useCartStore;

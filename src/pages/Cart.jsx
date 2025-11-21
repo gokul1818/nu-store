@@ -11,7 +11,10 @@ export default function Cart() {
   const removeItem = useCartStore((s) => s.removeItem);
   const clearCart = useCartStore((s) => s.clearCart);
 
-  const subtotal = cart.reduce((s, i) => s + i.price * (i.qty || 1), 0);
+  const subtotal = cart.reduce(
+    (sum, item) => sum + item.price * (item.qty || 1),
+    0
+  );
   const shipping = subtotal > 1000 ? 0 : 50;
   const tax = subtotal * 0.12;
   const total = subtotal + shipping + tax;
@@ -61,13 +64,15 @@ export default function Cart() {
                 {/* Quantity Controls */}
                 <div className="mt-3 flex items-center gap-3">
                   <button
-                    onClick={() => {
-                      if (item.qty === 1) {
-                        removeItem(item._id, item.selectedOptions);
-                      } else {
-                        updateQty(item._id, item.qty - 1, item.selectedOptions);
-                      }
-                    }}
+                    onClick={() =>
+                      item.qty === 1
+                        ? removeItem(item._id, item.selectedOptions)
+                        : updateQty(
+                            item._id,
+                            item.qty - 1,
+                            item.selectedOptions
+                          )
+                    }
                     className="px-2 py-1 border rounded shadow-sm hover:bg-gray-100"
                   >
                     <FaMinus />
@@ -94,10 +99,15 @@ export default function Cart() {
                   </button>
                 </div>
 
-                {/* <div className="mt-1 text-sm text-gray-500">
-                  Color: {item.selectedOptions.color}, Size:{" "}
-                  {item.selectedOptions.size}
-                </div> */}
+                {/* Selected Options */}
+                {item.selectedOptions &&
+                  Object.keys(item.selectedOptions).length > 0 && (
+                    <div className="mt-1 text-sm text-gray-500">
+                      {Object.entries(item.selectedOptions)
+                        .map(([key, val]) => `${key}: ${val}`)
+                        .join(", ")}
+                    </div>
+                  )}
               </div>
             </div>
           ))}
