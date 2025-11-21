@@ -57,8 +57,8 @@ export default function CategoryForm() {
     setLoading(true);
 
     try {
-      const body = { name, description, icon, parent };
-
+      const body = { name, description, parent };
+      console.log('body: ', body);
       if (isEdit) await CategoryAPI.update(id, body);
       else await CategoryAPI.create(body);
 
@@ -80,7 +80,7 @@ export default function CategoryForm() {
 
       {/* Parent Category Selector */}
       <div className="my-4">
-        <label className="block font-semibold mb-1">Parent Category</label>
+        <label className="block font-semibold mb-1">Gender</label>
         <select
           value={parent}
           onChange={(e) => {
@@ -91,10 +91,10 @@ export default function CategoryForm() {
             error.parent ? "border-red-500" : "border-gray-300"
           }`}
         >
-          <option value="">Select Parent Category</option>
-          <option value="Men">Men</option>
-          <option value="Women">Women</option>
-          <option value="Kids">Kids</option>
+          <option value="">Select Gender</option>
+          <option value="men">Men</option>
+          <option value="women">Women</option>
+          <option value="kids">Kids</option>
         </select>
         {error.parent && <p className="text-red-500 text-sm mt-1">{error.parent}</p>}
       </div>
@@ -120,16 +120,6 @@ export default function CategoryForm() {
           placeholder="Enter category description"
           className="w-full p-3 border rounded-lg focus:outline-none focus:ring border-gray-300"
           rows={4}
-        />
-      </div>
-
-      {/* Icon Upload */}
-      <div className="mb-6">
-        <FileUpload
-          label="Category Icon"
-          value={icon}
-          onChange={(url) => setIcon(url)}
-          mode="single"
         />
       </div>
 

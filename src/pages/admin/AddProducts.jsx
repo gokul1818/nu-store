@@ -23,8 +23,8 @@ export default function ProductForm() {
     mrp: "",
     price: "",
     discount: 0, // New
-    salePrice: "", // New
-    gender: "Men",
+    price: "", // New
+    gender: "men",
     description: "",
     thumbnail: "",
     images: [],
@@ -46,7 +46,7 @@ export default function ProductForm() {
             mrp: product.data.mrp,
             price: product.data.price,
             discount: product.data.discount || 0,
-            salePrice: product.data.salePrice || product.data.price,
+            price: product.data.price || product.data.price,
             gender: product.data.gender || "Men",
             description: product.data.description,
             thumbnail: product.data.thumbnail || "",
@@ -65,11 +65,11 @@ export default function ProductForm() {
     loadData();
   }, [id]);
 
-  // Auto-calculate salePrice from MRP and discount
+  // Auto-calculate price from MRP and discount
   useEffect(() => {
     if (form.mrp && form.discount >= 0) {
       const discountedPrice = form.mrp - (form.mrp * form.discount) / 100;
-      setForm((f) => ({ ...f, salePrice: discountedPrice.toFixed(2) }));
+      setForm((f) => ({ ...f, price: discountedPrice.toFixed(2) }));
     }
   }, [form.mrp, form.discount]);
 
@@ -77,7 +77,6 @@ export default function ProductForm() {
     const temp = {};
     if (!form.title.trim()) temp.title = "Title is required";
     if (!form.mrp || form.mrp < 0) temp.mrp = "MRP must be ≥ 0";
-    if (!form.price || form.price < 0) temp.price = "Price must be ≥ 0";
     if (form.price > form.mrp) temp.price = "Price cannot exceed MRP";
     if (form.discount < 0 || form.discount > 100) temp.discount = "Discount must be 0-100";
     if (!form.gender) temp.gender = "Gender is required";
@@ -119,10 +118,10 @@ export default function ProductForm() {
   };
 
   const submit = async () => {
-    if (!validate()) return;
+    // if (!validate()) return;
     setLoading(true);
     try {
-      if (isEdit) await ProductAPI.update(id, form);
+      if (isEdit) await ProductAPI.updateProduct(id, form);
       else await ProductAPI.create(form);
 
       setLoading(false);
@@ -158,14 +157,7 @@ export default function ProductForm() {
             onChange={(e) => setForm({ ...form, mrp: Number(e.target.value) })}
             error={errors.mrp}
           />
-          <AppInput
-            label="Selling Price"
-            placeholder="Selling Price"
-            type="number"
-            value={form.price}
-            onChange={(e) => setForm({ ...form, price: Number(e.target.value) })}
-            error={errors.price}
-          />
+        
           <AppInput
             label="Discount %"
             placeholder="Discount"
@@ -178,7 +170,7 @@ export default function ProductForm() {
             label="Sale Price"
             placeholder="Sale Price"
             type="number"
-            value={form.salePrice}
+            value={form.price}
             disabled
           />
           <AppSelect
@@ -187,10 +179,9 @@ export default function ProductForm() {
             onChange={(e) => setForm({ ...form, gender: e.target.value })}
             error={errors.gender}
           >
-            <option value="Men">Men</option>
-            <option value="Women">Women</option>
-            <option value="Kids">Kids</option>
-            <option value="Unisex">Unisex</option>
+            <option value="men">Men</option>
+            <option value="women">Women</option>
+            <option value="kids">Kids</option>
           </AppSelect>
           <AppSelect
             label="Category"

@@ -9,3 +9,14 @@ export function formatCurrencyINR(amount) {
     currency: "INR",
   }).format(amount);
 }
+export const buildProductQuery = (params = {}) => {
+  const searchParams = new URLSearchParams();
+
+  Object.entries(params).forEach(([key, val]) => {
+    if (val !== undefined && val !== null && val !== "") {
+      searchParams.append(key, val);
+    }
+  });
+
+  return searchParams.toString();
+};

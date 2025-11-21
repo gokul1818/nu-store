@@ -1,16 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-
-const dummyOrders = Array.from({ length: 45 }, (_, i) => ({
-  _id: `order${i + 1}`,
-  user: { email: `user${i + 1}@example.com` },
-  status: ["Processing", "Packed", "Shipped", "Delivered", "Cancelled"][i % 5],
-  trackingNumber: "",
-  items: [
-    { productId: `p${i + 1}-1`, title: `Product ${i + 1}-1`, qty: 1, price: 100 },
-    { productId: `p${i + 1}-2`, title: `Product ${i + 1}-2`, qty: 2, price: 200 },
-  ],
-}));
+import { AdminAPI } from "../../services/api";
 
 const statusColors = {
   Processing: "bg-yellow-200 text-yellow-800",
@@ -27,30 +17,65 @@ export default function OrderDetails() {
   const [order, setOrder] = useState(null);
   const [status, setStatus] = useState("");
   const [trackingNumber, setTrackingNumber] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [updating, setUpdating] = useState(false);
+
+  // ================================
+  // 🚀 Load Order from Backend
+  // ================================
+  const loadOrder = async () => {
+    try {
+      const res = await AdminAPI.getOrderById(id);
+      const data = res.data;
+
+      setOrder(data);
+      setStatus(data.status);
+      setTrackingNumber(data.trackingNumber || "");
+    } catch (err) {
+      console.log("ERROR:", err);
+    }
+    setLoading(false);
+  };
 
   useEffect(() => {
-    const found = dummyOrders.find((o) => o._id === id);
-    if (found) {
-      setOrder(found);
-      setStatus(found.status);
-      setTrackingNumber(found.trackingNumber || "");
-    }
+    loadOrder();
   }, [id]);
 
-  if (!order) return <div className="p-6 text-center text-gray-500">Order not found</div>;
+  if (loading)
+    return (
+      <div className="p-6 text-center text-gray-500 text-lg">
+        Loading order...
+      </div>
+    );
 
-  const totalAmount = order.items.reduce((acc, i) => acc + i.qty * i.price, 0);
+  if (!order)
+    return (
+      <div className="p-6 text-center text-gray-500">Order not found</div>
+    );
 
-  const updateOrder = () => {
-    // Update locally (dummy data)
-    order.status = status;
-    order.trackingNumber = trackingNumber;
-    alert("Order updated successfully!");
-    setOrder({ ...order });
+  // ================================
+  // 🔄 Update Order
+  // ================================
+  const updateOrder = async () => {
+    setUpdating(true);
+    try {
+      await AdminAPI.updateOrder(order._id, {
+        status,
+        trackingNumber,
+      });
+
+      alert("Order updated successfully!");
+      loadOrder();
+    } catch (err) {
+      console.error(err);
+      alert("Failed to update order");
+    }
+    setUpdating(false);
   };
 
   return (
     <div className="container mx-auto p-6">
+      {/* Back Button */}
       <button
         className="mb-4 px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
         onClick={() => navigate(-1)}
@@ -59,9 +84,32 @@ export default function OrderDetails() {
       </button>
 
       <div className="bg-white p-6 rounded-lg shadow-md">
+        {/* HEADER */}
         <h2 className="text-2xl font-bold mb-2">Order #{order._id}</h2>
-        <p className="mb-2"><strong>Customer:</strong> {order.user.email}</p>
+        <p className="mb-2 text-gray-700">
+          <strong>Customer ID:</strong> {order.user.uniqId}
+        </p>
 
+        <p className="mb-2 text-gray-700">
+          <strong>Customer Name:</strong> {order.user.firstName} {order.user.lastName} ({order.user.email})
+        </p>
+        <p className="mb-2 text-gray-700">
+          <strong>Phone Number:</strong> {order.user.phone}
+        </p>
+        <p className="mb-2 text-gray-700">
+          <strong>Payment:</strong> {order.paymentMethod}
+        </p>
+
+        <p className="mb-2 text-gray-700">
+          <strong>Date:</strong> {new Date(order.createdAt).toLocaleDateString()}
+        </p>
+
+        <p className="mb-4 text-gray-700">
+          <strong>Shipping:</strong> {order.shippingAddress.street},{" "}
+          {order.shippingAddress.city}
+        </p>
+
+        {/* STATUS + TRACKING */}
         <div className="flex flex-col md:flex-row md:items-center md:gap-6 mb-4">
           <div>
             <strong>Status:</strong>
@@ -71,11 +119,14 @@ export default function OrderDetails() {
               className={`ml-2 px-3 py-1 rounded border focus:outline-none focus:ring-1 focus:ring-orange-300 ${statusColors[status]}`}
             >
               {Object.keys(statusColors).map((s) => (
-                <option key={s} value={s}>{s}</option>
+                <option key={s} value={s}>
+                  {s}
+                </option>
               ))}
             </select>
           </div>
 
+          {/* Tracking Number */}
           <div className="mt-2 md:mt-0">
             <strong>Tracking Number:</strong>
             <input
@@ -89,26 +140,42 @@ export default function OrderDetails() {
 
           <button
             onClick={updateOrder}
-            className="mt-2 md:mt-0 px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600 transition"
+            disabled={updating}
+            className={`mt-2 md:mt-0 px-4 py-2 rounded text-white transition ${updating
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-orange-500 hover:bg-orange-600"
+              }`}
           >
-            Save
+            {updating ? "Saving..." : "Save"}
           </button>
         </div>
 
+        {/* ITEMS LIST */}
         <h3 className="text-xl font-semibold mt-4 mb-2">Items</h3>
         <div className="space-y-2">
           {order.items.map((item) => (
-            <div key={item.productId} className="flex justify-between border p-3 rounded hover:shadow-sm transition">
+            <div
+              key={item.productId}
+              className="flex justify-between border p-3 rounded hover:shadow-sm transition"
+            >
               <div>
                 <p className="font-medium">{item.title}</p>
                 <p className="text-gray-500 text-sm">Quantity: {item.qty}</p>
+                <p className="text-gray-500 text-sm">
+                  ₹{item.price} each
+                </p>
               </div>
-              <div className="font-semibold">${item.price * item.qty}</div>
+              <div className="font-semibold">
+                ₹{item.price * item.qty}
+              </div>
             </div>
           ))}
         </div>
 
-        <p className="mt-4 font-bold text-lg">Total: ${totalAmount}</p>
+        {/* TOTAL */}
+        <p className="mt-4 font-bold text-lg">
+          Total: ₹{order.totalAmount}
+        </p>
       </div>
     </div>
   );

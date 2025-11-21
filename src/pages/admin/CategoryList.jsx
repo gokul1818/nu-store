@@ -20,7 +20,6 @@ export default function CategoryList() {
       const res = await CategoryAPI.getAll();
       const formatted = res.data.map((cat) => ({
         ...cat,
-        parent: cat.parent?.name || "-",
       }));
       setCategories(formatted);
     } finally {
@@ -46,7 +45,7 @@ export default function CategoryList() {
   // Table columns
   const columns = [
     { key: "name", label: "Category Name" },
-    { key: "parent", label: "Parent Category" },
+    { key: "parent", label: "Gender" },
   ];
 
   // Actions

@@ -10,7 +10,7 @@ const cardVariants = {
   whileHover: { scale: 1.04, boxShadow: "0 8px 32px rgba(0,0,0,0.08)" },
 };
 
-export default function ProductCard({ product, onAdd = () => {} }) {
+export default function ProductCard({ product, onAdd = () => { } }) {
   const addItem = useCartStore((s) => s.addItem);
 
   return (
@@ -23,7 +23,7 @@ export default function ProductCard({ product, onAdd = () => {} }) {
     >
       <Link to={`/product/${product._id}`} className="block">
         <img
-          src={product.thumbnail || product.image || "/placeholder.png"}
+          src={product.images[0] || "/placeholder.png"}
           alt={product.name}
           className="h-56 w-full object-cover rounded-lg transition-transform duration-150 hover:scale-105"
         />

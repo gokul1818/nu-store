@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import useAdminStore from "../../stores/useAdminStore";
 import {
@@ -17,14 +17,13 @@ export default function AdminSidebar() {
   const logout = useAdminStore((s) => s.logout);
 
   const [expanded, setExpanded] = useState(false);
-  const sidebarRef = useRef(null);
 
   const menu = [
     { name: "Dashboard", path: "/admin", icon: <FaTachometerAlt /> },
     { name: "Categories", path: "/admin/categories", icon: <FaTags /> },
     { name: "Products", path: "/admin/products", icon: <FaBoxOpen /> },
     { name: "Orders", path: "/admin/orders", icon: <FaShoppingCart /> },
-    { name: "Customers", path: "/admin/users", icon: <FaUsers /> }, // <-- New Menu Item
+    { name: "Customers", path: "/admin/users", icon: <FaUsers /> },
   ];
 
   const handleLogout = () => {
@@ -32,40 +31,24 @@ export default function AdminSidebar() {
     navigate("/admin/login");
   };
 
-  // Close sidebar when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (sidebarRef.current && !sidebarRef.current.contains(event.target)) {
-        setExpanded(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
   return (
     <div
-      ref={sidebarRef}
-      className={`bg-primary text-white fixed top-0 left-0 h-screen flex flex-col transition-all duration-300 shadow-lg
+      className={`
+        backdrop-blur-sm bg-black/50 border-gray-400 border-r-2 text-white
+        fixed top-0 left-0 h-screen flex flex-col shadow-lg
+        transition-all duration-300 rounded-tr-xl rounded-br-xl
+        justify-center
         ${expanded ? "w-64" : "w-20"}
       `}
+      onMouseEnter={() => setExpanded(true)}
+      onMouseLeave={() => setExpanded(false)}
     >
-      {/* Toggle button (only shown when collapsed) */}
-      {!expanded && (
-        <button
-          className="text-white text-lg m-4 p-1 hover:bg-gray-700 rounded self-start"
-          onClick={() => setExpanded(true)}
-        >
-          <FaBars />
-        </button>
-      )}
-
-      {/* Header (shown when expanded) */}
-      {expanded && (
+      {/* Header */}
+      {/* {expanded && (
         <div className="flex items-center justify-between p-4 border-b border-white/20">
           <h2 className="text-xl font-bold">Admin Panel</h2>
         </div>
-      )}
+      )} */}
 
       {/* Menu */}
       <nav className="flex-1 mt-4 space-y-2 overflow-y-auto">
@@ -73,10 +56,10 @@ export default function AdminSidebar() {
           <Link
             key={item.path}
             to={item.path}
-            onClick={() => setExpanded(false)} // Close menu on click
-            className={`flex items-center px-4 py-2 rounded transition
-                ${pathname === item.path ? "bg-gray-800" : "hover:bg-gray-700"}
-              `}
+            className={`flex items-center px-4  mx-2 py-2 rounded transition-all 
+              ${pathname === item.path ? "bg-white/20" : "hover:bg-white/10"}
+              ${expanded ? "justify-start" : "justify-center"}
+            `}
           >
             <span className="text-lg">{item.icon}</span>
             {expanded && <span className="ml-3">{item.name}</span>}

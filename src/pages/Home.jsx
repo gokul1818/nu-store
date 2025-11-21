@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import useProductStore from "../stores/useProductStore";
 import ProductCard from "../components/ProductCard";
 import useCartStore from "../stores/useCartStore";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import AppLoader from "../components/AppLoader";
 import { CategoryAPI } from "../services/api";
 import { useNavigate } from "react-router-dom";
@@ -11,13 +11,24 @@ import { useNavigate } from "react-router-dom";
 import { FaMale, FaFemale, FaChild } from "react-icons/fa";
 
 export default function Home() {
-  const { products, fetchProducts } = useProductStore();
+  const {
+    products,
+    fetchProducts,
+    resetProducts,
+    loadMoreProducts,
+    page,
+    pages,
+    loading,
+    setFilter
+  } = useProductStore();
+
   const addItem = useCartStore((s) => s.addItem);
   const navigate = useNavigate();
 
-  const [loading, setLoading] = useState(true);
   const [categories, setCategories] = useState([]);
   const [activeMainCat, setActiveMainCat] = useState(null);
+
+  const loaderRef = useRef(null);
 
   const defaultMain = [
     { slug: "men", label: "Men", icon: <FaMale size={22} /> },
@@ -25,43 +36,63 @@ export default function Home() {
     { slug: "kids", label: "Kids", icon: <FaChild size={22} /> },
   ];
 
+  /** INITIAL LOAD */
   useEffect(() => {
     async function loadData() {
-      setLoading(true);
-
-      await fetchProducts();
+      resetProducts();
+      await fetchProducts(); // load page 1
 
       try {
         const res = await CategoryAPI.getAll();
         setCategories(Array.isArray(res.data) ? res.data : []);
       } catch (err) {
         console.error("Failed to load categories", err);
-        setCategories([]);
       }
-
-      setLoading(false);
     }
 
     loadData();
   }, []);
 
-  if (loading) return <AppLoader />;
-
-  const findMainCategory = (slug) => {
-    return categories.find((c) => c.parent === null && c.slug === slug) || null;
-  };
-
-  const getSubCategories = (mainSlug) => {
-    const mainCat = findMainCategory(mainSlug);
-    if (!mainCat) return [];
-    return categories.filter(
-      (c) => c.parent && c.parent._id === mainCat._id
+  /** INFINITE SCROLL OBSERVER */
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (
+          entries[0].isIntersecting &&
+          !loading &&
+          page < pages
+        ) {
+          loadMoreProducts(); // load next page
+        }
+      },
+      { threshold: 1 }
     );
+
+    if (loaderRef.current) observer.observe(loaderRef.current);
+
+    return () => observer.disconnect();
+  }, [loading, page, pages]);
+
+  /** CATEGORY CLICK (Men / Women / Kids) */
+  const handleMainCategory = (slug) => {
+    setActiveMainCat(slug);
+    setFilter("gender", slug); // filter by gender
+    resetProducts();
+    fetchProducts();
   };
+
+  /** FIND MAIN CATEGORY (string-based parent) */
+  const findMainCategory = (slug) =>
+    categories.find((c) => c.parent === slug) || null;
+
+  /** GET SUBCATEGORIES */
+  const getSubCategories = (mainSlug) =>
+    categories.filter((c) => c.parent === mainSlug);
 
   return (
     <div className="container mx-auto px-4 py-6">
 
+      {/* MAIN CATEGORIES */}
       <h2 className="text-xl font-bold mb-4">Shop by Category</h2>
 
       <div className="flex gap-4 mb-6">
@@ -71,9 +102,8 @@ export default function Home() {
           return (
             <div
               key={main.slug}
+              onClick={() => handleMainCategory(main.slug)}
               onMouseEnter={() => setActiveMainCat(main.slug)}
-              // onMouseLeave={() => setActiveMainCat(null)}
-              onClick={() => setActiveMainCat(main.slug)}
               className={`
                 cursor-pointer flex flex-row items-center justify-center
                 bg-white shadow p-3 rounded-lg border min-w-[100px]
@@ -88,20 +118,18 @@ export default function Home() {
               <div className={`${isActive ? "text-orange-600" : "text-gray-700"}`}>
                 {main.icon}
               </div>
-              <p className="font-semibold text-medium">{main.label}</p>
+              <p className="font-semibold">{main.label}</p>
             </div>
           );
         })}
       </div>
 
-      {/* SUBCATEGORY DROPDOWN */}
+      {/* SUB CATEGORY POPUP */}
       {activeMainCat && (
         <motion.div
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           className="bg-white shadow p-4 rounded-lg border mb-8 flex gap-3 flex-wrap"
-          onMouseEnter={() => setActiveMainCat(activeMainCat)}
-          onMouseLeave={() => setActiveMainCat(null)}
         >
           {getSubCategories(activeMainCat).length === 0 ? (
             <p className="text-base text-gray-500 italic">No subcategories available.</p>
@@ -131,13 +159,14 @@ export default function Home() {
         }}
       >
         {products.map((p) => (
-          <ProductCard
-            key={p._id}
-            product={p}
-            onAdd={(prod) => addItem(prod)}
-          />
+          <ProductCard key={p._id} product={p} onAdd={addItem} />
         ))}
       </motion.div>
+
+      {/* INFINITE SCROLL TRIGGER */}
+      <div ref={loaderRef} className="h-16 flex justify-center items-center">
+        {loading && <p className="text-gray-500">Loading...</p>}
+      </div>
     </div>
   );
 }

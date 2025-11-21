@@ -85,18 +85,21 @@ export const OrderAPI = {
     ADMIN
 --------------------------------------------------------- */
 export const AdminAPI = {
-  getUsers: () => api.get("/api/admin/users"),
-  getOrders: () => api.get("/api/orders/all"),
+  getUsers: (page = 1, limit = 10) =>
+    api.get(`/api/admin/users?page=${page}&limit=${limit}`),
+  getOrderById: (id) => api.get(`/api/orders/${id}`),
+  getOrders: (page = 1, limit = 10, status) =>
+    api.get(`/api/orders/all?status=${status}&page=${page}&limit=${limit}`),
   updateOrderStatus: (id, data) => api.put(`/api/orders/${id}/status`, data),
   deleteUser: (id) => api.delete(`/api/admin/users/${id}`),
 };
 
 export const CategoryAPI = {
-    getAll: () => api.get("/api/categories"),
-    getOne: (id) => api.get(`/api/categories/${id}`),
-    create: (data) => api.post("/api/categories", data),
-    update: (id, data) => api.put(`/api/categories/${id}`, data),
-    delete: (id) => api.delete(`/api/categories/${id}`)
+  getAll: () => api.get("/api/categories"),
+  getOne: (id) => api.get(`/api/categories/${id}`),
+  create: (data) => api.post("/api/categories", data),
+  update: (id, data) => api.put(`/api/categories/${id}`, data),
+  delete: (id) => api.delete(`/api/categories/${id}`)
 };
 
 export const UploadAPI = {
