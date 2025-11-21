@@ -1,123 +1,113 @@
-import { useState } from "react";
-import { FaTrash, FaPlus, FaMinus } from "react-icons/fa";
+import { FaMinus, FaPlus, FaTrash } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
+import useCartStore from "../stores/useCartStore";
 import { formatCurrency, formatCurrencyINR } from "../utils/helpers";
 
 export default function Cart() {
   const navigate = useNavigate();
-  const [cart, setCart] = useState([
-    {
-      _id: "p1",
-      name: "Oversized Street Tee",
-      price: 1999,
-      qty: 2,
-      thumbnail: "/placeholder.png",
-      selectedOptions: { color: "Black", size: "M" },
-    },
-    {
-      _id: "p2",
-      name: "Casual Hoodie",
-      price: 2499,
-      qty: 1,
-      thumbnail: "/placeholder.png",
-      selectedOptions: { color: "Red", size: "L" },
-    },
-  ]);
 
-  const updateQty = (id, qty, selectedOptions) => {
-    setCart((prev) =>
-      prev.map((item) =>
-        item._id === id &&
-        JSON.stringify(item.selectedOptions) === JSON.stringify(selectedOptions)
-          ? { ...item, qty }
-          : item
-      )
-    );
-  };
+  const cart = useCartStore((s) => s.cart);
+  const updateQty = useCartStore((s) => s.updateQty);
+  const removeItem = useCartStore((s) => s.removeItem);
+  const clearCart = useCartStore((s) => s.clearCart);
 
-  const removeItem = (id, selectedOptions) => {
-    setCart((prev) =>
-      prev.filter(
-        (item) =>
-          !(
-            item._id === id &&
-            JSON.stringify(item.selectedOptions) ===
-              JSON.stringify(selectedOptions)
-          )
-      )
-    );
-  };
-
-  const subtotal = cart.reduce((s, i) => s + i.price * (i.qty || 1), 0);
+  const subtotal = cart.reduce(
+    (sum, item) => sum + item.price * (item.qty || 1),
+    0
+  );
   const shipping = subtotal > 1000 ? 0 : 50;
   const tax = subtotal * 0.12;
   const total = subtotal + shipping + tax;
+
+  if (cart.length === 0) {
+    return (
+      <div className="container mx-auto px-4 py-6 text-center">
+        <h2 className="text-2xl font-bold mb-4">Your cart is empty</h2>
+        <button
+          onClick={() => navigate("/")}
+          className="mt-4 bg-orange-500 text-white py-2 px-4 rounded shadow-md hover:bg-orange-600 transition"
+        >
+          Continue Shopping
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 py-6">
       <h2 className="text-2xl font-bold mb-4">Cart</h2>
 
       <div className="grid md:grid-cols-2 gap-6">
+        {/* Cart Items */}
         <div className="space-y-3">
-          {cart.map((it) => (
+          {cart.map((item) => (
             <div
-              key={it._id + JSON.stringify(it.selectedOptions)}
+              key={item._id + JSON.stringify(item.selectedOptions)}
               className="bg-white p-4 rounded-lg flex gap-4 shadow-md hover:shadow-lg transition-all"
             >
-              <Link to={`/product/${it._id}`}>
+              <Link to={`/product/${item._id}`}>
                 <img
-                  src={it.thumbnail || "/placeholder.png"}
+                  src={item.thumbnail || "/placeholder.png"}
                   className="w-28 h-28 object-cover rounded shadow"
                 />
               </Link>
+
               <div className="flex-1">
-                <Link to={`/product/${it._id}`}>
-                  <h3 className="font-semibold text-lg">{it.name}</h3>
+                <Link to={`/product/${item._id}`}>
+                  <h3 className="font-semibold text-lg">{item.name}</h3>
                 </Link>
 
                 <div className="mt-2 text-gray-700">
-                  {formatCurrency(it.price)}
+                  {formatCurrency(item.price)}
                 </div>
 
                 {/* Quantity Controls */}
                 <div className="mt-3 flex items-center gap-3">
-                  {/* Decrease / Remove */}
                   <button
-                    onClick={() => {
-                      if (it.qty === 1) {
-                        removeItem(it._id, it.selectedOptions);
-                      } else {
-                        updateQty(it._id, it.qty - 1, it.selectedOptions);
-                      }
-                    }}
+                    onClick={() =>
+                      item.qty === 1
+                        ? removeItem(item._id, item.selectedOptions)
+                        : updateQty(
+                            item._id,
+                            item.qty - 1,
+                            item.selectedOptions
+                          )
+                    }
                     className="px-2 py-1 border rounded shadow-sm hover:bg-gray-100"
                   >
                     <FaMinus />
                   </button>
 
-                  {/* Quantity Display */}
-                  <span className="px-4 py-1 border rounded bg-gray-50">{it.qty}</span>
+                  <span className="px-4 py-1 border rounded bg-gray-50">
+                    {item.qty}
+                  </span>
 
-                  {/* Increase */}
                   <button
-                    onClick={() => updateQty(it._id, it.qty + 1, it.selectedOptions)}
+                    onClick={() =>
+                      updateQty(item._id, item.qty + 1, item.selectedOptions)
+                    }
                     className="px-2 py-1 border rounded shadow-sm hover:bg-gray-100"
                   >
                     <FaPlus />
                   </button>
 
-                  {/* Remove Button */}
                   <button
-                    onClick={() => removeItem(it._id, it.selectedOptions)}
+                    onClick={() => removeItem(item._id, item.selectedOptions)}
                     className="ml-3"
                   >
-                    <FaTrash className="w-4 h-4 text-error" />
+                    <FaTrash className="w-4 h-4 text-red-600" />
                   </button>
                 </div>
 
-                <div className="mt-1 text-sm text-gray-500">
-                  Color: {it.selectedOptions.color}, Size: {it.selectedOptions.size}
-                </div>
+                {/* Selected Options */}
+                {item.selectedOptions &&
+                  Object.keys(item.selectedOptions).length > 0 && (
+                    <div className="mt-1 text-sm text-gray-500">
+                      {Object.entries(item.selectedOptions)
+                        .map(([key, val]) => `${key}: ${val}`)
+                        .join(", ")}
+                    </div>
+                  )}
               </div>
             </div>
           ))}
@@ -148,12 +138,21 @@ export default function Cart() {
               <span>{formatCurrencyINR(total)}</span>
             </div>
 
-            <button
-              onClick={() => navigate("/checkout")}
-              className="mt-6 bg-primary text-white py-2 px-4 rounded shadow-md hover:shadow-lg transition w-3/6"
-            >
-              Checkout
-            </button>
+            <div className="flex gap-2 mt-6">
+              <button
+                onClick={() => navigate("/checkout")}
+                className="flex-1 bg-orange-500 text-white py-2 px-4 rounded shadow-md hover:bg-orange-600 transition"
+              >
+                Checkout
+              </button>
+
+              <button
+                onClick={clearCart}
+                className="flex-1 bg-gray-200 text-gray-800 py-2 px-4 rounded shadow-md hover:bg-gray-300 transition"
+              >
+                Clear Cart
+              </button>
+            </div>
           </div>
         </div>
       </div>

@@ -1,40 +1,59 @@
 import create from "zustand";
-import { CartAPI } from "../services/api";
 
 const useCartStore = create((set, get) => ({
-  cart: [],
-  loading: false,
+  cart: JSON.parse(localStorage.getItem("cart")) || [],
 
-  loadCart: async () => {
-    const res = await CartAPI.getCart();
-    set({ cart: res.data.items });
+  addItem: (item) => {
+    const { cart } = get();
+
+    // Check if same product + variant already exists
+    const index = cart.findIndex(
+      (i) =>
+        i._id === item._id &&
+        JSON.stringify(i.selectedOptions) ===
+          JSON.stringify(item.selectedOptions)
+    );
+
+    let updatedCart;
+    if (index > -1) {
+      updatedCart = [...cart];
+      updatedCart[index].qty += item.qty || 1;
+    } else {
+      updatedCart = [...cart, { ...item, qty: item.qty || 1 }];
+    }
+
+    set({ cart: updatedCart });
+    localStorage.setItem("cart", JSON.stringify(updatedCart));
   },
 
-  // 👇 EXPECTED BY ProductCard
-  addItem: async (product) => {
-    // Create data payload for backend
-    const payload = {
-      productId: product._id,
-      qty: 1,
-      variant: product.variants?.[0] || {
-        size: "M",
-        color: "Default",
-      }
-    };
-
-    const res = await CartAPI.addItem(payload);
-    set({ cart: res.data.items });
+  updateQty: (id, qty, selectedOptions) => {
+    const updatedCart = get().cart.map((item) =>
+      item._id === id &&
+      JSON.stringify(item.selectedOptions) === JSON.stringify(selectedOptions)
+        ? { ...item, qty }
+        : item
+    );
+    set({ cart: updatedCart });
+    localStorage.setItem("cart", JSON.stringify(updatedCart));
   },
 
-  updateQty: async (payload) => {
-    const res = await CartAPI.updateQty(payload);
-    set({ cart: res.data.items });
+  removeItem: (id, selectedOptions) => {
+    const updatedCart = get().cart.filter(
+      (item) =>
+        !(
+          item._id === id &&
+          JSON.stringify(item.selectedOptions) ===
+            JSON.stringify(selectedOptions)
+        )
+    );
+    set({ cart: updatedCart });
+    localStorage.setItem("cart", JSON.stringify(updatedCart));
   },
 
-  removeItem: async (payload) => {
-    const res = await CartAPI.removeItem(payload);
-    set({ cart: res.data.items });
-  }
+  clearCart: () => {
+    set({ cart: [] });
+    localStorage.removeItem("cart");
+  },
 }));
 
 export default useCartStore;

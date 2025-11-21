@@ -30,6 +30,8 @@ export default function Home() {
   const [categories, setCategories] = useState([]);
   const [activeMainCat, setActiveMainCat] = useState(null);
   const [banners, setBanners] = useState([]);
+  const [initialLoading, setInitialLoading] = useState(true);
+
   const loaderRef = useRef(null);
 
   const defaultMain = [
@@ -46,8 +48,26 @@ export default function Home() {
       setBanners(res.data);
     } catch (err) {
       console.error(err);
+
     }
-  };
+  }
+  useEffect(() => {
+    async function loadData() {
+      resetProducts();
+      setInitialLoading(true);
+
+      try {
+        await fetchProducts(); // load page 1
+
+        const res = await CategoryAPI.getAll();
+        setCategories(Array.isArray(res.data) ? res.data : []);
+      } catch (err) {
+        console.error("Failed to load products or categories", err);
+      } finally {
+        setInitialLoading(false);
+      }
+    }
+  }, [])
 
   async function loadData() {
     resetProducts();
@@ -90,13 +110,12 @@ export default function Home() {
     fetchProducts();
   };
 
-  /** FIND MAIN CATEGORY (string-based parent) */
-  const findMainCategory = (slug) =>
-    categories.find((c) => c.parent === slug) || null;
-
   /** GET SUBCATEGORIES */
   const getSubCategories = (mainSlug) =>
     categories.filter((c) => c.parent === mainSlug);
+
+  // Show full-page loader during initial load
+  if (initialLoading) return <AppLoader />;
 
   return (
     <>
@@ -177,7 +196,62 @@ export default function Home() {
         </div>
       </div>
 
-    </>
+      {/* SUB CATEGORY POPUP */}
+      {activeMainCat && (
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white shadow p-4 rounded-lg border mb-8 flex gap-3 flex-wrap"
+        >
+          {getSubCategories(activeMainCat).length === 0 ? (
+            <p className="text-base text-gray-500 italic">
+              No subcategories available.
+            </p>
+          ) : (
+            getSubCategories(activeMainCat).map((sub) => (
+              <div
+                key={sub._id}
+                onClick={() => navigate(`/products?category=${sub.slug}`)}
+                className="cursor-pointer bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-md shadow-sm"
+              >
+                {sub.name}
+              </div>
+            ))
+          )}
+        </motion.div>
+      )}
 
+      {/* PRODUCT GRID */}
+      <motion.div
+        className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-6"
+        initial="hidden"
+        animate="visible"
+        variants={{
+          visible: { transition: { staggerChildren: 0.08 } },
+        }}
+      >
+        {products.map((p) => (
+          <ProductCard
+            key={p._id}
+            product={p}
+            onAdd={(product) =>
+              addItem({
+                ...product, // store entire product object
+                qty: 1,
+                selectedOptions: product.variants?.[0] || {
+                  color: "Default",
+                  size: "M",
+                },
+              })
+            }
+          />
+        ))}
+      </motion.div>
+
+      {/* INFINITE SCROLL TRIGGER */}
+      <div ref={loaderRef} className="h-16 flex justify-center items-center">
+        {loading && <SpinLoader />}
+      </div>
+    </>
   );
 }

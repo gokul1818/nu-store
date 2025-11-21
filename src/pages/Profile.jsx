@@ -1,228 +1,149 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
+import useCartStore from "../stores/useCartStore";
 import useAuthStore from "../stores/useAuthStore";
-import ProtectedRoute from "../components/ProtectedRoute";
-import AppButton from "../components/AppButton";
-import AppInput from "../components/AppInput";
+import useOrderStore from "../stores/useOrderStore";  // ⬅️ Correct import
+import { useNavigate } from "react-router-dom";
 import { showError, showSuccess } from "../components/AppToast";
-import { AuthAPI } from "../services/api";
+import AppInput from "../components/AppInput";
 
-function ProfileView() {
-  const authStore = useAuthStore();
+export default function Checkout() {
+  const items = useCartStore((s) => s.items);
+  const clearCart = useCartStore((s) => s.clearCart);
+  const createOrder = useOrderStore((s) => s.createOrder); // ⬅️ Correct
+  const user = useAuthStore((s) => s.user);
+  const updateProfile = useAuthStore((s) => s.updateProfile);
 
-  const [form, setForm] = useState({
-    firstName: "",
-    lastName: "",
-    mobile: "",
-    addresses: [{ house: "", street: "", city: "", state: "" }],
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [editAddress, setEditAddress] = useState(false);
+
+  const [address, setAddress] = useState({
+    house: "",
+    street: "",
+    city: "",
+    state: "",
+    pincode: "",
   });
 
-  const [errors, setErrors] = useState({});
-  const [loading, setLoading] = useState(false);
-  const [editMode, setEditMode] = useState(false);
-
-  // Fetch profile details
   useEffect(() => {
-    async function fetchProfile() {
-      try {
-        const res = await AuthAPI.getProfile();
-        setForm({
-          firstName: res.firstName || "",
-          lastName: res.lastName || "",
-          mobile: res.mobile || "",
-          addresses:
-            res.addresses?.length > 0
-              ? res.addresses.map((addr) => ({
-                  house: addr.house || "",
-                  street: addr.street || "",
-                  city: addr.city || "",
-                  state: addr.state || "",
-                }))
-              : [{ house: "", street: "", city: "", state: "" }],
-        });
-      } catch (err) {
-        showError("Failed to fetch profile");
+    if (user?.addresses?.length > 0) {
+      setAddress({ ...user.addresses[0] });
+    }
+  }, [user]);
+
+  const handleAddressChange = (field, value) => {
+    setAddress((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const validateAddress = () => {
+    const fields = ["house", "street", "city", "state", "pincode"];
+    for (let f of fields) {
+      if (!address[f]?.trim()) {
+        showError(`Please fill ${f}`);
+        return false;
       }
     }
-    fetchProfile();
-  }, []);
-
-  const handleChange = (field, value, index = null, subfield = null) => {
-    if (field === "addresses") {
-      const updated = [...form.addresses];
-      if (subfield) updated[index][subfield] = value;
-      setForm({ ...form, addresses: updated });
-      setErrors((prev) => ({ ...prev, addresses: null }));
-    } else {
-      setForm({ ...form, [field]: value });
-      setErrors((prev) => ({ ...prev, [field]: null }));
-    }
+    return true;
   };
 
-  const validate = () => {
-    const newErrors = {};
-    if (!form.firstName.trim()) newErrors.firstName = "First name is required";
-    if (!form.lastName.trim()) newErrors.lastName = "Last name is required";
-    if (!form.mobile.trim()) newErrors.mobile = "Mobile number is required";
-    else if (!/^[0-9]{10}$/.test(form.mobile.trim()))
-      newErrors.mobile = "Enter a valid 10-digit number";
-
-    const addr = form.addresses[0];
-    const addrErrors = {};
-    if (!addr.house.trim()) addrErrors.house = "House/Flat no is required";
-    if (!addr.street.trim()) addrErrors.street = "Street is required";
-    if (!addr.city.trim()) addrErrors.city = "City is required";
-    if (!addr.state.trim()) addrErrors.state = "State is required";
-
-    if (Object.keys(addrErrors).length > 0) newErrors.addresses = [addrErrors];
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = async () => {
-    if (!validate()) return;
+  const submit = async (e) => {
+    e.preventDefault();
+    if (!validateAddress()) return;
 
     setLoading(true);
     try {
-      const payload = {
-        firstName: form.firstName,
-        lastName: form.lastName,
-        mobile: form.mobile,
-        addresses: form.addresses,
-      };
-      await authStore.updateProfile(payload); // use store method that updates localStorage
-      showSuccess("Profile updated successfully!");
-      setEditMode(false);
+      await updateProfile({ ...user, addresses: [address] });
+
+      await createOrder({
+        items,
+        shippingAddress: address,
+        userId: user._id,
+        paymentMethod: "online",
+      });
+
+      clearCart();
+      showSuccess("Order placed successfully!");
+      navigate("/orders");
     } catch (err) {
-      console.log("err: ", err);
-      showError(err?.response?.data?.message || "Update failed");
+      console.error(err);
+      showError("Order failed");
     } finally {
       setLoading(false);
     }
   };
 
+  if (!user) {
+    navigate("/login");
+    return null;
+  }
+
   return (
     <div className="container mx-auto px-4 py-6">
-      <div className="max-w-lg mx-auto bg-white p-6 rounded shadow-md space-y-4">
-        <div className="flex justify-between items-center">
-          <h2 className="text-2xl font-bold">Profile</h2>
-          {!editMode && (
+      <h2 className="text-2xl font-bold mb-4">Checkout</h2>
+
+      <form onSubmit={submit} className="bg-white p-4 rounded space-y-4">
+        <label className="block font-medium">Address</label>
+
+        {!editAddress ? (
+          <div className="bg-gray-100 p-4 rounded space-y-1">
+            <div>House: {address.house}</div>
+            <div>Street: {address.street}</div>
+            <div>City: {address.city}</div>
+            <div>State: {address.state}</div>
+            <div>Pincode: {address.pincode}</div>
+
             <button
-              className="text-secondary text-sm"
-              onClick={() => setEditMode(true)}
+              type="button"
+              className="text-primary text-sm mt-2"
+              onClick={() => setEditAddress(true)}
             >
-              Edit
+              Edit Address
             </button>
-          )}
-        </div>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            <AppInput value={address.house} placeholder="House" onChange={(e) => handleAddressChange("house", e.target.value)} />
+            <AppInput value={address.street} placeholder="Street" onChange={(e) => handleAddressChange("street", e.target.value)} />
+            <AppInput value={address.city} placeholder="City" onChange={(e) => handleAddressChange("city", e.target.value)} />
+            <AppInput value={address.state} placeholder="State" onChange={(e) => handleAddressChange("state", e.target.value)} />
+            <AppInput value={address.pincode} placeholder="Pincode" onChange={(e) => handleAddressChange("pincode", e.target.value)} />
 
-        {/* Display mode */}
-        {!editMode && (
-          <div className="space-y-3">
-            <div>
-              <strong>First Name:</strong> {form.firstName}
-            </div>
-            <div>
-              <strong>Last Name:</strong> {form.lastName}
-            </div>
-            <div>
-              <strong>Mobile:</strong> {form.mobile}
-            </div>
+            <div className="flex gap-2 mt-2">
+              <button
+                type="button"
+                className="text-secondary text-sm"
+                onClick={() => setEditAddress(false)}
+              >
+                Cancel
+              </button>
 
-            <div>
-              <strong>Address:</strong>
-              <div className="ml-4 mt-1 space-y-1">
-                <div>House/Flat No: {form.addresses[0].house}</div>
-                <div>Street: {form.addresses[0].street}</div>
-                <div>City: {form.addresses[0].city}</div>
-                <div>State: {form.addresses[0].state}</div>
-              </div>
+              <button
+                type="button"
+                className="text-primary text-sm"
+                onClick={async () => {
+                  try {
+                    await updateProfile({ ...user, addresses: [address] });
+                    showSuccess("Address updated");
+                  } catch (err) {
+                    showError("Failed to update address");
+                  }
+                  setEditAddress(false);
+                }}
+              >
+                Save
+              </button>
             </div>
           </div>
         )}
 
-        {/* Edit mode */}
-        {editMode && (
-          <div className="space-y-3">
-            <AppInput
-              label="First Name"
-              placeholder="First Name"
-              value={form.firstName}
-              onChange={(e) => handleChange("firstName", e.target.value)}
-              error={errors.firstName}
-            />
-            <AppInput
-              label="Last Name"
-              placeholder="Last Name"
-              value={form.lastName}
-              onChange={(e) => handleChange("lastName", e.target.value)}
-              error={errors.lastName}
-            />
-            <AppInput
-              label="Mobile Number"
-              placeholder="Mobile Number"
-              type="tel"
-              value={form.mobile}
-              onChange={(e) => handleChange("mobile", e.target.value)}
-              error={errors.mobile}
-            />
-
-            <div>
-              <label className="block font-medium mb-2">Address</label>
-              <div className="space-y-2">
-                <AppInput
-                  placeholder="House/Flat No"
-                  value={form.addresses[0].house}
-                  onChange={(e) =>
-                    handleChange("addresses", e.target.value, 0, "house")
-                  }
-                  error={errors.addresses?.[0]?.house}
-                />
-                <AppInput
-                  placeholder="Street"
-                  value={form.addresses[0].street}
-                  onChange={(e) =>
-                    handleChange("addresses", e.target.value, 0, "street")
-                  }
-                  error={errors.addresses?.[0]?.street}
-                />
-                <AppInput
-                  placeholder="City"
-                  value={form.addresses[0].city}
-                  onChange={(e) =>
-                    handleChange("addresses", e.target.value, 0, "city")
-                  }
-                  error={errors.addresses?.[0]?.city}
-                />
-                <AppInput
-                  placeholder="State"
-                  value={form.addresses[0].state}
-                  onChange={(e) =>
-                    handleChange("addresses", e.target.value, 0, "state")
-                  }
-                  error={errors.addresses?.[0]?.state}
-                />
-              </div>
-            </div>
-
-            <AppButton
-              loading={loading}
-              onClick={handleSubmit}
-              className="w-full"
-            >
-              Save Changes
-            </AppButton>
-          </div>
-        )}
-      </div>
+        <button
+          type="submit"
+          disabled={loading}
+          className="bg-primary text-white px-4 py-2 rounded"
+        >
+          {loading ? "Placing..." : "Place Order"}
+        </button>
+      </form>
     </div>
-  );
-}
-
-export default function Profile() {
-  return (
-    <ProtectedRoute>
-      <ProfileView />
-    </ProtectedRoute>
   );
 }

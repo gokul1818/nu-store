@@ -2,22 +2,14 @@ import { Link, useNavigate } from "react-router-dom";
 import useAuthStore from "../stores/useAuthStore";
 import useCartStore from "../stores/useCartStore";
 import { useState, useEffect, useRef } from "react";
-import {
-  FiShoppingCart,
-  FiUser,
-  FiShoppingBag,
-  FiLogOut,
-  FiMenu,
-  FiX,
-} from "react-icons/fi";
+import { FiShoppingCart, FiUser, FiShoppingBag, FiLogOut } from "react-icons/fi";
 
 export default function Header() {
   const { user, logout } = useAuthStore();
-  const cart = useCartStore((s) => s.items);
+  const cart = useCartStore((s) => s.cart); // ✅ corrected from s.items to s.cart
   const navigate = useNavigate();
 
   const [showUserMenu, setShowUserMenu] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const dropdownRef = useRef();
 
   // Close dropdown on outside click
@@ -47,15 +39,6 @@ export default function Header() {
           NU<span className="text-primary">Store</span>
         </Link>
 
-        {/* Desktop Navigation */}
-        {/* <nav className="hidden md:flex items-center gap-6">
-          {user && (
-            <Link to="/products" className="hover:underline">
-              Shop
-            </Link>
-          )}
-        </nav> */}
-
         {/* Right Side */}
         <div className="flex items-center gap-4 relative">
           {/* Cart Icon - logged-in users only */}
@@ -67,7 +50,8 @@ export default function Header() {
               <FiShoppingCart className="w-6 h-6 text-primary hover:text-gray-700 transition-colors duration-200" />
               {cart?.length > 0 && (
                 <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs px-1.5 py-0.5 rounded-full">
-                  {cart.length}
+                  {cart.reduce((sum, item) => sum + (item.qty || 1), 0)} 
+                  {/* ✅ sum of quantities, not just length */}
                 </span>
               )}
             </button>
@@ -111,33 +95,8 @@ export default function Header() {
               </div>
             )}
           </div>
-
-          {/* Mobile Hamburger Menu */}
-          {/* <button
-            className="md:hidden p-1 rounded hover:bg-gray-100 transition-all duration-200"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          >
-            {mobileMenuOpen ? (
-              <FiX className="w-6 h-6" />
-            ) : (
-              <FiMenu className="w-6 h-6" />
-            )}
-          </button> */}
         </div>
       </div>
-
-      {/* Mobile Menu */}
-      {/* {mobileMenuOpen && (
-        <div className="md:hidden bg-white border-t shadow-md">
-          <div className="flex flex-col px-4 py-2 space-y-2">
-            {user && (
-              <Link to="/products" className="hover:underline">
-                Shop
-              </Link>
-            )}
-          </div>
-        </div>
-      )} */}
     </header>
   );
 }

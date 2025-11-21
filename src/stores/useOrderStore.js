@@ -6,12 +6,12 @@ export const useOrderStore = create((set) => ({
   loading: false,
 
   createOrder: async (payload) => {
-    const res = await OrderAPI.createOrder(payload); // <— API CALL
+    const res = await OrderAPI.createOrder(payload);
     return res.data;
   },
 
   loadMyOrders: async () => {
-    const res = await OrderAPI.getMyOrders(); // <— API CALL
+    const res = await OrderAPI.getMyOrders();
     set({ orders: res.data });
   },
 }));

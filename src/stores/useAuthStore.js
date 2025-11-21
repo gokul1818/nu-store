@@ -1,7 +1,7 @@
 import create from "zustand";
 import { AuthAPI } from "../services/api";
 
-const useAuthStore = create((set) => ({
+const useAuthStore = create((set, get) => ({
   user: JSON.parse(localStorage.getItem("user") || "null"),
   token: localStorage.getItem("token") || null,
   loading: false,
@@ -12,9 +12,15 @@ const useAuthStore = create((set) => ({
 
     try {
       const data = await AuthAPI.login(payload);
+
+      // Save to localStorage
+      localStorage.setItem("user", JSON.stringify(data.user));
+      localStorage.setItem("token", data.token);
+
       set({ user: data.user, token: data.token, loading: false });
+      return data.user;
     } catch (err) {
-      set({ loading: false, error: err.response?.data?.message });
+      set({ loading: false, error: err.response?.data?.message || "Login failed" });
       throw err;
     }
   },
@@ -24,9 +30,15 @@ const useAuthStore = create((set) => ({
 
     try {
       const data = await AuthAPI.register(payload);
+
+      // Save to localStorage
+      localStorage.setItem("user", JSON.stringify(data.user));
+      localStorage.setItem("token", data.token);
+
       set({ user: data.user, token: data.token, loading: false });
+      return data.user;
     } catch (err) {
-      set({ loading: false, error: err.response?.data?.message });
+      set({ loading: false, error: err.response?.data?.message || "Registration failed" });
       throw err;
     }
   },
@@ -38,13 +50,21 @@ const useAuthStore = create((set) => ({
   },
 
   getProfile: async () => {
-    const res = await AuthAPI.getProfile();
-    set({ user: res.data });
+    try {
+      const res = await AuthAPI.getProfile();
+      localStorage.setItem("user", JSON.stringify(res.data));
+      set({ user: res.data });
+      return res.data;
+    } catch (err) {
+      throw err;
+    }
   },
 
   updateProfile: async (payload) => {
     try {
       const updatedUser = await AuthAPI.updateProfile(payload);
+
+      // Sync store and localStorage
       localStorage.setItem("user", JSON.stringify(updatedUser));
       set({ user: updatedUser });
       return updatedUser;

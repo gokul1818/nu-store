@@ -60,9 +60,9 @@ export default function ProductDetails() {
     if (!variant) return;
 
     addItem({
-      productId: selectedProduct._id,
+      ...selectedProduct, // store entire product object
       qty,
-      variant,
+      selectedOptions: variant,
     });
   };
 
@@ -75,9 +75,9 @@ export default function ProductDetails() {
     await createOrder({
       items: [
         {
-          productId: selectedProduct._id,
+          ...selectedProduct,
           qty,
-          variant,
+          selectedOptions: variant,
         },
       ],
       paymentMethod: "COD",
@@ -153,9 +153,23 @@ export default function ProductDetails() {
 
             <div className="flex items-baseline gap-2">
               <span className="text-sm text-gray-700">Price:</span>
-              <span className="text-3xl font-normal text-red-700">
-                {formatCurrency(selectedProduct.price)}
-              </span>
+              {selectedProduct.discount > 0 ? (
+                <>
+                  <span className="text-2xl font-normal text-gray-400 line-through">
+                    {formatCurrency(selectedProduct.mrp)}
+                  </span>
+                  <span className="text-3xl font-normal text-green-700">
+                    {formatCurrency(selectedProduct.price)}
+                  </span>
+                  <span className="text-sm text-orange-600 font-medium">
+                    ({selectedProduct.discount}% OFF)
+                  </span>
+                </>
+              ) : (
+                <span className="text-3xl font-normal text-red-700">
+                  {formatCurrency(selectedProduct.price)}
+                </span>
+              )}
             </div>
 
             {/* Color selection */}
@@ -177,7 +191,7 @@ export default function ProductDetails() {
                             ? "border-orange-500 shadow-md"
                             : "border-gray-300 hover:border-gray-400"
                         }`}
-                        style={{ backgroundColor: color }} // show actual color
+                        style={{ backgroundColor: color }}
                       />
                     );
                   })}

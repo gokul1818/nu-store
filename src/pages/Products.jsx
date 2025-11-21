@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import ProductCard from "../components/ProductCard";
 import SpinLoader from "../components/SpinLoader";
 import useProductStore from "../stores/useProductStore";
+import useCartStore from "../stores/useCartStore";
 
 export default function Products() {
   const {
@@ -12,16 +13,26 @@ export default function Products() {
     page,
     pages,
     loading,
+    setFilter,
   } = useProductStore();
 
+  const addItem = useCartStore((s) => s.addItem);
+
   const [q, setQ] = useState("");
+  const [debouncedQ, setDebouncedQ] = useState(q);
   const loaderRef = useRef(null);
 
-  // Reset + reload when search changes
+  // Debounce search without lodash
   useEffect(() => {
+    const handler = setTimeout(() => setDebouncedQ(q), 500);
+    return () => clearTimeout(handler);
+  }, [q]);
+
+  useEffect(() => {
+    setFilter("search", debouncedQ); // Assuming your store supports a "search" filter
     resetProducts();
     fetchProducts();
-  }, [q]);
+  }, [debouncedQ]);
 
   // Infinite scroll observer
   useEffect(() => {
@@ -48,14 +59,25 @@ export default function Products() {
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder="Search..."
-          className="border px-2 py-4 rounded w-full md:w-auto mt-2 md:mt-0"
+          className="border px-3 py-2 rounded w-full md:w-64 mt-2 md:mt-0 focus:outline-none focus:ring-2 focus:ring-orange-500"
         />
       </div>
 
       {/* Product grid */}
       <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-6">
         {products.map((p) => (
-          <ProductCard key={p._id} product={p} />
+          <ProductCard
+            key={p._id}
+            product={p}
+            onAdd={(product) =>
+              addItem({
+                ...product,
+                qty: 1,
+                selectedOptions:
+                  product.variants?.[0] || { color: "Default", size: "M" },
+              })
+            }
+          />
         ))}
       </div>
 
