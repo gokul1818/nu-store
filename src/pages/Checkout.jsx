@@ -4,13 +4,14 @@ import useAuthStore from "../stores/useAuthStore";
 import { useNavigate } from "react-router-dom";
 import { showError, showSuccess } from "../components/AppToast";
 import AppInput from "../components/AppInput";
-import { AuthAPI } from "../services/api";
 
 export default function Checkout() {
   const items = useCartStore((s) => s.items);
   const createOrder = useCartStore((s) => s.createOrder);
   const user = useAuthStore((s) => s.user);
   const updateProfile = useAuthStore((s) => s.updateProfile);
+  const navigate = useNavigate();
+
   const [loading, setLoading] = useState(false);
   const [editAddress, setEditAddress] = useState(false);
   const [address, setAddress] = useState({
@@ -20,30 +21,16 @@ export default function Checkout() {
     state: "",
     pincode: "",
   });
-  const navigate = useNavigate();
 
-  // Load initial address from user profile
+  // Load initial address from store
   useEffect(() => {
-    async function fetchProfile() {
-      try {
-        const res = await AuthAPI.getProfile();
-        const addressData =
-          res.addresses?.length > 0
-            ? res.addresses.map((addr) => ({
-                house: addr.house || "",
-                street: addr.street || "",
-                city: addr.city || "",
-                state: addr.state || "",
-              }))
-            : [{ house: "", street: "", city: "", state: "" }];
-        console.log("addressData: ", addressData);
-        setAddress(addressData);
-      } catch (err) {
-        showError("Failed to fetch profile");
-      }
+    if (user?.addresses?.length > 0) {
+      setAddress({
+        ...user.addresses[0],
+        pincode: user.addresses[0].pincode || "",
+      });
     }
-    fetchProfile();
-  }, []);
+  }, [user]);
 
   const handleAddressChange = (field, value) => {
     setAddress((prev) => ({ ...prev, [field]: value }));
@@ -63,40 +50,40 @@ export default function Checkout() {
   const submit = async (e) => {
     e.preventDefault();
 
-    if (!validateAddress()) return;
-
     setLoading(true);
     try {
-      if (editAddress) {
-        await updateProfile({
-          ...user,
-          addresses: [address],
-        });
-        showSuccess("Address updated successfully");
-      }
-
       const order = {
         items,
         shippingAddress: address,
         userId: user._id,
         paymentMethod: "online",
       };
+
       await createOrder(order);
+      showSuccess("Order placed successfully!");
       navigate("/orders");
     } catch (err) {
-      console.log(err);
+      console.error(err);
       showError("Order failed");
     } finally {
       setLoading(false);
     }
   };
 
+  if (!user) {
+    // Redirect to login if user is not logged in
+    navigate("/login");
+    return null;
+  }
+
   return (
     <div className="container mx-auto px-4 py-6">
       <h2 className="text-2xl font-bold mb-4">Checkout</h2>
+
       <form onSubmit={submit} className="bg-white p-4 rounded space-y-4">
         <div className="mb-3">
           <label className="block font-medium">Address</label>
+
           {!editAddress ? (
             <div className="bg-gray-100 p-5 mt-3 rounded-lg space-y-1">
               <div>Name: {user?.firstName || user?.name}</div>
@@ -138,15 +125,26 @@ export default function Checkout() {
               <AppInput
                 placeholder="Pincode"
                 value={address.pincode}
-                onChange={(e) => handleAddressChange("pincode", e.target.value)}
+                onChange={(e) =>
+                  handleAddressChange("pincode", e.target.value)
+                }
               />
-              <button
-                type="button"
-                className="text-secondary text-sm"
-                onClick={() => setEditAddress(false)}
-              >
-                Cancel
-              </button>
+              <div className="flex gap-2 mt-2">
+                <button
+                  type="button"
+                  className="text-secondary text-sm"
+                  onClick={() => setEditAddress(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  className="text-primary text-sm"
+                  onClick={() => setEditAddress(false)}
+                >
+                  Save
+                </button>
+              </div>
             </div>
           )}
         </div>
