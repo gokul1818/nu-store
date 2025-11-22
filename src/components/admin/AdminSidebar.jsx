@@ -43,7 +43,7 @@ export default function AdminSidebar() {
       className={`
         backdrop-blur-sm bg-black/50 border-gray-400 border-r-2 text-white
         fixed top-0 left-3 h-[95%] flex flex-col shadow-lg my-3
-        transition-all duration-300 rounded-tr-xl rounded-xl
+        transition-all duration-300 rounded-tr-xl rounded-xl z-50
         justify-center
         ${expanded ? "w-64" : "w-20"}
       `}

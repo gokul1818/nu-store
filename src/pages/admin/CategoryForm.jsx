@@ -111,6 +111,7 @@ export default function CategoryForm() {
       />
       <FileUpload
         label="Category Image"
+        id="category-upload"
         mode="single"
         value={image}
         onChange={(url) => {

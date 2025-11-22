@@ -113,6 +113,7 @@ export default function BannerForm() {
       />
 
       <FileUpload
+        id="banner-upload"
         label="Banner Image"
         mode="single"
         value={form.imageUrl}
