@@ -2,14 +2,11 @@ import { motion } from "framer-motion";
 import useProductStore from "../stores/useProductStore";
 import ProductCard from "../components/ProductCard";
 import useCartStore from "../stores/useCartStore";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import AppLoader from "../components/AppLoader";
 import { BannerAPI, CategoryAPI } from "../services/api";
 import { Link, useNavigate } from "react-router-dom";
 
-// ICONS
-import { FaMale, FaFemale, FaChild } from "react-icons/fa";
-import SpinLoader from "../components/SpinLoader";
 import BannerCarousel from "../components/BannerCarousel";
 import CategoryCard from "../components/CategoryCard";
 import Services from "./Services";
@@ -18,23 +15,17 @@ export default function Home() {
   const {
     products,
     fetchProducts,
-    resetProducts, resetFilters,
-    loadMoreProducts,
-    page,
-    pages,
-    loading,
-    setFilter,
+    resetProducts,
+    resetFilters,
+    loading
   } = useProductStore();
 
   const addItem = useCartStore((s) => s.addItem);
   const navigate = useNavigate();
 
   const [categories, setCategories] = useState([]);
-  const [activeMainCat, setActiveMainCat] = useState(null);
   const [banners, setBanners] = useState([]);
   const [initialLoading, setInitialLoading] = useState(true);
-
-  const loaderRef = useRef(null);
 
   /** LOAD BANNERS */
   const loadBanners = async () => {
@@ -49,11 +40,11 @@ export default function Home() {
   /** INITIAL DATA */
   async function loadData() {
     resetProducts();
+    resetFilters();
     setInitialLoading(true);
 
     try {
-      await fetchProducts();
-
+      await fetchProducts(); // load all
       const res = await CategoryAPI.getAll();
       setCategories(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
@@ -64,29 +55,16 @@ export default function Home() {
   }
 
   useEffect(() => {
-    resetProducts()
-    resetFilters()
     loadData();
     loadBanners();
   }, []);
 
-  /** INFINITE SCROLL */
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && !loading && page < pages) {
-          loadMoreProducts();
-        }
-      },
-      { threshold: 0.5 }
-    );
-
-    if (loaderRef.current) observer.observe(loaderRef.current);
-
-    return () => observer.disconnect();
-  }, [loading, page, pages]);
-
   if (initialLoading) return <AppLoader />;
+
+  /** Sort latest → oldest */
+  const latestProducts = [...products]
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    .slice(0, 4); // only 4 items
 
   return (
     <>
@@ -94,10 +72,9 @@ export default function Home() {
 
       <div className="mx-auto w-full container px-4 py-6">
 
-        {/* MAIN CATEGORIES */}
+        <h1 className="text-3xl font-bold text-center my-10">Explore Everything</h1>
 
-        <h1 className="text-3xl font-bold text-center my-10"> Explore Everything</h1>
-
+        {/* Categories (snap scroll) */}
         <div className="flex gap-6 w-full overflow-x-auto pb-10 no-scrollbar snap-x snap-mandatory">
           {categories.map((cat) => (
             <div key={cat._id} className="snap-start">
@@ -109,15 +86,15 @@ export default function Home() {
           ))}
         </div>
 
+        <h1 className="text-3xl font-bold text-center my-10 mt-20">
+          New Arrivals
+        </h1>
 
-        <h1 className="text-3xl font-bold text-center my-10 mt-20">New Arrivals</h1>
-        {/* PRODUCT GRID */}
+        {/* PRODUCT GRID - Only 4 */}
         <motion.div
           initial="hidden"
           animate="visible"
-          variants={{
-            visible: { transition: { staggerChildren: 0.05 } },
-          }}
+          variants={{ visible: { transition: { staggerChildren: 0.05 } } }}
           className="
             w-full 
             grid 
@@ -129,7 +106,7 @@ export default function Home() {
             gap-6
           "
         >
-          {products.slice(0, 4).map((p) => (
+          {latestProducts.map((p) => (
             <ProductCard key={p._id} product={p} onAdd={addItem} />
           ))}
         </motion.div>
@@ -142,11 +119,6 @@ export default function Home() {
         >
           View All Products
         </Link>
-
-        {/* INFINITE SCROLL TRIGGER */}
-        <div ref={loaderRef} className="h-16 flex justify-center items-center">
-          {loading && <SpinLoader />}
-        </div>
 
         <Services />
       </div>

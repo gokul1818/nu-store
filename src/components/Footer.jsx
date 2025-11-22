@@ -29,7 +29,7 @@ export default function Footer() {
         <div>
           <h3 className="text-white font-semibold mb-3">Customer Service</h3>
           <ul className="space-y-2 text-sm">
-            <li><Link to="/contact" className="hover:text-white">Contact Us</Link></li>
+            {/* <li><Link to="/contact" className="hover:text-white">Contact Us</Link></li> */}
             <li><Link to="/faq" className="hover:text-white">FAQ</Link></li>
             <li><Link to="/shipping-policy" className="hover:text-white">Shipping Policy</Link></li>
             <li><Link to="/refund-policy" className="hover:text-white">Refund Policy</Link></li>
