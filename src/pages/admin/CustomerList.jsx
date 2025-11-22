@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { FaEye, FaLock, FaLockOpen, FaTrash } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import AppTable from "../../components/AppTable";
@@ -15,23 +15,47 @@ export default function CustomerList() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
+  const [searchQuery, setSearchQuery] = useState("");
+  const searchRef = useRef(null);
+
+  const [statusFilter, setStatusFilter] = useState("");
+
   // ---------------------------
-  // Load users
+  // Load users with search & filter
   // ---------------------------
-  const loadUsers = async () => {
+  const loadUsers = async (page = 1) => {
     setLoading(true);
     try {
-      const res = await AdminAPI.getUsers(currentPage);
+      const res = await AdminAPI.getUsers({
+        page,
+        q: searchQuery,
+        status: statusFilter,
+      });
       setCustomers(res.data.users);
       setTotalPages(res.data.pages);
+    } catch (err) {
+      console.error(err);
+      showError("Failed to load users");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    loadUsers();
-  }, [currentPage]);
+    loadUsers(currentPage);
+  }, [currentPage, searchQuery, statusFilter]);
+
+  // ---------------------------
+  // Handle search input
+  // ---------------------------
+  const handleSearch = (e) => {
+    const value = e.target.value;
+    clearTimeout(searchRef.current);
+    searchRef.current = setTimeout(() => {
+      setSearchQuery(value);
+      setCurrentPage(1);
+    }, 500);
+  };
 
   // ---------------------------
   // Delete user
@@ -41,8 +65,8 @@ export default function CustomerList() {
     setLoading(true);
     try {
       await AdminAPI.deleteUser(id);
-      loadUsers();
       showSuccess("Customer deleted successfully!");
+      loadUsers(currentPage);
     } catch (err) {
       console.error(err);
       showError("Failed to delete customer");
@@ -59,12 +83,12 @@ export default function CustomerList() {
     try {
       if (row.status === "Active") {
         await AdminAPI.blockUser(row._id);
-        showSuccess("User blocked successfully!");
+        showSuccess("User InActive successfully!");
       } else {
         await AdminAPI.unblockUser(row._id);
-        showSuccess("User unblocked successfully!");
+        showSuccess("User unInActive successfully!");
       }
-      loadUsers();
+      loadUsers(currentPage);
     } catch (err) {
       console.error(err);
       showError("Failed to update user status");
@@ -111,12 +135,12 @@ export default function CustomerList() {
       onClick: (row) => navigate(`/admin/users/${row._id}`),
       className: "hover:bg-blue-100",
     },
-    // {
-    //   icon: <FaTrash className="w-4 h-4 text-primary" />,
-    //   title: "Delete",
-    //   onClick: (row) => deleteCustomer(row._id),
-    //   className: "hover:bg-red-100",
-    // },
+    {
+      icon: <FaTrash className="w-4 h-4 text-primary" />,
+      title: "Delete",
+      onClick: (row) => deleteCustomer(row._id),
+      className: "hover:bg-red-100",
+    },
     {
       icon: (row) =>
         row.status === "Active" ? (
@@ -132,8 +156,27 @@ export default function CustomerList() {
 
   return (
     <div className="container mx-auto p-6">
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex justify-between items-center mb-6 space-x-4">
         <h2 className="text-2xl font-semibold">Customers</h2>
+
+        <div className="gap-3">
+          <input
+            type="text"
+            placeholder="Search by name, email, or phone..."
+            className="border p-2 rounded w-64"
+            onChange={handleSearch}
+          />
+
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="border p-2 rounded left-5"
+          >
+            <option value="">All</option>
+            <option value="Active">Active</option>
+            <option value="InActive">InActive</option>
+          </select>
+        </div>
       </div>
 
       <AppTable

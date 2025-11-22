@@ -85,16 +85,18 @@ export const OrderAPI = {
     ADMIN
 --------------------------------------------------------- */
 export const AdminAPI = {
-  getUsers: (page = 1, limit = 10) =>
-    api.get(`/api/admin/users?page=${page}&limit=${limit}`),
-
+  getUsers: ({ page = 1, limit = 10, q = "", status = "" } = {}) => {
+    let query = `?page=${page}&limit=${limit}`;
+    if (q) query += `&q=${encodeURIComponent(q)}`;
+    if (status) query += `&status=${status}`;
+    return api.get(`/api/admin/users${query}`);
+  },
   getOrderById: (id) => api.get(`/api/orders/${id}`),
-
+  getDashboard: () => api.get(`/api/admin/dashboard/`),
+  getUserById: (id) => api.get(`/api/admin/users/${id}`),
   getOrders: (page = 1, limit = 10, status) =>
     api.get(`/api/orders/all?status=${status}&page=${page}&limit=${limit}`),
-
   updateOrderStatus: (id, data) => api.put(`/api/orders/${id}/status`, data),
-
   deleteUser: (id) => api.delete(`/api/admin/users/${id}`),
   blockUser: (userId) => api.put(`/api/admin/users/${userId}/block`),
   unblockUser: (userId) => api.put(`/api/admin/users/${userId}/unblock`),

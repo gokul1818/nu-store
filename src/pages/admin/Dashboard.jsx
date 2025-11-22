@@ -12,24 +12,47 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
-
-const revenueData = [
-  { name: "Jan", revenue: 4000 },
-  { name: "Feb", revenue: 5200 },
-  { name: "Mar", revenue: 6800 },
-  { name: "Apr", revenue: 7400 },
-  { name: "May", revenue: 8900 },
-  { name: "Jun", revenue: 9600 },
-];
-
-const ordersData = [
-  { status: "Pending", value: 34 },
-  { status: "Shipped", value: 78 },
-  { status: "Delivered", value: 210 },
-  { status: "Returned", value: 12 },
-];
+import { useEffect, useState } from "react";
+import { AdminAPI } from "../../services/api";
+import SpinLoader from "../../components/SpinLoader";
 
 export default function Dashboard() {
+  const [dashboard, setDashboard] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchDashboard = async () => {
+      setLoading(true);
+      try {
+        const res = await AdminAPI.getDashboard();
+        setDashboard(res.data);
+      } catch (err) {
+        console.error("Failed to fetch dashboard:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboard();
+  }, []);
+
+  if (loading || !dashboard) return <SpinLoader />;
+
+  // Format revenue analytics for line chart
+  const revenueData = dashboard.revenueAnalytics?.map((rev, idx) => ({
+    name: new Date(2025, idx).toLocaleString("default", { month: "short" }),
+    revenue: Number(rev),
+  })) || [];
+
+  // Format orders data for bar chart
+  const ordersData =
+    dashboard.orderStatus
+      ? Object.entries(dashboard.orderStatus).map(([status, value]) => ({
+          status,
+          value: Number(value),
+        }))
+      : [];
+
   return (
     <AdminRoute>
       <div className="container mx-auto px-4 py-6">
@@ -44,10 +67,10 @@ export default function Dashboard() {
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
           {[
-            { title: "Total Sales", value: "$45,800" },
-            { title: "Total Orders", value: "1,563" },
-            { title: "Total Users", value: "2,348" },
-            { title: "Avg Order Value", value: "$83.50" },
+            { title: "Total Sales", value: `₹${Number(dashboard.totalSales || 0).toLocaleString()}` },
+            { title: "Total Orders", value: Number(dashboard.totalOrders || 0) },
+            { title: "Total Users", value: Number(dashboard.totalUsers || 0) },
+            { title: "Avg Order Value", value: `₹${Number(dashboard.avgOrderValue || 0).toFixed(2)}` },
           ].map((item, idx) => (
             <motion.div
               key={idx}
@@ -89,9 +112,12 @@ export default function Dashboard() {
           >
             <h3 className="text-lg font-semibold mb-4">Low Stock Alerts</h3>
             <ul className="space-y-2 text-sm">
-              <li>Denim Jacket - Only 4 left</li>
-              <li>Linen Shirt - Only 2 left</li>
-              <li>Black Hoodie - Out of stock</li>
+              {dashboard.lowStock?.map((item, idx) => (
+                <li key={idx}>
+                  {item.title} -{" "}
+                  {item.stock > 0 ? `Only ${item.stock} left` : "Out of stock"}
+                </li>
+              ))}
             </ul>
           </motion.div>
         </div>
@@ -103,9 +129,7 @@ export default function Dashboard() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
           >
-            <h3 className="text-lg font-semibold mb-4">
-              Order Status Breakdown
-            </h3>
+            <h3 className="text-lg font-semibold mb-4">Order Status Breakdown</h3>
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={ordersData}>
                 <CartesianGrid strokeDasharray="3 3" />
@@ -123,89 +147,17 @@ export default function Dashboard() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
           >
-            <h3 className="text-lg font-semibold mb-4">
-              🔥 Best-Selling Products
-            </h3>
+            <h3 className="text-lg font-semibold mb-4">🔥 Best-Selling Products</h3>
             <ul className="space-y-3">
-              <li className="flex justify-between">
-                <span>Denim Jacket</span>
-                <span>230 sold</span>
-              </li>
-              <li className="flex justify-between">
-                <span>Summer Dress</span>
-                <span>180 sold</span>
-              </li>
-              <li className="flex justify-between">
-                <span>Cotton T-Shirt</span>
-                <span>150 sold</span>
-              </li>
+              {dashboard.bestSelling?.map((item, idx) => (
+                <li key={idx} className="flex justify-between">
+                  <span>{item.title}</span>
+                  <span>{item.totalSold}</span>
+                </li>
+              ))}
             </ul>
           </motion.div>
         </div>
-
-        {/* Recent Orders */}
-        {/* <motion.div
-          className="bg-white p-6 rounded-lg shadow-lg"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-        >
-          <h3 className="text-lg font-semibold mb-4">Recent Orders</h3>
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="bg-orange-100 text-left text-gray-600 uppercase text-xs border-b">
-                <th className="py-3 px-2">Order ID</th>
-                <th className="px-2">Customer</th>
-                <th className="px-2">Status</th>
-                <th className="px-2">Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              {[
-                {
-                  id: "#1023",
-                  name: "John Doe",
-                  status: "Delivered",
-                  total: "$250",
-                },
-                {
-                  id: "#1024",
-                  name: "Sarah Parker",
-                  status: "Shipped",
-                  total: "$180",
-                },
-                {
-                  id: "#1025",
-                  name: "Alex Lee",
-                  status: "Pending",
-                  total: "$99",
-                },
-              ].map((order, idx) => (
-                <tr
-                  key={idx}
-                  className="border-b hover:bg-gray-50 transition duration-200"
-                >
-                  <td className="py-3 px-2">{order.id}</td>
-                  <td className="px-2">{order.name}</td>
-                  <td className="px-2">
-                    <span
-                      className={`px-3 py-1 text-xs font-semibold rounded-full
-                ${
-                  order.status === "Delivered"
-                    ? "bg-green-100 text-green-600"
-                    : order.status === "Shipped"
-                    ? "bg-blue-100 text-blue-600"
-                    : "bg-yellow-100 text-yellow-600"
-                }`}
-                    >
-                      {order.status}
-                    </span>
-                  </td>
-                  <td className="px-2">{order.total}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </motion.div> */}
       </div>
     </AdminRoute>
   );

@@ -1,42 +1,38 @@
 import { useEffect, useState } from "react";
-import {
-  HiOutlineCheckCircle,
-  HiOutlineMail,
-  HiOutlinePhone,
-} from "react-icons/hi";
+import { HiOutlineCheckCircle, HiOutlineMail, HiOutlinePhone } from "react-icons/hi";
 import { useParams } from "react-router-dom";
 import SpinLoader from "../../components/SpinLoader";
+import { AdminAPI } from "../../services/api";
+import { showError } from "../../components/AppToast";
 
 export default function CustomerProfile() {
   const { id } = useParams();
   const [customer, setCustomer] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const dummyCustomer = {
-    id: "U1001",
-    name: "John Doe",
-    email: "john@example.com",
-    phone: "+91 9876543210",
-    status: "Active",
-    registered: "2025-01-10",
-    addresses: [
-      {
-        label: "Home",
-        address: "123 Main Street, City, Country",
-      },
-    ],
-    communication: {
-      email: true,
-      sms: false,
-      marketing: true,
-    },
-  };
-
+  // ---------------------------
+  // Load customer data by ID
+  // ---------------------------
   useEffect(() => {
-    // Simulate API call
-    setCustomer(dummyCustomer);
+    const loadCustomer = async () => {
+      setLoading(true);
+      try {
+        const res = await AdminAPI.getUserById(id); // Call API with id
+        setCustomer(res.data); // Set user data in state
+      } catch (err) {
+        console.error(err);
+        showError("Failed to load customer data");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (id) loadCustomer();
   }, [id]);
 
-  if (!customer) return <SpinLoader />;
+  if (loading) return <SpinLoader />;
+
+  if (!customer) return <div className="p-6 text-center">No customer found.</div>;
 
   return (
     <div className="container mx-auto p-6 space-y-6">
@@ -61,27 +57,29 @@ export default function CustomerProfile() {
             />
             Status: {customer.status}
           </span>
-          <span>Registered On: {customer.registered}</span>
+          <span>Registered On: {new Date(customer.registeredAt).toLocaleDateString()}</span>
         </div>
       </div>
 
       {/* Address Book */}
-      <div className="bg-white shadow-md rounded-lg p-6 mb-6">
-        <h3 className="text-xl font-semibold text-gray-700 mb-4">
-          Address Book
-        </h3>
-        <div className="space-y-2">
-          {customer.addresses.map((a, idx) => (
-            <div
-              key={idx}
-              className="border-l-4 border-primary pl-3 bg-gray-50 p-2 rounded"
-            >
-              <p className="font-medium">{a.label}</p>
-              <p className="text-gray-600">{a.address}</p>
-            </div>
-          ))}
+      {customer.addresses && customer.addresses.length > 0 && (
+        <div className="bg-white shadow-md rounded-lg p-6 mb-6">
+          <h3 className="text-xl font-semibold text-gray-700 mb-4">
+            Address Book
+          </h3>
+          <div className="space-y-2">
+            {customer.addresses.map((a, idx) => (
+              <div
+                key={idx}
+                className="border-l-4 border-primary pl-3 bg-gray-50 p-2 rounded"
+              >
+                <p className="font-medium">{a.label}</p>
+                <p className="text-gray-600">{a.address}</p>
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
