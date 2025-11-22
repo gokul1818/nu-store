@@ -9,7 +9,7 @@ export default function AppButton({
     <button
       {...props}
       disabled={loading || disabled}
-      className={`relative flex items-center justify-center px-4 py-2 rounded 
+      className={`relative flex items-center justify-center px-4 py-3 rounded 
         bg-primary text-white disabled:opacity-60 disabled:cursor-not-allowed 
         transition-all ${className}`}
     >

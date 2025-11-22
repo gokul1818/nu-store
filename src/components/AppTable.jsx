@@ -1,15 +1,31 @@
-export default function AppTable({ columns = [], data = [], actions = [], loading = false }) {
+export default function AppTable({
+  columns = [],
+  data = [],
+  actions = [],
+  loading = false,
+}) {
   return (
     <div className="overflow-x-auto bg-white rounded shadow">
-      <table className="w-full text-sm">
+      <table className="w-full text-sm border-collapse">
         <thead className="bg-orange-100">
           <tr>
-            {columns.map((col) => (
-              <th key={col.key} className="border p-4 text-center">
+            {columns.map((col, idx) => (
+              <th
+                key={col.key}
+                className={`border-b border-gray-300 p-4 text-left ${
+                  idx !== columns.length - 1 || actions.length > 0
+                    ? "border-r border-gray-300"
+                    : ""
+                }`}
+              >
                 {col.label}
               </th>
             ))}
-            {actions.length > 0 && <th className="border p-4 text-left">Actions</th>}
+            {actions.length > 0 && (
+              <th className="border-b border-gray-300 p-4 text-left">
+                Actions
+              </th>
+            )}
           </tr>
         </thead>
 
@@ -18,7 +34,7 @@ export default function AppTable({ columns = [], data = [], actions = [], loadin
             <tr>
               <td
                 colSpan={columns.length + (actions.length > 0 ? 1 : 0)}
-                className="border p-4 text-center"
+                className="border-b border-gray-300 p-4 text-center"
               >
                 <div className="flex justify-center items-center gap-2">
                   <svg
@@ -48,31 +64,45 @@ export default function AppTable({ columns = [], data = [], actions = [], loadin
             <tr>
               <td
                 colSpan={columns.length + (actions.length > 0 ? 1 : 0)}
-                className="border p-4 text-center text-gray-500"
+                className="border-b border-gray-300 p-4 text-center text-gray-500"
               >
                 No records found.
               </td>
             </tr>
           ) : (
-            data.map((row, index) => (
-              <tr key={row._id || index} className="hover:bg-gray-50 transition">
-                {columns.map((col) => (
-                  <td key={col.key} className="border p-2">
+            data.map((row, rowIndex) => (
+              <tr
+                key={row._id || rowIndex}
+                className="hover:bg-gray-50 transition"
+              >
+                {columns.map((col, colIndex) => (
+                  <td
+                    key={col.key}
+                    className={`border-b border-gray-300 p-4 ${
+                      colIndex !== columns.length - 1 || actions.length > 0
+                        ? "border-r border-gray-300"
+                        : ""
+                    }`}
+                  >
                     {col.render ? col.render(row) : row[col.key]}
                   </td>
                 ))}
                 {actions.length > 0 && (
-                  <td className="border p-2 flex gap-2">
-                    {actions.map((action, idx) => (
-                      <button
-                        key={idx}
-                        onClick={() => action.onClick(row)}
-                        title={action.title}
-                        className={`p-1 rounded transition ${action.className || ""}`}
-                      >
-                        {action.icon}
-                      </button>
-                    ))}
+                  <td className="border-b border-gray-300 p-4">
+                    <div className="flex gap-2">
+                      {actions.map((action, actionIdx) => (
+                        <button
+                          key={actionIdx}
+                          onClick={() => action.onClick(row)}
+                          title={action.title}
+                          className={`p-1 rounded transition ${
+                            action.className || ""
+                          }`}
+                        >
+                          {action.icon}
+                        </button>
+                      ))}
+                    </div>
                   </td>
                 )}
               </tr>

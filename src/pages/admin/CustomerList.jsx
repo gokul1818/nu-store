@@ -46,14 +46,31 @@ export default function CustomerList() {
     }
   };
 
-  // TABLE COLUMNS (matching backend!)
   const columns = [
     { key: "uniqId", label: "User ID" },
     { key: "name", label: "Name" },
     { key: "email", label: "Email" },
     { key: "phone", label: "Phone" },
     { key: "totalOrders", label: "Total Orders" },
-    { key: "lastOrder", label: "Last Order" },
+    {
+      key: "lastOrder",
+      label: "Last Order",
+      render: (row) => {
+        if (!row.lastOrder) return "—";
+        const date = new Date(row.lastOrder);
+
+        const day = String(date.getDate()).padStart(2, "0");
+        const month = date.toLocaleString("default", { month: "short" });
+        const year = date.getFullYear();
+
+        let hours = date.getHours();
+        const minutes = String(date.getMinutes()).padStart(2, "0");
+        const ampm = hours >= 12 ? "PM" : "AM";
+        hours = hours % 12 || 12;
+
+        return `${day} ${month} ${year}, ${hours}:${minutes} ${ampm}`;
+      },
+    },
     { key: "status", label: "Status" },
   ];
 

@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
-import { GiDress, GiShoppingCart, GiCash } from "react-icons/gi";
-import { LiaTshirtSolid } from "react-icons/lia";
-import { IoCartOutline } from "react-icons/io5";
-import { IoBagCheckOutline } from "react-icons/io5";
 import { BiSolidOffer } from "react-icons/bi";
+import { GiDress } from "react-icons/gi";
+import { IoBagCheckOutline, IoCartOutline } from "react-icons/io5";
+import { LiaTshirtSolid } from "react-icons/lia";
 
 export default function AppLoader() {
   const icons = [
@@ -19,7 +18,7 @@ export default function AppLoader() {
   useEffect(() => {
     const interval = setInterval(() => {
       setIndex((prev) => (prev + 1) % icons.length);
-    }, 800); // change icon every 0.8s
+    }, 800); 
     return () => clearInterval(interval);
   }, []);
 

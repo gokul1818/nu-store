@@ -1,4 +1,6 @@
 import toast from "react-hot-toast";
+import { FaCheckCircle } from "react-icons/fa";
+import { MdCancel } from "react-icons/md";
 
 export const showSuccess = (message) => {
   toast.custom((t) => (
@@ -7,7 +9,7 @@ export const showSuccess = (message) => {
         t.visible ? "animate-enter" : "animate-leave"
       } bg-green-600 text-white px-4 py-3 rounded-lg shadow-lg flex items-center gap-2`}
     >
-      <span className="font-semibold">✔</span>
+      <FaCheckCircle size={20} />
       <span>{message}</span>
     </div>
   ));
@@ -20,7 +22,7 @@ export const showError = (message) => {
         t.visible ? "animate-enter" : "animate-leave"
       } bg-red-600 text-white px-4 py-3 rounded-lg shadow-lg flex items-center gap-2`}
     >
-      <span className="font-semibold">⚠</span>
+      <MdCancel size={20} />
       <span>{message}</span>
     </div>
   ));
