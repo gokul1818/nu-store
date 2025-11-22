@@ -1,24 +1,73 @@
 import { useEffect, useState } from "react";
 import { BannerAPI } from "../../services/api";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import AppTable from "../../components/AppTable";
+import { FaTrash } from "react-icons/fa";
+import { TbEdit } from "react-icons/tb";
 
 export default function BannerList() {
   const [banners, setBanners] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  const navigate = useNavigate();
 
   const load = async () => {
-    const res = await BannerAPI.getAll();
-    setBanners(res.data);
+    setLoading(true);
+    try {
+      const res = await BannerAPI.getAll();
+      setBanners(res.data);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const remove = async (id) => {
     if (!confirm("Delete banner?")) return;
-    await BannerAPI.delete(id);
-    load();
+    setLoading(true);
+    try {
+      await BannerAPI.delete(id);
+      await load();
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
     load();
   }, []);
+
+  // Table columns
+  const columns = [
+    {
+      key: "imageUrl",
+      label: "Image",
+      render: (row) => (
+        <img
+          src={row.imageUrl}
+          className="w-32 h-16 object-cover rounded"
+          alt={row.title}
+        />
+      ),
+    },
+    { key: "title", label: "Title" },
+    { key: "link", label: "Link" },
+  ];
+
+  // Actions
+  const actions = [
+    {
+      icon: <TbEdit className="w-5 h-5 text-primary" />,
+      onClick: (row) => navigate(`/admin/banner/edit/${row._id}`),
+      title: "Edit Banner",
+      className: "hover:bg-blue-100",
+    },
+    {
+      icon: <FaTrash className="w-4 h-4 text-red-600" />,
+      onClick: (row) => remove(row._id),
+      title: "Delete Banner",
+      className: "hover:bg-red-100",
+    },
+  ];
 
   return (
     <div className="p-6">
@@ -32,47 +81,7 @@ export default function BannerList() {
         </Link>
       </div>
 
-      <table className="w-full border text-sm">
-        <thead className="bg-gray-100">
-          <tr>
-            <th className="border p-2">Image</th>
-            <th className="border p-2">Title</th>
-            <th className="border p-2">Link</th>
-            <th className="border p-2">Actions</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {banners.map((b) => (
-            <tr key={b._id}>
-              <td className="border p-2">
-                <img
-                  src={b.imageUrl}
-                  className="w-32 h-16 object-cover rounded"
-                />
-              </td>
-              <td className="border p-2">{b.title}</td>
-              <td className="border p-2">{b.link}</td>
-
-              <td className="border p-2 space-x-2">
-                <Link
-                  to={`/admin/banner/edit/${b._id}`}
-                  className="px-2 py-1 border rounded"
-                >
-                  Edit
-                </Link>
-
-                <button
-                  className="px-2 py-1 border rounded text-red-600"
-                  onClick={() => remove(b._id)}
-                >
-                  Delete
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <AppTable columns={columns} data={banners} actions={actions} loading={loading} />
     </div>
   );
 }

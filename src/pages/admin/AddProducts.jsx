@@ -83,39 +83,15 @@ export default function ProductForm() {
     }
   }, [form.mrp, form.discount]);
 
-  // Update SKU when title changes
+  // Update SKU when title changes for all variants
   useEffect(() => {
+    if (!form.title) return;
     const updatedVariants = form.variants.map((v) => ({
       ...v,
-      sku: generateSKU(form.title, v.size, v.color),
+      sku: v.size && v.color ? generateSKU(form.title, v.size, v.color) : v.sku,
     }));
     setForm((f) => ({ ...f, variants: updatedVariants }));
   }, [form.title]);
-
-  const validate = () => {
-    const temp = {};
-    if (!form.title.trim()) temp.title = "Title is required";
-    if (form.mrp === "" || form.mrp < 0)
-      temp.mrp = "MRP must be greater than 0";
-    if (form.price > form.mrp) temp.price = "Price cannot exceed MRP";
-    if (form.discount < 0 || form.discount > 100)
-      temp.discount = "Discount must be between 0 and 100";
-    if (!form.gender) temp.gender = "Gender is required";
-    if (!form.category) temp.category = "Category is required";
-    if (!form.thumbnail.trim()) temp.thumbnail = "Thumbnail is required";
-    if (!form.description.trim()) temp.description = "Description is required";
-
-    form.variants.forEach((v, i) => {
-      if (!v.size.trim()) temp[`size-${i}`] = "Size is required";
-      if (!v.color.trim()) temp[`color-${i}`] = "Color is required";
-      if (!v.sku.trim()) temp[`sku-${i}`] = "SKU is required";
-      if (v.stock === "" || v.stock < 0)
-        temp[`stock-${i}`] = "Stock must be zero or greater";
-    });
-
-    setErrors(temp);
-    return Object.keys(temp).length === 0;
-  };
 
   const generateSKU = (title, size, color) => {
     if (!title || !size || !color) return "";
@@ -134,16 +110,15 @@ export default function ProductForm() {
     setErrors((prev) => {
       const newErrors = { ...prev };
       delete newErrors[`${key}-${index}`];
+      delete newErrors[`sku-${index}`]; // also clear SKU error
       return newErrors;
     });
 
-    // Update SKU dynamically
-    if (form.title && updated[index].size && updated[index].color) {
-      updated[index].sku = generateSKU(
-        form.title,
-        updated[index].size,
-        updated[index].color
-      );
+    // Update SKU if possible
+    const size = key === "size" ? value : updated[index].size;
+    const color = key === "color" ? value : updated[index].color;
+    if (form.title && size && color) {
+      updated[index].sku = generateSKU(form.title, size, color);
     }
 
     setForm({ ...form, variants: updated });
@@ -175,6 +150,32 @@ export default function ProductForm() {
         { size: "", color: COLORS[0], sku: "", stock: "" },
       ],
     });
+  };
+
+  const validate = () => {
+    const temp = {};
+    if (!form.title.trim()) temp.title = "Title is required";
+    if (form.mrp === "" || form.mrp < 0)
+      temp.mrp = "MRP must be greater than 0";
+    if (form.price > form.mrp) temp.price = "Price cannot exceed MRP";
+    if (form.discount < 0 || form.discount > 100)
+      temp.discount = "Discount must be between 0 and 100";
+    if (!form.gender) temp.gender = "Gender is required";
+    if (!form.category) temp.category = "Category is required";
+    if (!form.thumbnail.trim()) temp.thumbnail = "Thumbnail is required";
+    if (form.images.length === 0) temp.images = "Gallery images are required";
+    if (!form.description.trim()) temp.description = "Description is required";
+
+    form.variants.forEach((v, i) => {
+      if (!v.size.trim()) temp[`size-${i}`] = "Size is required";
+      if (!v.color.trim()) temp[`color-${i}`] = "Color is required";
+      if (!v.sku.trim()) temp[`sku-${i}`] = "SKU is required";
+      if (v.stock === "" || v.stock < 0)
+        temp[`stock-${i}`] = "Stock must be zero or greater";
+    });
+
+    setErrors(temp);
+    return Object.keys(temp).length === 0;
   };
 
   const submit = async () => {
@@ -214,6 +215,7 @@ export default function ProductForm() {
         </h2>
 
         <div className="grid gap-4 md:grid-cols-2">
+          {/* Title */}
           <AppInput
             label="Title"
             placeholder="Product Title"
@@ -229,6 +231,7 @@ export default function ProductForm() {
             error={errors.title}
           />
 
+          {/* MRP */}
           <AppInput
             label="MRP Price"
             placeholder="MRP Price"
@@ -245,6 +248,7 @@ export default function ProductForm() {
             error={errors.mrp}
           />
 
+          {/* Discount */}
           <AppInput
             label="Discount %"
             placeholder="Discount"
@@ -261,6 +265,7 @@ export default function ProductForm() {
             error={errors.discount}
           />
 
+          {/* Sale Price */}
           <AppInput
             label="Sale Price"
             placeholder="Sale Price"
@@ -269,6 +274,7 @@ export default function ProductForm() {
             disabled
           />
 
+          {/* Gender */}
           <AppSelect
             label="Gender"
             value={form.gender}
@@ -290,6 +296,7 @@ export default function ProductForm() {
             <option value="kids">Kids</option>
           </AppSelect>
 
+          {/* Category */}
           <AppSelect
             label="Category"
             value={form.category}
@@ -310,33 +317,40 @@ export default function ProductForm() {
               </option>
             ))}
           </AppSelect>
+          <FileUpload
+            id="thumbnail-upload"
+            label="Thumbnail Image"
+            mode="single"
+            value={form.thumbnail}
+            onChange={(url) => setForm((prev) => ({ ...prev, thumbnail: url }))}
+            error={errors.thumbnail}
+          />
 
           <FileUpload
+            id="gallery-upload"
             label="Gallery Images"
             mode="multiple"
             value={form.images}
-            onChange={(urls) => setForm({ ...form, images: urls })}
+            onChange={(urls) => setForm((prev) => ({ ...prev, images: urls }))}
+            error={errors.images}
           />
 
+          {/* Description */}
           <AppInput
             label="Description"
             placeholder="Product Description"
             type="textarea"
             rows={4}
             value={form.description}
-            onChange={(e) => {
-              setForm({ ...form, description: e.target.value });
-              setErrors((prev) => {
-                const newErrors = { ...prev };
-                delete newErrors.description;
-                return newErrors;
-              });
-            }}
+            onChange={(e) =>
+              setForm((prev) => ({ ...prev, description: e.target.value }))
+            }
             className="md:col-span-2"
             error={errors.description}
           />
         </div>
 
+        {/* Variants */}
         <div className="mt-6">
           <h3 className="text-lg font-semibold mb-3">Variants</h3>
           {form.variants.map((v, i) => (
@@ -388,9 +402,9 @@ export default function ProductForm() {
                       );
                       setForm({ ...form, variants: updated });
                     }}
-                    className="text-l text-red-600 hover:text-red-800"
+                    className="text-l text-red-600 hover:text-red-800 ml-2"
                   >
-                    <FaTrash  />
+                    <FaTrash />
                   </button>
                 )}
               </div>

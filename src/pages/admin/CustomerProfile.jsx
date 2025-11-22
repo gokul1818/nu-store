@@ -36,7 +36,7 @@ export default function CustomerProfile() {
     setCustomer(dummyCustomer);
   }, [id]);
 
-  if (!customer) return <SpinLoader />
+  if (!customer) return <SpinLoader />;
 
   return (
     <div className="container mx-auto p-6 space-y-6">
@@ -85,41 +85,6 @@ export default function CustomerProfile() {
               <p className="text-gray-600">{a.address}</p>
             </div>
           ))}
-        </div>
-      </div>
-
-      {/* Communication Preferences */}
-      <div className="bg-white shadow-md rounded-lg p-6">
-        <h3 className="text-xl font-semibold text-gray-700 mb-4">
-          Communication Preferences
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="flex items-center gap-2">
-            <span
-              className={`w-3 h-3 rounded-full ${
-                customer.communication.email ? "bg-green-500" : "bg-gray-300"
-              }`}
-            ></span>
-            Email
-          </div>
-          <div className="flex items-center gap-2">
-            <span
-              className={`w-3 h-3 rounded-full ${
-                customer.communication.sms ? "bg-green-500" : "bg-gray-300"
-              }`}
-            ></span>
-            SMS
-          </div>
-          <div className="flex items-center gap-2">
-            <span
-              className={`w-3 h-3 rounded-full ${
-                customer.communication.marketing
-                  ? "bg-green-500"
-                  : "bg-gray-300"
-              }`}
-            ></span>
-            Marketing
-          </div>
         </div>
       </div>
     </div>

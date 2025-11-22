@@ -2,6 +2,7 @@ import { useState } from "react";
 import { UploadAPI } from "../services/api";
 
 export default function FileUpload({
+  id, // add id here
   label = "Upload Files",
   value = null,
   onChange,
@@ -54,26 +55,27 @@ export default function FileUpload({
         onDrop={handleDrop}
         onDragOver={(e) => e.preventDefault()}
         className={`
-    border-2 border-dashed rounded p-4 text-center cursor-pointer 
-    hover:bg-gray-50
-    ${error ? "border-red-500 bg-red-50" : "border-gray-300"}
-  `}
+          border-2 border-dashed rounded p-4 text-center cursor-pointer 
+          hover:bg-gray-50
+          ${error ? "border-red-500 bg-red-50" : "border-gray-300"}
+        `}
       >
         <input
           type="file"
           accept="image/*"
           multiple={mode === "multiple"}
           onChange={(e) => handleFiles(e.target.files)}
-          id="upload-input"
+          id={id} // use the unique id
           className="hidden"
         />
 
-        <label htmlFor="upload-input" className="cursor-pointer text-gray-400">
+        <label htmlFor={id} className="cursor-pointer text-gray-400">
           {uploading
             ? "Uploading..."
             : `Click or Drag files to upload (${mode})`}
         </label>
       </div>
+
       {error && <p className="text-sm text-red-600 mt-1">{error}</p>}
 
       {/* Preview */}
@@ -95,7 +97,6 @@ export default function FileUpload({
                 alt="uploaded"
               />
 
-              {/* remove button */}
               <button
                 onClick={() => {
                   const updated = value.filter((_, idx) => idx !== i);

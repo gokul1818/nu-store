@@ -1,136 +1,130 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import AppButton from "../../components/AppButton";
+import AppInput from "../../components/AppInput";
 import FileUpload from "../../components/FileUpload";
 import { BannerAPI } from "../../services/api";
+import { showError, showSuccess } from "../../components/AppToast";
 
 export default function BannerForm() {
-    const navigate = useNavigate();
-    const { id } = useParams(); // if exists -> edit mode
+  const navigate = useNavigate();
+  const { id } = useParams();
+  const isEdit = Boolean(id);
 
-    const isEdit = Boolean(id);
+  const [loading, setLoading] = useState(false);
+  const [form, setForm] = useState({
+    title: "",
+    link: "",
+    imageUrl: "",
+  });
+  const [error, setError] = useState({ title: "", imageUrl: "" });
 
-    const [loading, setLoading] = useState(true);
+  // -------------------------
+  // LOAD BANNER (Edit Mode)
+  // -------------------------
+  useEffect(() => {
+    const loadBanner = async () => {
+      if (!id) return;
 
-    const [form, setForm] = useState({
-        title: "",
-        link: "",
-        imageUrl: "",
-    });
+      setLoading(true);
+      try {
+        const res = await BannerAPI.getOne(id);
+        const b = res.data;
 
-    // -------------------------
-    // LOAD BANNER (Edit Mode)
-    // -------------------------
-    useEffect(() => {
-        const loadBanner = async () => {
-            if (!id) {
-                setLoading(false);
-                return;
-            }
-
-            try {
-                const res = await BannerAPI.getOne(id);
-                const b = res.data;
-
-                setForm({
-                    title: b.title,
-                    link: b.link || "",
-                    imageUrl: b.imageUrl,
-                });
-
-            } catch (err) {
-                console.error(err);
-                alert("Failed to load banner");
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        loadBanner();
-    }, [id]);
-
-    const updateField = (key, value) => {
-        setForm(prev => ({ ...prev, [key]: value }));
+        setForm({
+          title: b.title,
+          link: b.link || "",
+          imageUrl: b.imageUrl,
+        });
+      } catch (err) {
+        showError("Failed to load banner");
+      } finally {
+        setLoading(false);
+      }
     };
 
-    // -------------------------
-    // SUBMIT HANDLER
-    // -------------------------
-    const handleSubmit = async () => {
-        if (!form.title) {
-            alert("Title is required!");
-            return;
-        }
+    loadBanner();
+  }, [id]);
 
-        try {
-            const payload = {
-                title: form.title, link: form.link, imageUrl: form.imageUrl
-            }
+  const updateField = (key, value) => {
+    setForm((prev) => ({ ...prev, [key]: value }));
+    if (error[key]) setError({ ...error, [key]: "" });
+  };
 
-            if (isEdit) {
-                await BannerAPI.update(id, payload);
-                alert("Banner updated successfully!");
-            } else {
-                await BannerAPI.create(payload);
-                alert("Banner created successfully!");
-            }
+  // -------------------------
+  // SUBMIT HANDLER
+  // -------------------------
+  const handleSubmit = async () => {
+    let hasError = false;
+    const newError = { title: "", imageUrl: "" };
 
-            navigate("/admin/banner");
+    if (!form.title.trim()) {
+      newError.title = "Title is required";
+      hasError = true;
+    }
 
-        } catch (err) {
-            console.error(err);
-            alert("Failed to save banner");
-        }
-    };
+    if (!form.imageUrl) {
+      newError.imageUrl = "Please upload a banner image";
+      hasError = true;
+    }
 
-    if (loading) return <div className="p-6">Loading...</div>;
+    setError(newError);
+    if (hasError) return;
 
-    return (
-        <div className="container mx-auto p-6">
-            <h2 className="text-xl font-bold mb-5">
-                {isEdit ? "Edit Banner" : "Add Banner"}
-            </h2>
+    setLoading(true);
+    try {
+      const payload = {
+        title: form.title,
+        link: form.link,
+        imageUrl: form.imageUrl,
+      };
 
-            {/* Title */}
-            <div className="mb-4">
-                <label className="block font-semibold mb-1">Title</label>
-                <input
-                    type="text"
-                    className="border p-2 rounded w-full"
-                    value={form.title}
-                    onChange={(e) => updateField("title", e.target.value)}
-                />
-            </div>
+      if (isEdit) await BannerAPI.update(id, payload);
+      else await BannerAPI.create(payload);
 
-            {/* Link */}
-            <div className="mb-4">
-                <label className="block font-semibold mb-1">Link (optional)</label>
-                <input
-                    type="text"
-                    className="border p-2 rounded w-full"
-                    value={form.link}
-                    placeholder="/products/tees"
-                    onChange={(e) => updateField("link", e.target.value)}
-                />
-            </div>
+      showSuccess(`Banner ${isEdit ? "updated" : "created"} successfully!`);
+      navigate("/admin/banner");
+    } catch (err) {
+      showError(err?.response?.data?.message || "Failed to save banner");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-            {/* Image Upload */}
-            <div className="mb-4">
-                <FileUpload
-                    label="Banner Image"
-                    mode="single"
-                    value={form.imageUrl}
-                    onChange={(url) => {
-                        updateField("imageUrl", url);
-                    }}
-                />
-            </div>
+  return (
+    <div className="p-6 max-w-lg mx-auto bg-white rounded-2xl shadow-lg flex flex-col gap-4">
+      <h2 className="text-2xl font-bold text-center mb-4">
+        {isEdit ? "Edit Banner" : "Add Banner"}
+      </h2>
 
-            <button
-                onClick={handleSubmit}
-                className="px-4 py-2 bg-black text-white rounded"
-            >
-                {isEdit ? "Update Banner" : "Save Banner"}
-            </button>
-        </div>
-    );
+      <AppInput
+        label="Title"
+        placeholder="Enter banner title"
+        value={form.title}
+        onChange={(e) => updateField("title", e.target.value)}
+        error={error.title}
+      />
+
+      <AppInput
+        label="Link (optional)"
+        placeholder="/products/tees"
+        value={form.link}
+        onChange={(e) => updateField("link", e.target.value)}
+      />
+
+      <FileUpload
+        label="Banner Image"
+        mode="single"
+        value={form.imageUrl}
+        onChange={(url) => updateField("imageUrl", url)}
+        error={error.imageUrl}
+      />
+
+      <div className="flex justify-center mt-4">
+        <AppButton loading={loading} onClick={handleSubmit} className="w-60">
+          {isEdit ? "Update Banner" : "Save Banner"}
+        </AppButton>
+      </div>
+    </div>
+  );
 }

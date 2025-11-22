@@ -58,14 +58,23 @@ export default function App() {
         <Route path="/admin/login" element={<AdminLogin />} />
 
         {/* Admin Layout */}
-        <Route element={<AdminRoute><AdminLayout /></AdminRoute>}>
+        <Route
+          element={
+            <AdminRoute>
+              <AdminLayout />
+            </AdminRoute>
+          }
+        >
           <Route path="/admin/" element={<Dashboard />} />
 
           {/* Products */}
           <Route path="/admin/products" element={<ProductList />} />
           <Route path="/admin/products/add" element={<AddProduct />} />
           <Route path="/admin/products/add/:id" element={<AddProduct />} />
-          <Route path="/admin/products/view/:id" element={<ProductDetailsAdmin />} />
+          <Route
+            path="/admin/products/view/:id"
+            element={<ProductDetailsAdmin />}
+          />
 
           {/* Categories */}
           <Route path="/admin/categories" element={<CategoryList />} />
@@ -76,7 +85,6 @@ export default function App() {
           <Route path="/admin/orders" element={<OrderList />} />
           <Route path="/admin/orders/details/:id" element={<OrderDetails />} />
 
-
           {/* Customers */}
           <Route path="/admin/users" element={<CustomerList />} />
           <Route path="/admin/users/:id" element={<CustomerProfile />} />
@@ -85,6 +93,8 @@ export default function App() {
           <Route path="/admin/banner" element={<BannerList />} />
           <Route path="/admin/banner/add" element={<BannerForm />} />
           <Route path="/admin/banner/edit/:id" element={<BannerForm />} />
+
+          {/* <Route path="/admin/master-settings" element={<MasterData />} /> */}
         </Route>
       </Routes>
     </>

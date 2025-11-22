@@ -1,23 +1,23 @@
-import React, { useState, useRef } from "react";
+import React from "react";
+import {
+  FaBoxOpen,
+  FaImage,
+  FaShoppingCart,
+  FaSignOutAlt,
+  FaTachometerAlt,
+  FaTags,
+  FaUsers,
+} from "react-icons/fa";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import useAdminStore from "../../stores/useAdminStore";
-import {
-  FaTachometerAlt,
-  FaBoxOpen,
-  FaTags,
-  FaShoppingCart,
-  FaUsers,
-  FaSignOutAlt,
-  FaBars,
-  FaImage,
-} from "react-icons/fa";
+import Logo from "../../assets/logo.png";
 
 export default function AdminSidebar() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const logout = useAdminStore((s) => s.logout);
 
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = React.useState(false);
 
   const menu = [
     { name: "Dashboard", path: "/admin", icon: <FaTachometerAlt /> },
@@ -26,6 +26,11 @@ export default function AdminSidebar() {
     { name: "Orders", path: "/admin/orders", icon: <FaShoppingCart /> },
     { name: "Banner", path: "/admin/banner", icon: <FaImage /> },
     { name: "Customers", path: "/admin/users", icon: <FaUsers /> },
+    // {
+    //   name: "Master Settings",
+    //   path: "/admin/master-settings",
+    //   icon: <TbSettingsCog />,
+    // },
   ];
 
   const handleLogout = () => {
@@ -37,21 +42,21 @@ export default function AdminSidebar() {
     <div
       className={`
         backdrop-blur-sm bg-black/50 border-gray-400 border-r-2 text-white
-        fixed top-0 left-0 h-screen flex flex-col shadow-lg
-        transition-all duration-300 rounded-tr-xl rounded-br-xl
+        fixed top-0 left-3 h-[95%] flex flex-col shadow-lg my-3
+        transition-all duration-300 rounded-tr-xl rounded-xl
         justify-center
         ${expanded ? "w-64" : "w-20"}
       `}
       onMouseEnter={() => setExpanded(true)}
       onMouseLeave={() => setExpanded(false)}
     >
-      {/* Header */}
-      {/* {expanded && (
-        <div className="flex items-center justify-between p-4 border-b border-white/20">
-          <h2 className="text-xl font-bold">Admin Panel</h2>
-        </div>
-      )} */}
-
+      <div className="flex items-center justify-center p-4">
+        {expanded ? (
+          <img src={Logo} alt="Logo" className="h-24 w-24" />
+        ) : (
+          <img src={Logo} alt="Logo" className="h-8 w-auto" />
+        )}
+      </div>
       {/* Menu */}
       <nav className="flex-1 mt-4 space-y-2 overflow-y-auto">
         {menu.map((item) => (
