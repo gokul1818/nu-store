@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
-import { CategoryAPI } from "../../services/api";
 import { useNavigate, useParams } from "react-router-dom";
-import AppInput from "../../components/AppInput";
 import AppButton from "../../components/AppButton";
+import AppInput from "../../components/AppInput";
+import AppSelect from "../../components/AppSelect";
+import { showError, showSuccess } from "../../components/AppToast";
 import FileUpload from "../../components/FileUpload";
-import { showSuccess, showError } from "../../components/AppToast";
+import { CategoryAPI } from "../../services/api";
 
 export default function CategoryForm() {
   const { id } = useParams();
@@ -16,7 +17,7 @@ export default function CategoryForm() {
   const [image, setImage] = useState("");
   const [parent, setParent] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState({ name: "", parent: "" });
+  const [error, setError] = useState({ name: "", parent: "", image: "" });
 
   // Load existing category for editing
   const loadCategory = async () => {
@@ -39,7 +40,7 @@ export default function CategoryForm() {
 
   const saveCategory = async () => {
     let hasError = false;
-    const newError = { name: "", parent: "" };
+    const newError = { name: "", parent: "", image: "" };
 
     if (!name.trim()) {
       newError.name = "Category name is required";
@@ -51,6 +52,10 @@ export default function CategoryForm() {
       hasError = true;
     }
 
+    if (!image) {
+      newError.image = "Please upload category image";
+      hasError = true;
+    }
     setError(newError);
     if (hasError) return;
 
@@ -58,10 +63,9 @@ export default function CategoryForm() {
 
     try {
       const body = { name, description, parent, image };
-      console.log('body: ', body);
+      console.log("body: ", body);
       if (isEdit) await CategoryAPI.update(id, body);
       else await CategoryAPI.create(body);
-
       setLoading(false);
       showSuccess(`Category ${isEdit ? "updated" : "created"} successfully!`);
       navigate("/admin/categories");
@@ -73,32 +77,28 @@ export default function CategoryForm() {
   };
 
   return (
-    <div className="p-6 max-w-lg mx-auto bg-white rounded-2xl shadow-lg">
+    <div className="p-6 max-w-lg mx-auto bg-white rounded-2xl shadow-lg flex flex-col gap-3">
       <h2 className="text-2xl font-bold mb-6 text-center">
         {isEdit ? "Edit Category" : "Add Category"}
       </h2>
 
-      {/* Parent Category Selector */}
-      <div className="my-4">
-        <label className="block font-semibold mb-1">Gender</label>
-        <select
-          value={parent}
-          onChange={(e) => {
-            setParent(e.target.value);
-            if (error.parent) setError({ ...error, parent: "" });
-          }}
-          className={`w-full p-3 border rounded-lg focus:outline-none focus:ring ${error.parent ? "border-red-500" : "border-gray-300"
-            }`}
-        >
-          <option value="">Select Gender</option>
-          <option value="men">Men</option>
-          <option value="women">Women</option>
-          <option value="kids">Kids</option>
-        </select>
-        {error.parent && <p className="text-red-500 text-sm mt-1">{error.parent}</p>}
-      </div>
+      <AppSelect
+        label="Gender"
+        value={parent}
+        error={error.parent}
+        onChange={(e) => {
+          setParent(e.target.value);
+          if (error.parent) setError({ ...error, parent: "" });
+        }}
+      >
+        <option value="" disabled className="text-gray-400">
+          Select Gender
+        </option>
+        <option value="men">Men</option>
+        <option value="women">Women</option>
+        <option value="kids">Kids</option>
+      </AppSelect>
 
-      {/* Category Name */}
       <AppInput
         label="Category Name"
         placeholder="Enter category name"
@@ -109,31 +109,26 @@ export default function CategoryForm() {
         }}
         error={error.name}
       />
-      <div className="mb-4">
-        <FileUpload
-          label="Category Image"
-          mode="single"
-          value={image}
-          onChange={(url) => {
-            setImage(url);
-          }}
-        />
-      </div>
-      {/* Description */}
-      <div className="my-4">
-        <label className="block font-semibold mb-1">Description</label>
-        <textarea
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          placeholder="Enter category description"
-          className="w-full p-3 border rounded-lg focus:outline-none focus:ring border-gray-300"
-          rows={4}
-        />
-      </div>
+      <FileUpload
+        label="Category Image"
+        mode="single"
+        value={image}
+        onChange={(url) => {
+          setImage(url);
+        }}
+        error={error.image}
+      />
+      <AppInput
+        label="Description"
+        type="textarea"
+        placeholder="Enter category description"
+        value={description}
+        onChange={(e) => setDescription(e.target.value)}
+        rows={4}
+      />
 
-      {/* Save Button */}
       <div className="flex justify-center">
-        <AppButton loading={loading} onClick={saveCategory} className="w-80">
+        <AppButton loading={loading} onClick={saveCategory} className="w-60">
           Save
         </AppButton>
       </div>

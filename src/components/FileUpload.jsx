@@ -3,9 +3,10 @@ import { UploadAPI } from "../services/api";
 
 export default function FileUpload({
   label = "Upload Files",
-  value = null, // can be string OR array
+  value = null,
   onChange,
-  mode = "single", // "single" | "multiple"
+  mode = "single",
+  error = "",
 }) {
   const [uploading, setUploading] = useState(false);
 
@@ -47,13 +48,16 @@ export default function FileUpload({
 
   return (
     <div>
-      <label className="block font-semibold mb-1">{label}</label>
+      <label className="block font-medium mb-1">{label}</label>
 
-      {/* Upload Box */}
       <div
         onDrop={handleDrop}
         onDragOver={(e) => e.preventDefault()}
-        className="border-2 border-dashed rounded p-4 text-center cursor-pointer hover:bg-gray-50"
+        className={`
+    border-2 border-dashed rounded p-4 text-center cursor-pointer 
+    hover:bg-gray-50
+    ${error ? "border-red-500 bg-red-50" : "border-gray-300"}
+  `}
       >
         <input
           type="file"
@@ -64,10 +68,13 @@ export default function FileUpload({
           className="hidden"
         />
 
-        <label htmlFor="upload-input" className="cursor-pointer">
-          {uploading ? "Uploading..." : `Click or Drag files to upload (${mode})`}
+        <label htmlFor="upload-input" className="cursor-pointer text-gray-400">
+          {uploading
+            ? "Uploading..."
+            : `Click or Drag files to upload (${mode})`}
         </label>
       </div>
+      {error && <p className="text-sm text-red-600 mt-1">{error}</p>}
 
       {/* Preview */}
       {mode === "single" && value && (

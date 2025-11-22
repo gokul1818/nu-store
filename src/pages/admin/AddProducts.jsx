@@ -1,13 +1,23 @@
-import { useState, useEffect } from "react";
-import { ProductAPI, CategoryAPI } from "../../services/api";
+import { useEffect, useState } from "react";
+import { FaTrash } from "react-icons/fa";
 import { useNavigate, useParams } from "react-router-dom";
-import FileUpload from "../../components/FileUpload";
+import AppButton from "../../components/AppButton";
 import AppInput from "../../components/AppInput";
 import AppSelect from "../../components/AppSelect";
-import AppButton from "../../components/AppButton";
-import { showSuccess, showError } from "../../components/AppToast";
+import { showError, showSuccess } from "../../components/AppToast";
+import FileUpload from "../../components/FileUpload";
+import { CategoryAPI, ProductAPI } from "../../services/api";
 
-const COLORS = ["Red", "Blue", "Green", "Black", "White", "Yellow", "Pink", "Orange"];
+const COLORS = [
+  "Red",
+  "Blue",
+  "Green",
+  "Black",
+  "White",
+  "Yellow",
+  "Pink",
+  "Orange",
+];
 
 export default function ProductForm() {
   const { id } = useParams();
@@ -22,17 +32,15 @@ export default function ProductForm() {
     title: "",
     mrp: "",
     price: "",
-    discount: 0, // New
-    price: "", // New
-    gender: "men",
+    discount: "",
+    gender: "",
     description: "",
     thumbnail: "",
     images: [],
     category: "",
-    variants: [{ size: "", color: COLORS[0], sku: "", stock: 0 }],
+    variants: [{ size: "", color: "", sku: "", stock: "" }],
   });
 
-  // Load categories and existing product
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -42,20 +50,22 @@ export default function ProductForm() {
         if (isEdit) {
           const product = await ProductAPI.getOne(id);
           setForm({
-            title: product.data.title,
-            mrp: product.data.mrp,
-            price: product.data.price,
-            discount: product.data.discount || 0,
-            price: product.data.price || product.data.price,
-            gender: product.data.gender || "Men",
-            description: product.data.description,
+            title: product.data.title || "",
+            mrp: product.data.mrp || "",
+            price: product.data.price || "",
+            discount: product.data.discount || "",
+            gender: product.data.gender || "men",
+            description: product.data.description || "",
             thumbnail: product.data.thumbnail || "",
             images: product.data.images || [],
             category: product.data.category?._id || "",
             variants:
               product.data.variants.length > 0
-                ? product.data.variants
-                : [{ size: "", color: COLORS[0], sku: "", stock: 0 }],
+                ? product.data.variants.map((v) => ({
+                    ...v,
+                    stock: v.stock !== undefined ? v.stock : "",
+                  }))
+                : [{ size: "", color: COLORS[0], sku: "", stock: "" }],
           });
         }
       } catch (err) {
@@ -63,22 +73,33 @@ export default function ProductForm() {
       }
     };
     loadData();
-  }, [id]);
+  }, [id, isEdit]);
 
-  // Auto-calculate price from MRP and discount
+  // Auto-calculate price
   useEffect(() => {
-    if (form.mrp && form.discount >= 0) {
+    if (form.mrp !== "" && form.discount !== "") {
       const discountedPrice = form.mrp - (form.mrp * form.discount) / 100;
       setForm((f) => ({ ...f, price: discountedPrice.toFixed(2) }));
     }
   }, [form.mrp, form.discount]);
 
+  // Update SKU when title changes
+  useEffect(() => {
+    const updatedVariants = form.variants.map((v) => ({
+      ...v,
+      sku: generateSKU(form.title, v.size, v.color),
+    }));
+    setForm((f) => ({ ...f, variants: updatedVariants }));
+  }, [form.title]);
+
   const validate = () => {
     const temp = {};
     if (!form.title.trim()) temp.title = "Title is required";
-    if (!form.mrp || form.mrp < 0) temp.mrp = "MRP must be ≥ 0";
+    if (form.mrp === "" || form.mrp < 0)
+      temp.mrp = "MRP must be greater than 0";
     if (form.price > form.mrp) temp.price = "Price cannot exceed MRP";
-    if (form.discount < 0 || form.discount > 100) temp.discount = "Discount must be 0-100";
+    if (form.discount < 0 || form.discount > 100)
+      temp.discount = "Discount must be between 0 and 100";
     if (!form.gender) temp.gender = "Gender is required";
     if (!form.category) temp.category = "Category is required";
     if (!form.thumbnail.trim()) temp.thumbnail = "Thumbnail is required";
@@ -88,7 +109,8 @@ export default function ProductForm() {
       if (!v.size.trim()) temp[`size-${i}`] = "Size is required";
       if (!v.color.trim()) temp[`color-${i}`] = "Color is required";
       if (!v.sku.trim()) temp[`sku-${i}`] = "SKU is required";
-      if (v.stock === "" || v.stock === null || v.stock < 0) temp[`stock-${i}`] = "Stock must be ≥ 0";
+      if (v.stock === "" || v.stock < 0)
+        temp[`stock-${i}`] = "Stock must be zero or greater";
     });
 
     setErrors(temp);
@@ -97,40 +119,90 @@ export default function ProductForm() {
 
   const generateSKU = (title, size, color) => {
     if (!title || !size || !color) return "";
-    const code = title.split(" ").map((w) => w[0].toUpperCase()).join("");
+    const code = title
+      .split(" ")
+      .map((w) => w[0].toUpperCase())
+      .join("");
     return `${code}-${size.toUpperCase()}-${color.slice(0, 3).toUpperCase()}`;
   };
 
   const updateVariant = (index, key, value) => {
     const updated = [...form.variants];
     updated[index][key] = value;
+
+    // Clear respective error
+    setErrors((prev) => {
+      const newErrors = { ...prev };
+      delete newErrors[`${key}-${index}`];
+      return newErrors;
+    });
+
+    // Update SKU dynamically
     if (form.title && updated[index].size && updated[index].color) {
-      updated[index].sku = generateSKU(form.title, updated[index].size, updated[index].color);
+      updated[index].sku = generateSKU(
+        form.title,
+        updated[index].size,
+        updated[index].color
+      );
     }
+
     setForm({ ...form, variants: updated });
   };
 
   const addVariant = () => {
+    const lastVariant = form.variants[form.variants.length - 1];
+    const tempErrors = {};
+
+    if (!lastVariant.size.trim())
+      tempErrors[`size-${form.variants.length - 1}`] = "Size is required";
+    if (!lastVariant.color.trim())
+      tempErrors[`color-${form.variants.length - 1}`] = "Color is required";
+    if (!lastVariant.sku.trim())
+      tempErrors[`sku-${form.variants.length - 1}`] = "SKU is required";
+    if (lastVariant.stock === "" || lastVariant.stock < 0)
+      tempErrors[`stock-${form.variants.length - 1}`] =
+        "Stock must be zero or greater";
+
+    if (Object.keys(tempErrors).length > 0) {
+      setErrors((prev) => ({ ...prev, ...tempErrors }));
+      return;
+    }
+
     setForm({
       ...form,
-      variants: [...form.variants, { size: "", color: COLORS[0], sku: "", stock: 0 }],
+      variants: [
+        ...form.variants,
+        { size: "", color: COLORS[0], sku: "", stock: "" },
+      ],
     });
   };
 
   const submit = async () => {
-    // if (!validate()) return;
+    if (!validate()) return;
+
+    const payload = {
+      ...form,
+      mrp: Number(form.mrp),
+      price: Number(form.price),
+      discount: Number(form.discount),
+      variants: form.variants.map((v) => ({
+        ...v,
+        stock: Number(v.stock),
+      })),
+    };
+
     setLoading(true);
     try {
-      if (isEdit) await ProductAPI.updateProduct(id, form);
-      else await ProductAPI.create(form);
+      if (isEdit) await ProductAPI.updateProduct(id, payload);
+      else await ProductAPI.create(payload);
 
-      setLoading(false);
       showSuccess(`Product ${isEdit ? "updated" : "added"} successfully!`);
       navigate("/admin/products");
     } catch (err) {
-      setLoading(false);
       const message = err?.response?.data?.message || "Failed to save product";
       showError(message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -146,26 +218,49 @@ export default function ProductForm() {
             label="Title"
             placeholder="Product Title"
             value={form.title}
-            onChange={(e) => setForm({ ...form, title: e.target.value })}
+            onChange={(e) => {
+              setForm({ ...form, title: e.target.value });
+              setErrors((prev) => {
+                const newErrors = { ...prev };
+                delete newErrors.title;
+                return newErrors;
+              });
+            }}
             error={errors.title}
           />
+
           <AppInput
             label="MRP Price"
             placeholder="MRP Price"
             type="number"
             value={form.mrp}
-            onChange={(e) => setForm({ ...form, mrp: Number(e.target.value) })}
+            onChange={(e) => {
+              setForm({ ...form, mrp: e.target.value });
+              setErrors((prev) => {
+                const newErrors = { ...prev };
+                delete newErrors.mrp;
+                return newErrors;
+              });
+            }}
             error={errors.mrp}
           />
-        
+
           <AppInput
             label="Discount %"
             placeholder="Discount"
             type="number"
             value={form.discount}
-            onChange={(e) => setForm({ ...form, discount: Number(e.target.value) })}
+            onChange={(e) => {
+              setForm({ ...form, discount: e.target.value });
+              setErrors((prev) => {
+                const newErrors = { ...prev };
+                delete newErrors.discount;
+                return newErrors;
+              });
+            }}
             error={errors.discount}
           />
+
           <AppInput
             label="Sale Price"
             placeholder="Sale Price"
@@ -173,50 +268,82 @@ export default function ProductForm() {
             value={form.price}
             disabled
           />
+
           <AppSelect
             label="Gender"
             value={form.gender}
-            onChange={(e) => setForm({ ...form, gender: e.target.value })}
+            onChange={(e) => {
+              setForm({ ...form, gender: e.target.value });
+              setErrors((prev) => {
+                const newErrors = { ...prev };
+                delete newErrors.gender;
+                return newErrors;
+              });
+            }}
             error={errors.gender}
           >
+            <option value="" disabled className="text-gray-400">
+              Select Gender
+            </option>
             <option value="men">Men</option>
             <option value="women">Women</option>
             <option value="kids">Kids</option>
           </AppSelect>
+
           <AppSelect
             label="Category"
             value={form.category}
-            onChange={(e) => setForm({ ...form, category: e.target.value })}
+            onChange={(e) => {
+              setForm({ ...form, category: e.target.value });
+              setErrors((prev) => {
+                const newErrors = { ...prev };
+                delete newErrors.category;
+                return newErrors;
+              });
+            }}
             error={errors.category}
           >
             <option value="">Select Category</option>
             {categories.map((cat) => (
-              <option key={cat._id} value={cat._id}>{cat.name}</option>
+              <option key={cat._id} value={cat._id}>
+                {cat.name}
+              </option>
             ))}
           </AppSelect>
+
           <FileUpload
             label="Gallery Images"
             mode="multiple"
             value={form.images}
             onChange={(urls) => setForm({ ...form, images: urls })}
           />
+
           <AppInput
             label="Description"
             placeholder="Product Description"
             type="textarea"
             rows={4}
             value={form.description}
-            onChange={(e) => setForm({ ...form, description: e.target.value })}
+            onChange={(e) => {
+              setForm({ ...form, description: e.target.value });
+              setErrors((prev) => {
+                const newErrors = { ...prev };
+                delete newErrors.description;
+                return newErrors;
+              });
+            }}
             className="md:col-span-2"
             error={errors.description}
           />
         </div>
 
-        {/* Variants */}
         <div className="mt-6">
           <h3 className="text-lg font-semibold mb-3">Variants</h3>
           {form.variants.map((v, i) => (
-            <div key={i} className="grid md:grid-cols-4 gap-4 mb-4 p-4 border rounded-lg bg-gray-50">
+            <div
+              key={i}
+              className="relative grid md:grid-cols-4 gap-4 mb-4 p-4 border rounded-lg bg-gray-50"
+            >
               <AppInput
                 placeholder="Size"
                 value={v.size}
@@ -228,23 +355,58 @@ export default function ProductForm() {
                 onChange={(e) => updateVariant(i, "color", e.target.value)}
                 error={errors[`color-${i}`]}
               >
+                <option value="" disabled className="text-gray-400">
+                  Select Color
+                </option>
                 {COLORS.map((c) => (
-                  <option key={c} value={c}>{c}</option>
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
                 ))}
               </AppSelect>
-              <AppInput placeholder="SKU" value={v.sku} disabled error={errors[`sku-${i}`]} />
               <AppInput
-                placeholder="Stock"
-                type="number"
-                value={v.stock}
-                onChange={(e) => updateVariant(i, "stock", Number(e.target.value))}
-                error={errors[`stock-${i}`]}
+                placeholder="SKU"
+                value={v.sku}
+                disabled
+                error={errors[`sku-${i}`]}
               />
+              <div className="flex flex-row items-center">
+                <AppInput
+                  placeholder="Stock"
+                  type="number"
+                  value={v.stock}
+                  onChange={(e) => updateVariant(i, "stock", e.target.value)}
+                  error={errors[`stock-${i}`]}
+                  className="w-[95%]"
+                />
+
+                {i > 0 && (
+                  <button
+                    onClick={() => {
+                      const updated = form.variants.filter(
+                        (_, idx) => idx !== i
+                      );
+                      setForm({ ...form, variants: updated });
+                    }}
+                    className="text-l text-red-600 hover:text-red-800"
+                  >
+                    <FaTrash  />
+                  </button>
+                )}
+              </div>
             </div>
           ))}
+
           <div className="flex flex-col md:flex-row mt-5 items-center justify-between gap-4">
-            <AppButton className="border border-primary text-primary hover:bg-primary hover:text-white transition" onClick={addVariant}>+ Add Variant</AppButton>
-            <AppButton className="w-40" loading={loading} onClick={submit}>Save Product</AppButton>
+            <AppButton
+              className="border border-primary text-primary hover:bg-primary hover:text-white transition"
+              onClick={addVariant}
+            >
+              + Add Variant
+            </AppButton>
+            <AppButton className="w-40" loading={loading} onClick={submit}>
+              Save Product
+            </AppButton>
           </div>
         </div>
       </div>

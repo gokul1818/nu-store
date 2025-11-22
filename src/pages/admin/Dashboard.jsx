@@ -144,7 +144,7 @@ export default function Dashboard() {
         </div>
 
         {/* Recent Orders */}
-        <motion.div
+        {/* <motion.div
           className="bg-white p-6 rounded-lg shadow-lg"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -205,7 +205,7 @@ export default function Dashboard() {
               ))}
             </tbody>
           </table>
-        </motion.div>
+        </motion.div> */}
       </div>
     </AdminRoute>
   );
