@@ -40,16 +40,11 @@ export default function CustomerProfile() {
 
   return (
     <div className="container mx-auto p-6 space-y-6">
-      <h2 className="text-3xl font-bold mb-4 text-gray-800">
-        Customer Profile
-      </h2>
+      <h2 className="text-3xl font-bold mb-4 text-gray-800">{customer.name}</h2>
 
       {/* Personal Details */}
       <div className="bg-white shadow-md rounded-lg p-6 flex flex-col md:flex-row md:justify-between md:items-center mb-6">
         <div className="mb-4 md:mb-0">
-          <h3 className="text-xl font-semibold text-gray-700 mb-2">
-            {customer.name}
-          </h3>
           <p className="text-gray-600 flex items-center gap-2">
             <HiOutlineMail className="text-primary w-5 h-5" /> {customer.email}
           </p>

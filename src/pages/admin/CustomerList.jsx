@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { FaTrash, FaEye } from "react-icons/fa";
-import AppTable from "../../components/AppTable";
-import { Pagination } from "../../components/Pagination";
+import { FaEye, FaLock, FaLockOpen, FaTrash } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import AppTable from "../../components/AppTable";
+import { showError, showSuccess } from "../../components/AppToast";
+import { Pagination } from "../../components/Pagination";
 import { AdminAPI } from "../../services/api";
 
 export default function CustomerList() {
@@ -11,11 +12,12 @@ export default function CustomerList() {
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
-  // LOAD USERS FROM API
+  // ---------------------------
+  // Load users
+  // ---------------------------
   const loadUsers = async () => {
     setLoading(true);
     try {
@@ -31,21 +33,49 @@ export default function CustomerList() {
     loadUsers();
   }, [currentPage]);
 
-  // DELETE USER
+  // ---------------------------
+  // Delete user
+  // ---------------------------
   const deleteCustomer = async (id) => {
     if (!confirm("Delete customer?")) return;
-
     setLoading(true);
     try {
       await AdminAPI.deleteUser(id);
       loadUsers();
+      showSuccess("Customer deleted successfully!");
     } catch (err) {
-      console.error("Delete failed", err);
+      console.error(err);
+      showError("Failed to delete customer");
     } finally {
       setLoading(false);
     }
   };
 
+  // ---------------------------
+  // Block / Unblock user
+  // ---------------------------
+  const toggleBlock = async (row) => {
+    setLoading(true);
+    try {
+      if (row.status === "Active") {
+        await AdminAPI.blockUser(row._id);
+        showSuccess("User blocked successfully!");
+      } else {
+        await AdminAPI.unblockUser(row._id);
+        showSuccess("User unblocked successfully!");
+      }
+      loadUsers();
+    } catch (err) {
+      console.error(err);
+      showError("Failed to update user status");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ---------------------------
+  // Table columns
+  // ---------------------------
   const columns = [
     { key: "uniqId", label: "User ID" },
     { key: "name", label: "Name" },
@@ -58,22 +88,22 @@ export default function CustomerList() {
       render: (row) => {
         if (!row.lastOrder) return "—";
         const date = new Date(row.lastOrder);
-
         const day = String(date.getDate()).padStart(2, "0");
         const month = date.toLocaleString("default", { month: "short" });
         const year = date.getFullYear();
-
         let hours = date.getHours();
         const minutes = String(date.getMinutes()).padStart(2, "0");
         const ampm = hours >= 12 ? "PM" : "AM";
         hours = hours % 12 || 12;
-
         return `${day} ${month} ${year}, ${hours}:${minutes} ${ampm}`;
       },
     },
     { key: "status", label: "Status" },
   ];
 
+  // ---------------------------
+  // Table actions
+  // ---------------------------
   const actions = [
     {
       icon: <FaEye className="w-4 h-4 text-primary" />,
@@ -81,22 +111,31 @@ export default function CustomerList() {
       onClick: (row) => navigate(`/admin/users/${row._id}`),
       className: "hover:bg-blue-100",
     },
+    // {
+    //   icon: <FaTrash className="w-4 h-4 text-primary" />,
+    //   title: "Delete",
+    //   onClick: (row) => deleteCustomer(row._id),
+    //   className: "hover:bg-red-100",
+    // },
     {
-      icon: <FaTrash className="w-4 h-4 text-primary" />,
-      title: "Delete",
-      onClick: (row) => deleteCustomer(row._id),
-      className: "hover:bg-red-100",
+      icon: (row) =>
+        row.status === "Active" ? (
+          <FaLock className="w-4 h-4 text-primary" />
+        ) : (
+          <FaLockOpen className="w-4 h-4 text-primary" />
+        ),
+      title: (row) => (row.status === "Active" ? "Block User" : "Unblock User"),
+      onClick: (row) => toggleBlock(row),
+      className: "hover:bg-gray-100",
     },
   ];
 
   return (
     <div className="container mx-auto p-6">
-      {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-semibold">Customers</h2>
       </div>
 
-      {/* Table */}
       <AppTable
         columns={columns}
         data={customers}
@@ -104,7 +143,6 @@ export default function CustomerList() {
         loading={loading}
       />
 
-      {/* Pagination */}
       {totalPages > 1 && (
         <Pagination
           totalPages={totalPages}

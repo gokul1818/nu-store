@@ -90,16 +90,20 @@ export default function AppTable({
                 {actions.length > 0 && (
                   <td className="border-b border-gray-300 p-4">
                     <div className="flex gap-2">
-                      {actions.map((action, actionIdx) => (
+                      {actions.map((action, idx) => (
                         <button
-                          key={actionIdx}
+                          key={idx}
+                          className={action.className}
+                          title={
+                            typeof action.title === "function"
+                              ? action.title(row)
+                              : action.title
+                          }
                           onClick={() => action.onClick(row)}
-                          title={action.title}
-                          className={`p-1 rounded transition ${
-                            action.className || ""
-                          }`}
                         >
-                          {action.icon}
+                          {typeof action.icon === "function"
+                            ? action.icon(row)
+                            : action.icon}
                         </button>
                       ))}
                     </div>

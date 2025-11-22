@@ -87,11 +87,17 @@ export const OrderAPI = {
 export const AdminAPI = {
   getUsers: (page = 1, limit = 10) =>
     api.get(`/api/admin/users?page=${page}&limit=${limit}`),
+
   getOrderById: (id) => api.get(`/api/orders/${id}`),
+
   getOrders: (page = 1, limit = 10, status) =>
     api.get(`/api/orders/all?status=${status}&page=${page}&limit=${limit}`),
+
   updateOrderStatus: (id, data) => api.put(`/api/orders/${id}/status`, data),
+
   deleteUser: (id) => api.delete(`/api/admin/users/${id}`),
+  blockUser: (userId) => api.put(`/api/admin/users/${userId}/block`),
+  unblockUser: (userId) => api.put(`/api/admin/users/${userId}/unblock`),
 };
 
 export const CategoryAPI = {
@@ -99,7 +105,7 @@ export const CategoryAPI = {
   getOne: (id) => api.get(`/api/categories/${id}`),
   create: (data) => api.post("/api/categories", data),
   update: (id, data) => api.put(`/api/categories/${id}`, data),
-  delete: (id) => api.delete(`/api/categories/${id}`)
+  delete: (id) => api.delete(`/api/categories/${id}`),
 };
 
 export const UploadAPI = {
@@ -111,17 +117,12 @@ export const UploadAPI = {
     }),
 };
 
-
 export const BannerAPI = {
-  create: (formData) =>
-    api.post("/api/banner", formData),
+  create: (formData) => api.post("/api/banner", formData),
   getAll: () => api.get("/api/banner"),
   getOne: (id) => api.get(`/api/banner/${id}`),
   delete: (id) => api.delete(`/api/banner/${id}`),
-  update: (id, formData) =>
-    api.put(`/api/banner/${id}`, formData,),
+  update: (id, formData) => api.put(`/api/banner/${id}`, formData),
 };
-
-
 
 export default api;
