@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useLocation, useParams } from "react-router-dom";
 import ProductCard from "../components/ProductCard";
 import SpinLoader from "../components/SpinLoader";
 import useProductStore from "../stores/useProductStore";
@@ -10,61 +11,97 @@ export default function Products() {
     fetchProducts,
     loadMoreProducts,
     resetProducts,
+    resetFilters,
+    setFilter,
     page,
     pages,
     loading,
-    setFilter,
   } = useProductStore();
 
   const addItem = useCartStore((s) => s.addItem);
 
-  const [q, setQ] = useState("");
-  const [debouncedQ, setDebouncedQ] = useState(q);
+  const { category: paramCategory } = useParams();
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+
+  const categoryQuery = searchParams.get("category") || "";
+  const searchQuery = searchParams.get("search") || "";
+
+  const activeCategory = paramCategory || categoryQuery;
+  const activeSearch = searchQuery;
+
+  const [q, setQ] = useState(activeSearch);
+  const [debouncedQ, setDebouncedQ] = useState(activeSearch);
+
   const loaderRef = useRef(null);
 
-  // Debounce search without lodash
+  /** Debounce Search */
   useEffect(() => {
-    const handler = setTimeout(() => setDebouncedQ(q), 500);
-    return () => clearTimeout(handler);
+    const t = setTimeout(() => setDebouncedQ(q), 500);
+    return () => clearTimeout(t);
   }, [q]);
 
+  /** Apply Filters - search & category */
   useEffect(() => {
-    setFilter("search", debouncedQ); // Assuming your store supports a "search" filter
+    setFilter("searchText", debouncedQ || activeSearch);
+    setFilter("category", activeCategory);
     resetProducts();
     fetchProducts();
-  }, [debouncedQ]);
+  }, [debouncedQ, activeCategory, activeSearch]);
 
-  // Infinite scroll observer
+  /** Infinite Scroll Observer */
   useEffect(() => {
+    if (!loaderRef.current) return;
+
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting && !loading && page < pages) {
           loadMoreProducts();
         }
       },
-      { threshold: 1 }
+      { threshold: 0.25 }
     );
 
-    if (loaderRef.current) observer.observe(loaderRef.current);
+    observer.observe(loaderRef.current);
     return () => observer.disconnect();
-  }, [loaderRef.current, loading, page, pages]);
+  }, [loading, page, pages]);
+
+  /** Reset Filter Button */
+  const handleReset = () => {
+    resetFilters();
+    resetProducts();
+    fetchProducts();
+    setQ("");
+  };
 
   return (
     <div className="container mx-auto px-4 py-6">
-      {/* Search */}
-      <div className="flex flex-col md:flex-row items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold hidden md:block">All Products</h2>
 
-        <input
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-          placeholder="Search..."
-          className="border px-3 py-2 rounded w-full md:w-64 mt-2 md:mt-0 focus:outline-none focus:ring-2 focus:ring-orange-500"
-        />
+      {/* Top Bar */}
+      <div className="flex flex-col md:flex-row items-center justify-between mb-6 gap-3">
+        <h2 className="text-2xl font-bold hidden md:block">
+          {activeCategory ? activeCategory.toUpperCase() : "All Products"}
+        </h2>
+
+        <div className="flex items-center gap-3 w-full md:w-auto">
+          <input
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder="Search..."
+            className="border px-3 py-2 rounded w-full md:w-64 focus:outline-none focus:ring-2 focus:ring-orange-500"
+          />
+
+          <button
+            onClick={handleReset}
+            className="px-3 py-2 border rounded text-sm hover:bg-gray-100"
+          >
+            Reset
+          </button>
+        </div>
       </div>
 
-      {/* Product grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-6">
+      {/* Products Grid */}
+      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {products.map((p) => (
           <ProductCard
             key={p._id}
@@ -81,10 +118,11 @@ export default function Products() {
         ))}
       </div>
 
-      {/* Infinite scroll loader */}
+      {/* Infinite Scroll Trigger */}
       <div ref={loaderRef} className="h-16 flex justify-center items-center">
         {loading && <SpinLoader />}
       </div>
+
     </div>
   );
 }

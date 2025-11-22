@@ -7,7 +7,7 @@ const useProductStore = create((set, get) => ({
   selectedProduct: null,
   loading: false,
 
-  // filters
+  // Filters
   category: "",
   gender: "",
   size: "",
@@ -22,10 +22,24 @@ const useProductStore = create((set, get) => ({
   total: 0,
   pages: 1,
 
-  // Update filter value
+  // Update a filter
   setFilter: (key, value) => set({ [key]: value }),
 
-  // Reset products before new search/filter
+  // Reset only filters
+  resetFilters: () =>
+    set({
+      category: "",
+      gender: "",
+      size: "",
+      color: "",
+      minPrice: "",
+      maxPrice: "",
+      searchText: "",
+      sort: "",
+      page: 1,
+    }),
+
+  // Reset product list when filters/search change
   resetProducts: () => set({ products: [], page: 1 }),
 
   // Fetch products
@@ -70,17 +84,15 @@ const useProductStore = create((set, get) => ({
     });
   },
 
-  // Infinite scroll loader
+  // Infinite scroll
   loadMoreProducts: async () => {
     const { page, pages } = get();
-
-    if (page >= pages) return; // no more pages
-
+    if (page >= pages) return;
     set({ page: page + 1 });
-    await get().fetchProducts(true); // append results
+    await get().fetchProducts(true);
   },
 
-  // Fetch product by id
+  // Fetch product by ID
   fetchProductById: async (id) => {
     set({ loading: true });
     const res = await ProductAPI.getOne(id);

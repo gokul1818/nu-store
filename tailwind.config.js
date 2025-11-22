@@ -2,12 +2,21 @@
 export default {
   content: ["./index.html", "./src/**/*.{js,jsx}"],
   theme: {
+    container: {
+      screens: {
+        sm: "100%",
+        md: "100%",
+        lg: "100%",
+        xl: "100%",
+        "2xl": "100%",
+      },
+    },
     extend: {
       colors: {
         primary: "#000000",
         success: "#22c55e",
         error: "#ef4444",
-        secondary: "#f97316",
+        v: "#f97316",
         white: "#ffffff",
       },
     },

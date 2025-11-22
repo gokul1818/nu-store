@@ -13,7 +13,7 @@ export default function CategoryForm() {
 
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [icon, setIcon] = useState(null);
+  const [image, setImage] = useState("");
   const [parent, setParent] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState({ name: "", parent: "" });
@@ -25,7 +25,7 @@ export default function CategoryForm() {
         const res = await CategoryAPI.getOne(id);
         setName(res.data.name);
         setDescription(res.data.description || "");
-        setIcon(res.data.icon || null);
+        setImage(res.data.image || null);
         setParent(res.data.parent || "");
       }
     } catch (err) {
@@ -57,7 +57,7 @@ export default function CategoryForm() {
     setLoading(true);
 
     try {
-      const body = { name, description, parent };
+      const body = { name, description, parent, image };
       console.log('body: ', body);
       if (isEdit) await CategoryAPI.update(id, body);
       else await CategoryAPI.create(body);
@@ -87,9 +87,8 @@ export default function CategoryForm() {
             setParent(e.target.value);
             if (error.parent) setError({ ...error, parent: "" });
           }}
-          className={`w-full p-3 border rounded-lg focus:outline-none focus:ring ${
-            error.parent ? "border-red-500" : "border-gray-300"
-          }`}
+          className={`w-full p-3 border rounded-lg focus:outline-none focus:ring ${error.parent ? "border-red-500" : "border-gray-300"
+            }`}
         >
           <option value="">Select Gender</option>
           <option value="men">Men</option>
@@ -110,7 +109,16 @@ export default function CategoryForm() {
         }}
         error={error.name}
       />
-
+      <div className="mb-4">
+        <FileUpload
+          label="Category Image"
+          mode="single"
+          value={image}
+          onChange={(url) => {
+            setImage(url);
+          }}
+        />
+      </div>
       {/* Description */}
       <div className="my-4">
         <label className="block font-semibold mb-1">Description</label>
