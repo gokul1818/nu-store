@@ -92,7 +92,7 @@ export const AdminAPI = {
     return api.get(`/api/admin/users${query}`);
   },
   getOrderById: (id) => api.get(`/api/orders/${id}`),
-  getDashboard: () => api.get(`/api/admin/dashboard/`),
+  getDashboard: () => api.get(`/api/admin/dashboard`),
   getUserById: (id) => api.get(`/api/admin/users/${id}`),
   getOrders: (page = 1, limit = 10, status) =>
     api.get(`/api/orders/all?status=${status}&page=${page}&limit=${limit}`),

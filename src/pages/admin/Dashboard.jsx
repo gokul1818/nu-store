@@ -39,19 +39,19 @@ export default function Dashboard() {
   if (loading || !dashboard) return <SpinLoader />;
 
   // Format revenue analytics for line chart
-  const revenueData = dashboard.revenueAnalytics?.map((rev, idx) => ({
-    name: new Date(2025, idx).toLocaleString("default", { month: "short" }),
-    revenue: Number(rev),
-  })) || [];
+  const revenueData =
+    dashboard.revenueAnalytics?.map((rev, idx) => ({
+      name: new Date(2025, idx).toLocaleString("default", { month: "short" }),
+      revenue: Number(rev),
+    })) || [];
 
   // Format orders data for bar chart
-  const ordersData =
-    dashboard.orderStatus
-      ? Object.entries(dashboard.orderStatus).map(([status, value]) => ({
-          status,
-          value: Number(value),
-        }))
-      : [];
+  const ordersData = dashboard.orderStatus
+    ? Object.entries(dashboard.orderStatus).map(([status, value]) => ({
+        status,
+        value: Number(value),
+      }))
+    : [];
 
   return (
     <AdminRoute>
@@ -67,10 +67,19 @@ export default function Dashboard() {
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
           {[
-            { title: "Total Sales", value: `₹${Number(dashboard.totalSales || 0).toLocaleString()}` },
-            { title: "Total Orders", value: Number(dashboard.totalOrders || 0) },
+            {
+              title: "Total Sales",
+              value: `₹${Number(dashboard.totalSales || 0).toLocaleString()}`,
+            },
+            {
+              title: "Total Orders",
+              value: Number(dashboard.totalOrders || 0),
+            },
             { title: "Total Users", value: Number(dashboard.totalUsers || 0) },
-            { title: "Avg Order Value", value: `₹${Number(dashboard.avgOrderValue || 0).toFixed(2)}` },
+            {
+              title: "Avg Order Value",
+              value: `₹${Number(dashboard.avgOrderValue || 0).toFixed(2)}`,
+            },
           ].map((item, idx) => (
             <motion.div
               key={idx}
@@ -112,12 +121,20 @@ export default function Dashboard() {
           >
             <h3 className="text-lg font-semibold mb-4">Low Stock Alerts</h3>
             <ul className="space-y-2 text-sm">
-              {dashboard.lowStock?.map((item, idx) => (
-                <li key={idx}>
-                  {item.title} -{" "}
-                  {item.stock > 0 ? `Only ${item.stock} left` : "Out of stock"}
-                </li>
-              ))}
+              {Boolean(dashboard.lowStock?.length) ? (
+                <>
+                  {dashboard.lowStock?.map((item, idx) => (
+                    <li key={idx}>
+                      {item.title} -{" "}
+                      {item.stock > 0
+                        ? `Only ${item.stock} left`
+                        : "Out of stock"}
+                    </li>
+                  ))}
+                </>
+              ) : (
+                <p> No Low Stock Product Available</p>
+              )}
             </ul>
           </motion.div>
         </div>
@@ -129,7 +146,9 @@ export default function Dashboard() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
           >
-            <h3 className="text-lg font-semibold mb-4">Order Status Breakdown</h3>
+            <h3 className="text-lg font-semibold mb-4">
+              Order Status Breakdown
+            </h3>
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={ordersData}>
                 <CartesianGrid strokeDasharray="3 3" />
@@ -147,14 +166,22 @@ export default function Dashboard() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
           >
-            <h3 className="text-lg font-semibold mb-4">🔥 Best-Selling Products</h3>
+            <h3 className="text-lg font-semibold mb-4">
+              🔥 Best-Selling Products
+            </h3>
             <ul className="space-y-3">
-              {dashboard.bestSelling?.map((item, idx) => (
-                <li key={idx} className="flex justify-between">
-                  <span>{item.title}</span>
-                  <span>{item.totalSold}</span>
-                </li>
-              ))}
+              {Boolean(dashboard.bestSelling?.length) ? (
+                <>
+                  {dashboard.bestSelling?.map((item, idx) => (
+                    <li key={idx} className="flex justify-between">
+                      <span>{item.title}</span>
+                      <span>{item.totalSold}</span>
+                    </li>
+                  ))}
+                </>
+              ) : (
+                <p>No Best Selling Found</p>
+              )}
             </ul>
           </motion.div>
         </div>
