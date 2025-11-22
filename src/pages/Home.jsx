@@ -12,6 +12,7 @@ import { FaMale, FaFemale, FaChild } from "react-icons/fa";
 import SpinLoader from "../components/SpinLoader";
 import BannerCarousel from "../components/BannerCarousel";
 import CategoryCard from "../components/CategoryCard";
+import Services from "./Services";
 
 export default function Home() {
   const {
@@ -94,10 +95,10 @@ export default function Home() {
       <div className="mx-auto w-full container px-4 py-6">
 
         {/* MAIN CATEGORIES */}
-        <p className="text-center my-10 text-2xl font-semibold">
-          Explore Everything
-        </p>
-        <div className="flex gap-6 w-full overflow-x-auto pb-2 no-scrollbar snap-x snap-mandatory">
+
+        <h1 className="text-3xl font-bold text-center my-10"> Explore Everything</h1>
+
+        <div className="flex gap-6 w-full overflow-x-auto pb-10 no-scrollbar snap-x snap-mandatory">
           {categories.map((cat) => (
             <div key={cat._id} className="snap-start">
               <CategoryCard
@@ -109,9 +110,7 @@ export default function Home() {
         </div>
 
 
-        <p className="text-center  my-10 text-2xl font-semibold">
-          New Arrivals
-        </p>
+        <h1 className="text-3xl font-bold text-center my-10 mt-20">New Arrivals</h1>
         {/* PRODUCT GRID */}
         <motion.div
           initial="hidden"
@@ -148,6 +147,8 @@ export default function Home() {
         <div ref={loaderRef} className="h-16 flex justify-center items-center">
           {loading && <SpinLoader />}
         </div>
+
+        <Services />
       </div>
     </>
   );

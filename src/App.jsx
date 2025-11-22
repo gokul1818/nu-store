@@ -30,6 +30,13 @@ import OrderDetails from "./pages/admin/OrderDetails";
 import OrderList from "./pages/admin/OrderList";
 import ProductDetailsAdmin from "./pages/admin/ProductDetails";
 import ProductList from "./pages/admin/ProductList";
+import Services from "./pages/Services";
+import About from "./pages/About";
+import Contact from "./pages/Contact";
+import FAQ from "./pages/FAQ";
+import ShippingPolicy from "./pages/ShippingPolicy";
+import RefundPolicy from "./pages/RefundPolicy";
+import Terms from "./pages/Terms";
 
 export default function App() {
   return (
@@ -49,6 +56,13 @@ export default function App() {
 
           <Route path="/orders" element={<Orders />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/services" element={<Services />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/faq" element={<FAQ />} />
+          <Route path="/shipping-policy" element={<ShippingPolicy />} />
+          <Route path="/refund-policy" element={<RefundPolicy />} />
+          <Route path="/terms" element={<Terms />} />
 
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />

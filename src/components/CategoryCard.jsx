@@ -15,6 +15,8 @@ export default function CategoryCard({ category, onClick }) {
         shrink-0
         overflow-hidden
         transition-all duration-200
+        hover:shadow-xl 
+        
       "
         >
             {/* IMAGE */}
