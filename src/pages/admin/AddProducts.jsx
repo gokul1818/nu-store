@@ -7,17 +7,9 @@ import AppSelect from "../../components/AppSelect";
 import { showError, showSuccess } from "../../components/AppToast";
 import FileUpload from "../../components/FileUpload";
 import { CategoryAPI, ProductAPI } from "../../services/api";
+import { colorOptions, genderOptions, sizeOptions } from "../../constants/constant";
 
-const COLORS = [
-  "Red",
-  "Blue",
-  "Green",
-  "Black",
-  "White",
-  "Yellow",
-  "Pink",
-  "Orange",
-];
+
 
 export default function ProductForm() {
   const { id } = useParams();
@@ -62,10 +54,10 @@ export default function ProductForm() {
             variants:
               product.data.variants.length > 0
                 ? product.data.variants.map((v) => ({
-                    ...v,
-                    stock: v.stock !== undefined ? v.stock : "",
-                  }))
-                : [{ size: "", color: COLORS[0], sku: "", stock: "" }],
+                  ...v,
+                  stock: v.stock !== undefined ? v.stock : "",
+                }))
+                : [{ size: "", color: colorOptions[0].value, sku: "", stock: "" }],
           });
         }
       } catch (err) {
@@ -147,7 +139,7 @@ export default function ProductForm() {
       ...form,
       variants: [
         ...form.variants,
-        { size: "", color: COLORS[0], sku: "", stock: "" },
+        { size: "", color: colorOptions[0].value, sku: "", stock: "" },
       ],
     });
   };
@@ -162,7 +154,6 @@ export default function ProductForm() {
       temp.discount = "Discount must be between 0 and 100";
     if (!form.gender) temp.gender = "Gender is required";
     if (!form.category) temp.category = "Category is required";
-    if (!form.thumbnail.trim()) temp.thumbnail = "Thumbnail is required";
     if (form.images.length === 0) temp.images = "Gallery images are required";
     if (!form.description.trim()) temp.description = "Description is required";
 
@@ -278,6 +269,7 @@ export default function ProductForm() {
           <AppSelect
             label="Gender"
             value={form.gender}
+
             onChange={(e) => {
               setForm({ ...form, gender: e.target.value });
               setErrors((prev) => {
@@ -294,6 +286,11 @@ export default function ProductForm() {
             <option value="men">Men</option>
             <option value="women">Women</option>
             <option value="kids">Kids</option>
+            {genderOptions.map((cat) => (
+              <option key={cat._id} value={cat._id}>
+                {cat.label}
+              </option>
+            ))}
           </AppSelect>
 
           {/* Category */}
@@ -317,14 +314,14 @@ export default function ProductForm() {
               </option>
             ))}
           </AppSelect>
-          <FileUpload
+          {/* <FileUpload
             id="thumbnail-upload"
             label="Thumbnail Image"
             mode="single"
             value={form.thumbnail}
             onChange={(url) => setForm((prev) => ({ ...prev, thumbnail: url }))}
             error={errors.thumbnail}
-          />
+          /> */}
 
           <FileUpload
             id="gallery-upload"
@@ -356,28 +353,38 @@ export default function ProductForm() {
           {form.variants.map((v, i) => (
             <div
               key={i}
-              className="relative grid md:grid-cols-4 gap-4 mb-4 p-4 border rounded-lg bg-gray-50"
+              className="relative grid md:grid-cols-4 gap-4 mb-4 p-4 border rounded-lg bg-gray-50 items-end"
             >
-              <AppInput
-                placeholder="Size"
+              {/* Size */}
+              <AppSelect
+                label="Size"
                 value={v.size}
                 onChange={(e) => updateVariant(i, "size", e.target.value)}
                 error={errors[`size-${i}`]}
-              />
+              >
+                <option value="" disabled>Select Size</option>
+                {sizeOptions.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </AppSelect>
+
+              {/* Color */}
               <AppSelect
+                label="Color"
                 value={v.color}
                 onChange={(e) => updateVariant(i, "color", e.target.value)}
                 error={errors[`color-${i}`]}
               >
-                <option value="" disabled className="text-gray-400">
-                  Select Color
-                </option>
-                {COLORS.map((c) => (
-                  <option key={c} value={c}>
-                    {c}
+                <option value="" disabled>Select Color</option>
+                {colorOptions.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
                   </option>
                 ))}
               </AppSelect>
+
               <AppInput
                 placeholder="SKU"
                 value={v.sku}

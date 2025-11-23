@@ -138,11 +138,33 @@ export default function OrderList() {
               {/* Items */}
               <div className="flex flex-col gap-3 mb-4">
                 {o.items?.map((item) => (
-                  <div key={item.productId} className="flex items-center gap-3">
-                    <div className="flex-1 flex flex-col">
+                  <div
+                    key={item.productId}
+                    className="flex items-center gap-3 p-2 border rounded-lg"
+                  >
+                    {/* IMAGE */}
+                    <img
+                      src={
+                        item.images?.[0] ||
+                        "/placeholder.png"
+                      }
+                      alt={item.title}
+                      className="w-16 h-16 object-cover rounded-md border"
+                    />
+
+                    {/* DETAILS */}
+                    <div className="flex flex-col">
                       <span className="font-medium text-gray-700">
                         {item.title}
                       </span>
+
+                      {/* color + size if you want */}
+                      {item.selectedOptions && (
+                        <span className="text-sm text-gray-500">
+                          {item.selectedOptions.color} • {item.selectedOptions.size}
+                        </span>
+                      )}
+
                       <span className="text-gray-500 text-sm">
                         Quantity: {item.qty}
                       </span>
@@ -150,6 +172,7 @@ export default function OrderList() {
                   </div>
                 ))}
               </div>
+
 
               {/* Status Dropdown */}
 
@@ -160,15 +183,7 @@ export default function OrderList() {
                 >
                   View details
                 </button>
-                <select
-                  value={o.status}
-                  onChange={(e) => updateStatus(o._id, e.target.value)}
-                  className="border rounded-lg p-2 text-sm hover:border-orange-400 focus:outline-none focus:ring-1 focus:ring-orange-300"
-                >
-                  {statuses.map((s) => (
-                    <option key={s}>{s}</option>
-                  ))}
-                </select>
+
               </div>
             </div>
           ))}

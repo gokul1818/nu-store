@@ -1,14 +1,13 @@
 import { FaFacebook, FaInstagram, FaTwitter, FaYoutube } from "react-icons/fa";
 import { Link } from "react-router-dom";
-
+import Logo from "../assets/logo1.png";
+import nueLoot from "../assets/nueLoot.png";
 export default function Footer() {
   return (
-    <footer className="bg-black text-gray-300 pt-10 pb-6 mt-10">
+    <footer className="bg-black/50 text-gray-300 pt-10 pb-6 mt-10">
       <div className="container mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-8">
-
-        {/* Brand */}
         <div>
-          <h2 className="text-xl font-bold text-white mb-3">NU STORE</h2>
+          <img src={Logo} alt="Logo" className="h-12 w-auto" />
           <p className="text-sm">
             #12-15, Sri Sai Upadhyaya Nagar, J K Nagar Extension, Pichatoor road, Srikalahasthi- 517644
           </p>
@@ -49,7 +48,7 @@ export default function Footer() {
       </div>
 
       {/* Bottom Bar */}
-      <div className="border-t border-gray-700 mt-8 pt-4 text-center text-sm text-gray-400">
+      <div className="border-t border-gray-800 mt-8 pt-4 text-center text-sm text-gray-300">
         © {new Date().getFullYear()} NU Store — All Rights Reserved.
       </div>
     </footer>

@@ -135,12 +135,12 @@ export default function CustomerList() {
       onClick: (row) => navigate(`/admin/users/${row._id}`),
       className: "hover:bg-blue-100",
     },
-    {
-      icon: <FaTrash className="w-4 h-4 text-primary" />,
-      title: "Delete",
-      onClick: (row) => deleteCustomer(row._id),
-      className: "hover:bg-red-100",
-    },
+    // {
+    //   icon: <FaTrash className="w-4 h-4 text-primary" />,
+    //   title: "Delete",
+    //   onClick: (row) => deleteCustomer(row._id),
+    //   className: "hover:bg-red-100",
+    // },
     {
       icon: (row) =>
         row.status === "Active" ? (

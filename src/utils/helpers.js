@@ -20,3 +20,34 @@ export const buildProductQuery = (params = {}) => {
 
   return searchParams.toString();
 };
+
+export const generateTrackingSteps = (status, createdAt) => {
+  const steps = [
+    { title: "Processing", date: createdAt, completed: false },
+    { title: "Packed", date: "", completed: false },
+    { title: "Shipped", date: "", completed: false },
+    { title: "Delivered", date: "", completed: false },
+  ];
+
+  // Mark steps completed based on status
+  const statusOrder = ["Processing", "Packed", "Shipped", "Delivered"];
+
+  const currentIndex = statusOrder.indexOf(status);
+
+  if (status === "Cancelled") {
+    return [
+      { title: "Processing", date: createdAt, completed: true },
+      { title: "Cancelled", date: new Date().toISOString(), completed: true },
+    ];
+  }
+
+  // Mark all steps up to current status as completed
+  for (let i = 0; i <= currentIndex; i++) {
+    steps[i].completed = true;
+    steps[i].date = i === 0 ? createdAt : new Date().toISOString();
+  }
+
+  return steps;
+};
+
+

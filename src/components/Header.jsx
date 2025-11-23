@@ -3,7 +3,8 @@ import useAuthStore from "../stores/useAuthStore";
 import useCartStore from "../stores/useCartStore";
 import { useState, useEffect, useRef } from "react";
 import { FiShoppingCart, FiUser, FiShoppingBag, FiLogOut } from "react-icons/fi";
-
+import Logo from "../assets/logo.png";
+import nueLoot from "../assets/nueLoot.png";
 export default function Header() {
   const { user, logout } = useAuthStore();
   const cart = useCartStore((s) => s.cart); // ✅ corrected from s.items to s.cart
@@ -36,8 +37,9 @@ export default function Header() {
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
         {/* Logo */}
         <Link to="/" className="text-2xl font-bold">
-          NU<span className="text-primary">Store</span>
+        <img src={nueLoot} alt="Logo" className="h-12 w-auto" />
         </Link>
+
 
         {/* Right Side */}
         <div className="flex items-center gap-4 relative">
@@ -50,7 +52,7 @@ export default function Header() {
               <FiShoppingCart className="w-6 h-6 text-primary hover:text-gray-700 transition-colors duration-200" />
               {cart?.length > 0 && (
                 <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs px-1.5 py-0.5 rounded-full">
-                  {cart.reduce((sum, item) => sum + (item.qty || 1), 0)} 
+                  {cart.reduce((sum, item) => sum + (item.qty || 1), 0)}
                   {/* ✅ sum of quantities, not just length */}
                 </span>
               )}

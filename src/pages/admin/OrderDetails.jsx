@@ -15,57 +15,35 @@ export default function OrderDetails() {
   const navigate = useNavigate();
 
   const [order, setOrder] = useState(null);
-  const [status, setStatus] = useState("");
-  const [trackingNumber, setTrackingNumber] = useState("");
-  const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
 
-  // ================================
-  // 🚀 Load Order from Backend
-  // ================================
+  // 🔥 Load order from backend
   const loadOrder = async () => {
     try {
       const res = await AdminAPI.getOrderById(id);
-      const data = res.data;
-
-      setOrder(data);
-      setStatus(data.status);
-      setTrackingNumber(data.trackingNumber || "");
+      setOrder(res.data);
     } catch (err) {
       console.log("ERROR:", err);
     }
-    setLoading(false);
   };
 
   useEffect(() => {
     loadOrder();
   }, [id]);
 
-  if (loading)
+  if (!order)
     return (
       <div className="p-6 text-center text-gray-500 text-lg">
         Loading order...
       </div>
     );
 
-  if (!order)
-    return (
-      <div className="p-6 text-center text-gray-500">Order not found</div>
-    );
-
-  // ================================
-  // 🔄 Update Order
-  // ================================
-  const updateOrder = async () => {
+  // 🔥 Instant update function
+  const updateInstant = async (patch) => {
     setUpdating(true);
     try {
-      await AdminAPI.updateOrder(order._id, {
-        status,
-        trackingNumber,
-      });
-
-      alert("Order updated successfully!");
-      loadOrder();
+      await AdminAPI.updateOrderStatus(order._id, patch);
+      await loadOrder(); // refresh UI
     } catch (err) {
       console.error(err);
       alert("Failed to update order");
@@ -73,9 +51,37 @@ export default function OrderDetails() {
     setUpdating(false);
   };
 
+  // STATUS change → auto update
+  const handleStatusChange = async (value) => {
+    await updateInstant({
+      status: value,
+      trackingNumber: order.trackingNumber,
+      trackingUrl: order.trackingUrl,
+    });
+  };
+
+  // TRACKING NUMBER change → auto update
+  const handleTrackingNumberChange = async (value) => {
+    await updateInstant({
+      status: order.status,
+      trackingNumber: value,
+      trackingUrl: order.trackingUrl,
+    });
+  };
+
+  // TRACKING URL change → auto update
+  const handleTrackingUrlChange = async (value) => {
+    await updateInstant({
+      status: order.status,
+      trackingNumber: order.trackingNumber,
+      trackingUrl: value,
+    });
+  };
+
   return (
     <div className="container mx-auto p-6">
-      {/* Back Button */}
+
+      {/* Back */}
       <button
         className="mb-4 px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
         onClick={() => navigate(-1)}
@@ -84,98 +90,113 @@ export default function OrderDetails() {
       </button>
 
       <div className="bg-white p-6 rounded-lg shadow-md">
-        {/* HEADER */}
+
+        {/* ORDER HEADER */}
         <h2 className="text-2xl font-bold mb-2">Order #{order._id}</h2>
-        <p className="mb-2 text-gray-700">
-          <strong>Customer ID:</strong> {order.user.uniqId}
-        </p>
 
         <p className="mb-2 text-gray-700">
-          <strong>Customer Name:</strong> {order.user.firstName} {order.user.lastName} ({order.user.email})
-        </p>
-        <p className="mb-2 text-gray-700">
-          <strong>Phone Number:</strong> {order.user.phone}
-        </p>
-        <p className="mb-2 text-gray-700">
-          <strong>Payment:</strong> {order.paymentMethod}
+          <strong>Customer:</strong> {order.user.firstName} {order.user.lastName}
         </p>
 
         <p className="mb-2 text-gray-700">
-          <strong>Date:</strong> {new Date(order.createdAt).toLocaleDateString()}
+          <strong>Email:</strong> {order.user.email}
         </p>
 
-        <p className="mb-4 text-gray-700">
-          <strong>Shipping:</strong> {order.shippingAddress.street},{" "}
-          {order.shippingAddress.city}
+        <p className="mb-2 text-gray-700">
+          <strong>Phone:</strong> {order.user.phone}
         </p>
 
-        {/* STATUS + TRACKING */}
-        <div className="flex flex-col md:flex-row md:items-center md:gap-6 mb-4">
-          <div>
-            <strong>Status:</strong>
-            <select
-              value={status}
-              onChange={(e) => setStatus(e.target.value)}
-              className={`ml-2 px-3 py-1 rounded border focus:outline-none focus:ring-1 focus:ring-orange-300 ${statusColors[status]}`}
-            >
-              {Object.keys(statusColors).map((s) => (
-                <option key={s} value={s}>
-                  {s}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Tracking Number */}
-          <div className="mt-2 md:mt-0">
-            <strong>Tracking Number:</strong>
-            <input
-              type="text"
-              value={trackingNumber}
-              onChange={(e) => setTrackingNumber(e.target.value)}
-              placeholder="Enter tracking number"
-              className="ml-2 px-3 py-1 border rounded focus:outline-none focus:ring-1 focus:ring-orange-300"
-            />
-          </div>
-
-          <button
-            onClick={updateOrder}
+        {/* STATUS */}
+        <div className="mt-4">
+          <strong>Status:</strong>
+          <select
+            value={order.status}
+            onChange={(e) => handleStatusChange(e.target.value)}
             disabled={updating}
-            className={`mt-2 md:mt-0 px-4 py-2 rounded text-white transition ${updating
-              ? "bg-gray-400 cursor-not-allowed"
-              : "bg-orange-500 hover:bg-orange-600"
-              }`}
+            className={`ml-2 px-3 py-1 rounded border ${statusColors[order.status]}`}
           >
-            {updating ? "Saving..." : "Save"}
-          </button>
+            {Object.keys(statusColors).map((s) => (
+              <option key={s} value={s}>{s}</option>
+            ))}
+          </select>
         </div>
 
-        {/* ITEMS LIST */}
-        <h3 className="text-xl font-semibold mt-4 mb-2">Items</h3>
+        {/* TRACKING NUMBER */}
+        <div className="mt-4">
+          <strong>Tracking Number:</strong>
+          <input
+            type="text"
+            defaultValue={order.trackingNumber}
+            placeholder="Enter tracking number"
+            onBlur={(e) => handleTrackingNumberChange(e.target.value)}
+            disabled={updating}
+            className="ml-2 px-3 py-1 rounded border"
+          />
+        </div>
+
+        {/* TRACKING URL */}
+        <div className="mt-4">
+          <strong>Tracking URL:</strong>
+          <input
+            type="text"
+            defaultValue={order.trackingUrl}
+            placeholder="https://tracking..."
+            onBlur={(e) => handleTrackingUrlChange(e.target.value)}
+            disabled={updating}
+            className="ml-2 px-3 py-1 rounded border w-full max-w-md"
+          />
+        </div>
+
+        {/* ITEMS */}
+        <h3 className="text-xl font-semibold mt-6 mb-2">Items</h3>
+
         <div className="space-y-2">
           {order.items.map((item) => (
             <div
               key={item.productId}
-              className="flex justify-between border p-3 rounded hover:shadow-sm transition"
+              className="flex justify-between items-center border p-3 rounded gap-4"
             >
-              <div>
-                <p className="font-medium">{item.title}</p>
-                <p className="text-gray-500 text-sm">Quantity: {item.qty}</p>
-                <p className="text-gray-500 text-sm">
-                  ₹{item.price} each
-                </p>
+              {/* LEFT: IMAGE + TITLE + QTY */}
+              <div className="flex items-center gap-3">
+                {/* IMAGE */}
+                <img
+                  src={
+                    item?.images?.[0] ||
+                    item.thumbnail ||
+                    item.selectedOptions?.image ||
+                    "/placeholder.png"
+                  }
+                  alt={item.title}
+                  className="w-16 h-16 object-cover rounded border"
+                />
+
+                {/* TEXT */}
+                <div>
+                  <p className="font-medium text-gray-700">{item.title}</p>
+
+                  {item.selectedOptions && (
+                    <p className="text-sm text-gray-500">
+                      {item.selectedOptions.color} • {item.selectedOptions.size}
+                    </p>
+                  )}
+
+                  <p className="text-gray-500 text-sm">Qty: {item.qty}</p>
+                </div>
               </div>
-              <div className="font-semibold">
+
+              {/* RIGHT: PRICE */}
+              <div className="font-semibold text-gray-800 whitespace-nowrap">
                 ₹{item.price * item.qty}
               </div>
             </div>
           ))}
+
         </div>
 
-        {/* TOTAL */}
         <p className="mt-4 font-bold text-lg">
           Total: ₹{order.totalAmount}
         </p>
+
       </div>
     </div>
   );

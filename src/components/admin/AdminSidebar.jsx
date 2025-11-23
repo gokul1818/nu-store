@@ -10,7 +10,8 @@ import {
 } from "react-icons/fa";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import useAdminStore from "../../stores/useAdminStore";
-import Logo from "../../assets/logo.png";
+import Logo from "../../assets/logo1.png";
+import nueLoot from "../../assets/nueLoot.png";
 
 export default function AdminSidebar() {
   const { pathname } = useLocation();
@@ -52,7 +53,7 @@ export default function AdminSidebar() {
     >
       <div className="flex items-center justify-center p-4">
         {expanded ? (
-          <img src={Logo} alt="Logo" className="h-24 w-24" />
+          <img src={nueLoot} alt="nueLoot" className="h-16   w-auto object-cover" />
         ) : (
           <img src={Logo} alt="Logo" className="h-8 w-auto" />
         )}

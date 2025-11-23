@@ -77,7 +77,8 @@ export const CartAPI = {
 --------------------------------------------------------- */
 export const OrderAPI = {
   createOrder: (data) => api.post("/api/orders", data),
-  getMyOrders: () => api.get("/api/orders"),
+  getMyOrders: (page = 1, limit = 10) =>
+    api.get(`/api/orders?page=${page}&limit=${limit}`),
   cancelOrder: (id) => api.post(`/api/orders/${id}/cancel`),
 };
 

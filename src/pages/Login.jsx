@@ -7,8 +7,8 @@ import AppButton from "../components/AppButton";
 import { showError, showSuccess } from "../components/AppToast";
 
 export default function Login() {
-  const login = useAuthStore((s) => s.login);
-  const loading = useAuthStore((s) => s.loading);
+  const { login, loading } = useAuthStore();
+
   const navigate = useNavigate();
 
   const [form, setForm] = useState({ emailOrPhone: "", password: "" });

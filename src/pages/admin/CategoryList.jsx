@@ -44,6 +44,19 @@ export default function CategoryList() {
 
   // Table columns
   const columns = [
+    {
+      key: "image", label: "Category Image",
+      render: (row) =>
+        row.image ? (
+          <img
+            src={row.image}
+            alt={row.title}
+            className="w-12 h-12 object-cover rounded mx-auto"
+          />
+        ) : (
+          "-"
+        ),
+    },
     { key: "name", label: "Category Name" },
     { key: "parent", label: "Gender" },
   ];

@@ -48,9 +48,9 @@ export default function Dashboard() {
   // Format orders data for bar chart
   const ordersData = dashboard.orderStatus
     ? Object.entries(dashboard.orderStatus).map(([status, value]) => ({
-        status,
-        value: Number(value),
-      }))
+      status,
+      value: Number(value),
+    }))
     : [];
 
   return (
@@ -96,7 +96,7 @@ export default function Dashboard() {
         </div>
 
         {/* Revenue Line Chart & Low Stock Alerts */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 h-96">
           <motion.div
             className="bg-white p-6 rounded-lg shadow-lg md:col-span-2"
             initial={{ opacity: 0 }}
@@ -115,32 +115,42 @@ export default function Dashboard() {
           </motion.div>
 
           <motion.div
-            className="bg-white p-6 rounded-lg shadow-lg"
+            className="bg-white p-6 rounded-lg  shadow-lg overflow-y-auto"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
           >
             <h3 className="text-lg font-semibold mb-4">Low Stock Alerts</h3>
+
             <ul className="space-y-2 text-sm">
-              {Boolean(dashboard.lowStock?.length) ? (
-                <>
-                  {dashboard.lowStock?.map((item, idx) => (
-                    <li key={idx}>
-                      {item.title} -{" "}
-                      {item.stock > 0
-                        ? `Only ${item.stock} left`
-                        : "Out of stock"}
-                    </li>
-                  ))}
-                </>
+              {dashboard.lowStock && dashboard.lowStock.length > 0 ? (
+                dashboard.lowStock.map((product, idx) => (
+                  <li key={idx} className="mb-2">
+                    <p className="font-semibold">{product.title}</p>
+
+                    <ul className="ml-3 list-disc">
+                      {product.variants
+                        .filter(v => v.stock <= 5) // show variants with low stock
+                        .map((v, i) => (
+                          <li key={i}>
+                            {v.size} / {v.color} —{" "}
+                            <span className="text-red-600 font-semibold">
+                              {v.stock} left
+                            </span>
+                          </li>
+                        ))}
+                    </ul>
+                  </li>
+                ))
               ) : (
-                <p> No Low Stock Product Available</p>
+                <p>No Low Stock Products Available</p>
               )}
             </ul>
+
           </motion.div>
         </div>
 
         {/* Orders Bar Chart & Best-Selling Products */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 h-96">
           <motion.div
             className="bg-white p-6 rounded-lg shadow-lg"
             initial={{ opacity: 0 }}
@@ -162,7 +172,7 @@ export default function Dashboard() {
           </motion.div>
 
           <motion.div
-            className="bg-white p-6 rounded-lg shadow-lg"
+            className="bg-white p-6 rounded-lg shadow-lg  overflow-y-auto"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
           >

@@ -1,8 +1,16 @@
 import create from "zustand";
 import { AuthAPI } from "../services/api";
 
+const safeJSONParse = (value) => {
+  try {
+    if (!value || value === "undefined" || value === "null") return null;
+    return JSON.parse(value);
+  } catch {
+    return null;
+  }
+};
 const useAuthStore = create((set, get) => ({
-  user: JSON.parse(localStorage.getItem("user") || "null"),
+  user: safeJSONParse(localStorage.getItem("user")),
   token: localStorage.getItem("token") || null,
   loading: false,
   error: null,
@@ -12,6 +20,7 @@ const useAuthStore = create((set, get) => ({
 
     try {
       const data = await AuthAPI.login(payload);
+      console.log('data: ', data);
 
       // Save to localStorage
       localStorage.setItem("user", JSON.stringify(data.user));
@@ -52,9 +61,10 @@ const useAuthStore = create((set, get) => ({
   getProfile: async () => {
     try {
       const res = await AuthAPI.getProfile();
-      localStorage.setItem("user", JSON.stringify(res.data));
-      set({ user: res.data });
-      return res.data;
+      console.log('res: ', res);
+      localStorage.setItem("user", JSON.stringify(res));
+      set({ user: res });
+      return res;
     } catch (err) {
       throw err;
     }
@@ -63,6 +73,7 @@ const useAuthStore = create((set, get) => ({
   updateProfile: async (payload) => {
     try {
       const updatedUser = await AuthAPI.updateProfile(payload);
+      console.log('updatedUser: ', updatedUser);
 
       // Sync store and localStorage
       localStorage.setItem("user", JSON.stringify(updatedUser));

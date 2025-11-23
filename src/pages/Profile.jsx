@@ -1,149 +1,288 @@
-import { useState, useEffect } from "react";
-import useCartStore from "../stores/useCartStore";
+import { useEffect, useState } from "react";
 import useAuthStore from "../stores/useAuthStore";
-import { useOrderStore } from "../stores/useOrderStore";  // ⬅️ Correct import
-import { useNavigate } from "react-router-dom";
-import { showError, showSuccess } from "../components/AppToast";
+import ProtectedRoute from "../components/ProtectedRoute";
+import AppButton from "../components/AppButton";
 import AppInput from "../components/AppInput";
+import { showError, showSuccess } from "../components/AppToast";
+import { AuthAPI } from "../services/api";
 
-export default function Checkout() {
-  const items = useCartStore((s) => s.items);
-  const clearCart = useCartStore((s) => s.clearCart);
-  const createOrder = useOrderStore((s) => s.createOrder); // ⬅️ Correct
-  const user = useAuthStore((s) => s.user);
-  const updateProfile = useAuthStore((s) => s.updateProfile);
+function ProfileView() {
+  const authStore = useAuthStore();
 
-  const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
-  const [editAddress, setEditAddress] = useState(false);
-
-  const [address, setAddress] = useState({
-    house: "",
-    street: "",
-    city: "",
-    state: "",
-    pincode: "",
+  const [form, setForm] = useState({
+    firstName: "",
+    lastName: "",
+    phone: "",
+    addresses: [
+      {
+        label: "",
+        street: "",
+        city: "",
+        state: "",
+        zipcode: "",
+        country: "",
+        phone: "",
+      },
+    ],
   });
 
+  const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+
+  // Load profile from API on page load
   useEffect(() => {
-    if (user?.addresses?.length > 0) {
-      setAddress({ ...user.addresses[0] });
-    }
-  }, [user]);
+    async function fetchProfile() {
+      try {
+        const res = await AuthAPI.getProfile();
 
-  const handleAddressChange = (field, value) => {
-    setAddress((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const validateAddress = () => {
-    const fields = ["house", "street", "city", "state", "pincode"];
-    for (let f of fields) {
-      if (!address[f]?.trim()) {
-        showError(`Please fill ${f}`);
-        return false;
+        setForm({
+          firstName: res.firstName || "",
+          lastName: res.lastName || "",
+          phone: res.phone || "",
+          addresses:
+            res.addresses?.length > 0
+              ? res.addresses.map((addr) => ({
+                  label: addr.label || "",
+                  street: addr.street || "",
+                  city: addr.city || "",
+                  state: addr.state || "",
+                  zipcode: addr.zipcode || "",
+                  country: addr.country || "",
+                  phone: addr.phone || "",
+                }))
+              : [
+                  {
+                    label: "",
+                    street: "",
+                    city: "",
+                    state: "",
+                    zipcode: "",
+                    country: "",
+                    phone: "",
+                  },
+                ],
+        });
+      } catch (err) {
+        showError("Failed to load profile");
       }
     }
-    return true;
+
+    fetchProfile();
+  }, []);
+
+  // Input handler
+  const handleChange = (field, value, index = null, subfield = null) => {
+    if (field === "addresses") {
+      const updated = [...form.addresses];
+      updated[index][subfield] = value;
+      setForm({ ...form, addresses: updated });
+      return;
+    }
+    setForm({ ...form, [field]: value });
   };
 
-  const submit = async (e) => {
-    e.preventDefault();
-    if (!validateAddress()) return;
+  // Validation
+  const validate = () => {
+    const newErrors = {};
+
+    if (!form.firstName.trim()) newErrors.firstName = "First name is required";
+    if (!form.lastName.trim()) newErrors.lastName = "Last name is required";
+
+    if (!form.phone.trim()) newErrors.phone = "Mobile number is required";
+    else if (!/^[0-9]{10}$/.test(form.phone.trim()))
+      newErrors.phone = "Enter valid 10-digit number";
+
+    const addr = form.addresses[0];
+    const addrErrors = {};
+
+    if (!addr.label.trim()) addrErrors.label = "Label is required";
+    if (!addr.street.trim()) addrErrors.street = "Street is required";
+    if (!addr.city.trim()) addrErrors.city = "City is required";
+    if (!addr.state.trim()) addrErrors.state = "State is required";
+
+    if (!addr.zipcode.trim()) addrErrors.zipcode = "Zipcode is required";
+    else if (!/^[0-9]{5,6}$/.test(addr.zipcode.trim()))
+      addrErrors.zipcode = "Enter valid zipcode";
+
+    if (!addr.country.trim()) addrErrors.country = "Country is required";
+
+    if (!addr.phone.trim()) addrErrors.phone = "Phone is required";
+    else if (!/^[0-9]{10}$/.test(addr.phone.trim()))
+      addrErrors.phone = "Enter valid 10-digit phone";
+
+    if (Object.keys(addrErrors).length > 0)
+      newErrors.addresses = [addrErrors];
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  // Update profile
+  const handleSubmit = async () => {
+    if (!validate()) return;
 
     setLoading(true);
     try {
-      await updateProfile({ ...user, addresses: [address] });
-
-      await createOrder({
-        items,
-        shippingAddress: address,
-        userId: user._id,
-        paymentMethod: "online",
-      });
-
-      clearCart();
-      showSuccess("Order placed successfully!");
-      navigate("/orders");
+      await authStore.updateProfile(form);
+      showSuccess("Profile updated successfully!");
+      setEditMode(false);
     } catch (err) {
-      console.error(err);
-      showError("Order failed");
+      showError(err?.response?.data?.message || "Profile update failed");
     } finally {
       setLoading(false);
     }
   };
 
-  if (!user) {
-    navigate("/login");
-    return null;
-  }
-
   return (
     <div className="container mx-auto px-4 py-6">
-      <h2 className="text-2xl font-bold mb-4">Checkout</h2>
-
-      <form onSubmit={submit} className="bg-white p-4 rounded space-y-4">
-        <label className="block font-medium">Address</label>
-
-        {!editAddress ? (
-          <div className="bg-gray-100 p-4 rounded space-y-1">
-            <div>House: {address.house}</div>
-            <div>Street: {address.street}</div>
-            <div>City: {address.city}</div>
-            <div>State: {address.state}</div>
-            <div>Pincode: {address.pincode}</div>
-
+      <div className="max-w-lg mx-auto bg-white p-6 rounded shadow-md space-y-4">
+        
+        <div className="flex justify-between items-center">
+          <h2 className="text-2xl font-bold">Profile</h2>
+          {!editMode && (
             <button
-              type="button"
-              className="text-primary text-sm mt-2"
-              onClick={() => setEditAddress(true)}
+              className="text-secondary text-sm"
+              onClick={() => setEditMode(true)}
             >
-              Edit Address
+              Edit
             </button>
-          </div>
-        ) : (
-          <div className="space-y-2">
-            <AppInput value={address.house} placeholder="House" onChange={(e) => handleAddressChange("house", e.target.value)} />
-            <AppInput value={address.street} placeholder="Street" onChange={(e) => handleAddressChange("street", e.target.value)} />
-            <AppInput value={address.city} placeholder="City" onChange={(e) => handleAddressChange("city", e.target.value)} />
-            <AppInput value={address.state} placeholder="State" onChange={(e) => handleAddressChange("state", e.target.value)} />
-            <AppInput value={address.pincode} placeholder="Pincode" onChange={(e) => handleAddressChange("pincode", e.target.value)} />
+          )}
+        </div>
 
-            <div className="flex gap-2 mt-2">
-              <button
-                type="button"
-                className="text-secondary text-sm"
-                onClick={() => setEditAddress(false)}
-              >
-                Cancel
-              </button>
+        {/* VIEW MODE */}
+        {!editMode && (
+          <div className="space-y-3">
+            <div><strong>First Name:</strong> {form.firstName}</div>
+            <div><strong>Last Name:</strong> {form.lastName}</div>
+            <div><strong>Mobile Number:</strong> {form.phone}</div>
 
-              <button
-                type="button"
-                className="text-primary text-sm"
-                onClick={async () => {
-                  try {
-                    await updateProfile({ ...user, addresses: [address] });
-                    showSuccess("Address updated");
-                  } catch (err) {
-                    showError("Failed to update address");
-                  }
-                  setEditAddress(false);
-                }}
-              >
-                Save
-              </button>
+            <div>
+              <strong>Address:</strong>
+              <div className="ml-4 mt-1 space-y-1">
+                <div>No: {form.addresses[0].label}</div>
+                <div>Street: {form.addresses[0].street}</div>
+                <div>City: {form.addresses[0].city}</div>
+                <div>State: {form.addresses[0].state}</div>
+                <div>Zipcode: {form.addresses[0].zipcode}</div>
+                <div>Country: {form.addresses[0].country}</div>
+                <div>Phone Number: {form.addresses[0].phone}</div>
+              </div>
             </div>
           </div>
         )}
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="bg-primary text-white px-4 py-2 rounded"
-        >
-          {loading ? "Placing..." : "Place Order"}
-        </button>
-      </form>
+        {/* EDIT MODE */}
+        {editMode && (
+          <div className="space-y-3">
+
+            <AppInput
+              label="First Name"
+              value={form.firstName}
+              onChange={(e) => handleChange("firstName", e.target.value)}
+              error={errors.firstName}
+            />
+
+            <AppInput
+              label="Last Name"
+              value={form.lastName}
+              onChange={(e) => handleChange("lastName", e.target.value)}
+              error={errors.lastName}
+            />
+
+            <AppInput
+              label="Mobile Number"
+              value={form.phone}
+              onChange={(e) => handleChange("phone", e.target.value)}
+              error={errors.phone}
+            />
+
+            <label className="block font-medium">Address</label>
+
+            <div className="space-y-2">
+
+              <AppInput
+                placeholder="Label (Home / Work)"
+                value={form.addresses[0].label}
+                onChange={(e) =>
+                  handleChange("addresses", e.target.value, 0, "label")
+                }
+                error={errors.addresses?.[0]?.label}
+              />
+
+              <AppInput
+                placeholder="Street"
+                value={form.addresses[0].street}
+                onChange={(e) =>
+                  handleChange("addresses", e.target.value, 0, "street")
+                }
+                error={errors.addresses?.[0]?.street}
+              />
+
+              <AppInput
+                placeholder="City"
+                value={form.addresses[0].city}
+                onChange={(e) =>
+                  handleChange("addresses", e.target.value, 0, "city")
+                }
+                error={errors.addresses?.[0]?.city}
+              />
+
+              <AppInput
+                placeholder="State"
+                value={form.addresses[0].state}
+                onChange={(e) =>
+                  handleChange("addresses", e.target.value, 0, "state")
+                }
+                error={errors.addresses?.[0]?.state}
+              />
+
+              <AppInput
+                placeholder="Zipcode"
+                value={form.addresses[0].zipcode}
+                onChange={(e) =>
+                  handleChange("addresses", e.target.value, 0, "zipcode")
+                }
+                error={errors.addresses?.[0]?.zipcode}
+              />
+
+              <AppInput
+                placeholder="Country"
+                value={form.addresses[0].country}
+                onChange={(e) =>
+                  handleChange("addresses", e.target.value, 0, "country")
+                }
+                error={errors.addresses?.[0]?.country}
+              />
+
+              <AppInput
+                placeholder="Phone Number"
+                value={form.addresses[0].phone}
+                onChange={(e) =>
+                  handleChange("addresses", e.target.value, 0, "phone")
+                }
+                error={errors.addresses?.[0]?.phone}
+              />
+            </div>
+
+            <AppButton
+              loading={loading}
+              onClick={handleSubmit}
+              className="w-full"
+            >
+              Save Changes
+            </AppButton>
+          </div>
+        )}
+      </div>
     </div>
+  );
+}
+
+export default function Profile() {
+  return (
+    <ProtectedRoute>
+      <ProfileView />
+    </ProtectedRoute>
   );
 }
