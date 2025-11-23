@@ -2,15 +2,7 @@
 export default {
   content: ["./index.html", "./src/**/*.{js,jsx}"],
   theme: {
-    container: {
-      screens: {
-        sm: "100%",
-        md: "100%",
-        lg: "100%",
-        xl: "100%",
-        "2xl": "100%",
-      },
-    },
+   
     extend: {
       colors: {
         primary: "#000000",
