@@ -8,7 +8,7 @@ import {
   FiPhone,
 } from "react-icons/fi";
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import Logo1 from "../assets/Logo1.png";
+import Logo1 from "../assets/logo1.png";
 import useAuthStore from "../stores/useAuthStore";
 import useCartStore from "../stores/useCartStore";
 
