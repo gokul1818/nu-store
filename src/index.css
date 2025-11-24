@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 /* small helpers */
-body { @apply bg-gray-50 text-gray-800; }
+body { @apply bg-gray-200 text-gray-800; }
 
 @keyframes enter {
   0% { opacity: 0; transform: translateY(-10px) scale(0.9); }

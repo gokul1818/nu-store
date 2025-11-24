@@ -1,19 +1,25 @@
-import { Link, useNavigate } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import {
+  FiLogOut,
+  FiShoppingBag,
+  FiShoppingCart,
+  FiUser,
+  FiInstagram,
+  FiPhone,
+} from "react-icons/fi";
+import { Link, NavLink, useNavigate } from "react-router-dom";
+import Logo1 from "../assets/Logo1.png";
 import useAuthStore from "../stores/useAuthStore";
 import useCartStore from "../stores/useCartStore";
-import { useState, useEffect, useRef } from "react";
-import { FiShoppingCart, FiUser, FiShoppingBag, FiLogOut } from "react-icons/fi";
-import Logo from "../assets/logo.png";
-import nueLoot from "../assets/nueLoot.png";
+
 export default function Header() {
   const { user, logout } = useAuthStore();
-  const cart = useCartStore((s) => s.cart); // ✅ corrected from s.items to s.cart
+  const cart = useCartStore((s) => s.cart);
   const navigate = useNavigate();
 
   const [showUserMenu, setShowUserMenu] = useState(false);
   const dropdownRef = useRef();
 
-  // Close dropdown on outside click
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -33,17 +39,86 @@ export default function Header() {
   };
 
   return (
-    <header className="  backdrop-blur-md bg-white/30  shadow-sm sticky top-0 z-50">
+    <header className="backdrop-blur-md bg-white/30 shadow-sm sticky top-0 z-50">
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
-        {/* Logo */}
         <Link to="/" className="text-2xl font-bold">
-        <img src={nueLoot} alt="Logo" className="h-12 w-auto" />
+          <img src={Logo1} alt="Logo" className="h-12 w-auto" />
         </Link>
 
+        <nav className="hidden md:flex gap-6 font-medium text-gray-700">
+          <NavLink
+            to="/"
+            className={({ isActive }) =>
+              `transition-colors duration-200 ${
+                isActive
+                  ? "text-orange-500 border-b-2 border-orange-500"
+                  : "hover:text-orange-500 hover:border-b-2 hover:border-orange-500"
+              }`
+            }
+          >
+            Home
+          </NavLink>
 
+          <NavLink
+            to="/about"
+            className={({ isActive }) =>
+              `transition-colors duration-200 ${
+                isActive
+                  ? "text-orange-500 border-b-2 border-orange-500"
+                  : "hover:text-orange-500 hover:border-b-2 hover:border-orange-500"
+              }`
+            }
+          >
+            About Us
+          </NavLink>
+
+          <NavLink
+            to="/men-loot"
+            className={({ isActive }) =>
+              `transition-colors duration-200 ${
+                isActive
+                  ? "text-orange-500 border-b-2 border-orange-500"
+                  : "hover:text-orange-500 hover:border-b-2 hover:border-orange-500"
+              }`
+            }
+          >
+            Men Loot
+          </NavLink>
+
+          <NavLink
+            to="/women-loot"
+            className={({ isActive }) =>
+              `transition-colors duration-200 ${
+                isActive
+                  ? "text-orange-500 border-b-2 border-orange-500"
+                  : "hover:text-orange-500 hover:border-b-2 hover:border-orange-500"
+              }`
+            }
+          >
+            Women Loot
+          </NavLink>
+        </nav>
         {/* Right Side */}
         <div className="flex items-center gap-4 relative">
-          {/* Cart Icon - logged-in users only */}
+          {/* Social Icons */}
+          {/* <a
+            href="https://www.instagram.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-primary transition-colors"
+          >
+            <FiInstagram className="w-6 h-6" />
+          </a>
+          <a
+            href="https://wa.me/1234567890"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-primary transition-colors"
+          >
+            <FiPhone className="w-6 h-6" />
+          </a> */}
+
+          {/* Cart Icon */}
           {user && (
             <button
               onClick={() => navigate("/cart")}
@@ -53,7 +128,6 @@ export default function Header() {
               {cart?.length > 0 && (
                 <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs px-1.5 py-0.5 rounded-full">
                   {cart.reduce((sum, item) => sum + (item.qty || 1), 0)}
-                  {/* ✅ sum of quantities, not just length */}
                 </span>
               )}
             </button>
@@ -68,7 +142,6 @@ export default function Header() {
               <FiUser className="w-8 h-8 text-primary hover:text-gray-700 transition-colors duration-200" />
             </button>
 
-            {/* Dropdown Menu */}
             {user && showUserMenu && (
               <div className="absolute right-0 mt-2 w-48 bg-white border rounded shadow-lg py-2 z-50">
                 <Link

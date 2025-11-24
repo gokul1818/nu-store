@@ -1,11 +1,10 @@
-import { FaFacebook, FaInstagram, FaTwitter, FaYoutube } from "react-icons/fa";
+import { FaFacebook, FaInstagram, FaTwitter } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import Logo from "../assets/logo1.png";
-import nueLoot from "../assets/nueLoot.png";
 export default function Footer() {
   return (
     <footer className="bg-black/50 text-gray-300 pt-10 pb-6 mt-10">
-      <div className="container mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-8">
+      <div className="container mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-8 items-start">
         <div>
           <img src={Logo} alt="Logo" className="h-12 w-auto" />
           <p className="text-sm">
@@ -41,7 +40,7 @@ export default function Footer() {
           <div className="flex gap-4 text-xl">
             <a href="#" className="hover:text-white"><FaFacebook /></a>
             <a href="https://www.instagram.com/nueloot_official?igsh=bGEyamR0dnc1Z3Ji" className="hover:text-white"><FaInstagram /></a>
-            <a href="#" className="hover:text-white"><FaTwitter /></a>
+            {/* <a href="#" className="hover:text-white"><FaTwitter /></a> */}
             {/* <a href="#" className="hover:text-white"><FaYoutube /></a> */}
           </div>
         </div>

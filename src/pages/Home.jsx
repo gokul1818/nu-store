@@ -12,13 +12,8 @@ import CategoryCard from "../components/CategoryCard";
 import Services from "./Services";
 
 export default function Home() {
-  const {
-    products,
-    fetchProducts,
-    resetProducts,
-    resetFilters,
-    loading
-  } = useProductStore();
+  const { products, fetchProducts, resetProducts, resetFilters, loading } =
+    useProductStore();
 
   const addItem = useCartStore((s) => s.addItem);
   const navigate = useNavigate();
@@ -71,8 +66,9 @@ export default function Home() {
       <BannerCarousel banners={banners} />
 
       <div className="mx-auto w-full container px-4 py-6">
-
-        <h1 className="text-3xl font-bold text-center my-10">Explore Everything</h1>
+        <h1 className="text-3xl font-bold text-center my-10">
+          Explore Everything
+        </h1>
 
         {/* Categories (snap scroll) */}
         <div className="flex gap-6 w-full overflow-x-auto pb-10 no-scrollbar snap-x snap-mandatory">
@@ -80,7 +76,13 @@ export default function Home() {
             <div key={cat._id} className="snap-start">
               <CategoryCard
                 category={cat}
-                onClick={() => navigate(`/products?category=${cat._id}`)}
+                onClick={() =>
+                  navigate(
+                    `/products?category=${
+                      cat._id
+                    }&categoryName=${encodeURIComponent(cat.name)}`
+                  )
+                }
               />
             </div>
           ))}

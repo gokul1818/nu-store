@@ -8,7 +8,7 @@ export default {
         primary: "#000000",
         success: "#22c55e",
         error: "#ef4444",
-        v: "#f97316",
+        v: "#FF7B0C",
         white: "#ffffff",
       },
     },
