@@ -79,7 +79,7 @@ export default function App() {
             </AdminRoute>
           }
         >
-          <Route path="/admin/" element={<Dashboard />} />
+          <Route path="/admin" element={<Dashboard />} />
 
           {/* Products */}
           <Route path="/admin/products" element={<ProductList />} />
