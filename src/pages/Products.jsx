@@ -31,6 +31,7 @@ export default function Products() {
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
 
+  const genderQuery = searchParams.get("gender") || "";
   const categoryQuery = searchParams.get("category") || "";
   const searchQuery = searchParams.get("search") || "";
   const categoryNameQuery = searchParams.get("categoryName") || "";
@@ -39,13 +40,15 @@ export default function Products() {
   const categoryHeader = categoryNameQuery || activeCategory;
   const activeSearch = searchQuery;
 
+  const isGenderPage = paramCategory === "men" || paramCategory === "women";
+
   const [categories, setCategories] = useState([]);
   const [q, setQ] = useState(activeSearch);
   const [debouncedQ, setDebouncedQ] = useState(activeSearch);
 
   const [filters, setFilters] = useState({
     category: activeCategory || "",
-    gender: "",
+    gender: isGenderPage ? paramCategory : genderQuery,
     size: "",
     color: "",
     priceRange: [0, 5000],
@@ -53,7 +56,6 @@ export default function Products() {
   });
 
   const [showFilterPanel, setShowFilterPanel] = useState(false);
-
   const loaderRef = useRef(null);
 
   /** Load Categories */
@@ -75,17 +77,34 @@ export default function Products() {
     return () => clearTimeout(t);
   }, [q]);
 
-  /** Search triggers API */
+  /** Initial API Call */
+  useEffect(() => {
+    resetProducts();
+    setFilter("category", filters.category);
+    setFilter("gender", filters.gender);
+    fetchProducts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // only once on mount
+
+  /** Search Effect */
   useEffect(() => {
     setFilter("searchText", debouncedQ || activeSearch);
     resetProducts();
     fetchProducts();
   }, [debouncedQ]);
 
+  /** Effect for filters.gender only if not coming from Men/Women Loot */
+  useEffect(() => {
+    if (!isGenderPage) {
+      setFilter("gender", filters.gender);
+      resetProducts();
+      fetchProducts();
+    }
+  }, [filters.gender]);
+
   /** Infinite Scroll Observer */
   useEffect(() => {
     if (!loaderRef.current) return;
-
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting && !loading && page < pages) {
@@ -94,7 +113,6 @@ export default function Products() {
       },
       { threshold: 0.25 }
     );
-
     observer.observe(loaderRef.current);
     return () => observer.disconnect();
   }, [loading, page, pages]);
@@ -104,10 +122,10 @@ export default function Products() {
     setFilters((prev) => ({ ...prev, [key]: value }));
   };
 
-  /** Apply filters => trigger API */
+  /** Apply filters */
   const applyFilters = () => {
     setFilter("category", filters.category);
-    setFilter("gender", filters.gender);
+    if (!isGenderPage) setFilter("gender", filters.gender);
     setFilter("size", filters.size);
     setFilter("color", filters.color);
     setFilter("priceRange", filters.priceRange);
@@ -115,7 +133,6 @@ export default function Products() {
 
     resetProducts();
     fetchProducts();
-
     setShowFilterPanel(false);
   };
 
@@ -124,7 +141,7 @@ export default function Products() {
     resetFilters();
     setFilters({
       category: "",
-      gender: "",
+      gender: isGenderPage ? paramCategory : "",
       size: "",
       color: "",
       priceRange: [0, 5000],
@@ -162,27 +179,27 @@ export default function Products() {
 
       {/* Products Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {products?.length > 0 ? (
-          products.map((p) => (
-            <ProductCard
-              key={p._id}
-              product={p}
-              onAdd={(product) =>
-                addItem({
-                  ...product,
-                  qty: 1,
-                  selectedOptions: product.variants?.[0] || {
-                    color: "Default",
-                    size: "M",
-                  },
-                })
-              }
-            />
-          ))
-        ) : null}
+        {products?.length > 0
+          ? products.map((p) => (
+              <ProductCard
+                key={p._id}
+                product={p}
+                onAdd={(product) =>
+                  addItem({
+                    ...product,
+                    qty: 1,
+                    selectedOptions: product.variants?.[0] || {
+                      color: "Default",
+                      size: "M",
+                    },
+                  })
+                }
+              />
+            ))
+          : null}
       </div>
 
-      {!products?.length && (
+      {!loading && !products?.length && (
         <div className="h-[100%] w-screen flex justify-center items-center">
           <img
             src={Empty}
@@ -199,136 +216,114 @@ export default function Products() {
 
       {/* Filter Panel */}
       {showFilterPanel && (
-        <>
-          <div
-            className="fixed inset-0 bg-black/40 z-40"
-            onClick={() => setShowFilterPanel(false)}
-          ></div>
+        <motion.div
+          initial={{ x: "100%" }}
+          animate={{ x: 0 }}
+          exit={{ x: "100%" }}
+          transition={{ type: "spring", stiffness: 300, damping: 30 }}
+          className="fixed right-0 top-0 h-full w-80 bg-white z-50 shadow-lg p-6 overflow-y-auto flex flex-col gap-4"
+        >
+          <h3 className="text-xl font-bold">Filters</h3>
 
-          <motion.div
-            initial={{ x: "100%" }}
-            animate={{ x: 0 }}
-            exit={{ x: "100%" }}
-            transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            className="fixed right-0 top-0 h-full w-80 bg-white z-50 shadow-lg p-6 overflow-y-auto"
+          {/* Category */}
+          <AppSelect
+            label="Category"
+            value={filters.category}
+            onChange={(e) => handleFilterChange("category", e.target.value)}
           >
-            <h3 className="text-xl font-bold mb-4">Filters</h3>
+            <option value="">All Categories</option>
+            {categories.map((c) => (
+              <option key={c._id} value={c._id}>
+                {c.name}
+              </option>
+            ))}
+          </AppSelect>
 
-            {/* Category */}
-            <AppSelect
-              label="Category"
-              value={filters.category}
-              onChange={(e) =>
-                handleFilterChange("category", e.target.value)
-              }
-            >
-              <option value="">All Categories</option>
-              {categories.map((c) => (
-                <option key={c._id} value={c._id}>
-                  {c.name}
-                </option>
-              ))}
-            </AppSelect>
-
-            {/* Gender */}
+          {/* Gender - hide if coming from Men/Women Loot */}
+          {!isGenderPage && (
             <AppSelect
               label="Gender"
               value={filters.gender}
-              onChange={(e) =>
-                handleFilterChange("gender", e.target.value)
-              }
-              className="mt-3"
+              onChange={(e) => handleFilterChange("gender", e.target.value)}
             >
               <option value="">All</option>
               <option value="men">Men</option>
               <option value="women">Women</option>
               <option value="kids">Kids</option>
             </AppSelect>
+          )}
 
-            {/* Size */}
-            <AppSelect
-              label="Size"
-              value={filters.size}
-              onChange={(e) =>
-                handleFilterChange("size", e.target.value)
-              }
-              className="mt-3"
+          {/* Size */}
+          <AppSelect
+            label="Size"
+            value={filters.size}
+            onChange={(e) => handleFilterChange("size", e.target.value)}
+          >
+            <option value="">All Sizes</option>
+            {["S", "M", "L", "XL", "XXL", "XXXL"].map((s) => (
+              <option key={s} value={s}>
+                {s}
+              </option>
+            ))}
+          </AppSelect>
+
+          {/* Color */}
+          <AppSelect
+            label="Color"
+            value={filters.color}
+            onChange={(e) => handleFilterChange("color", e.target.value)}
+          >
+            <option value="">All Colors</option>
+            {[
+              ...new Set(
+                products.flatMap((p) => p.variants.map((v) => v.color))
+              ),
+            ].map((color, i) => (
+              <option key={i} value={color}>
+                {color}
+              </option>
+            ))}
+          </AppSelect>
+
+          <AppInput
+            label={`Max Price: ₹${filters.priceRange[1]}`}
+            type="range"
+            min={0}
+            max={10000}
+            step={10}
+            className="border-0"
+            value={filters.priceRange[1]}
+            onChange={(e) =>
+              handleFilterChange("priceRange", [0, Number(e.target.value)])
+            }
+          />
+
+          {/* Sort */}
+          <AppSelect
+            label="Sort By"
+            value={filters.sort}
+            onChange={(e) => handleFilterChange("sort", e.target.value)}
+          >
+            <option value="newest">Newest First</option>
+            <option value="priceAsc">Price: Low to High</option>
+            <option value="priceDesc">Price: High to Low</option>
+            <option value="popularity">Popularity</option>
+          </AppSelect>
+
+          {/* Buttons */}
+          <div className="flex gap-2 mt-5">
+            <AppButton className="flex-1 border" onClick={handleReset}>
+              Reset
+            </AppButton>
+
+            <AppButton
+              className="flex-1 bg-orange-500 hover:bg-orange-600 text-white"
+              onClick={applyFilters}
             >
-              <option value="">All Sizes</option>
-              {["S", "M", "L", "XL", "XXL", "XXXL"].map((s) => (
-                <option key={s} value={s}>
-                  {s}
-                </option>
-              ))}
-            </AppSelect>
-
-            {/* Color */}
-            <AppSelect
-              label="Color"
-              value={filters.color}
-              onChange={(e) =>
-                handleFilterChange("color", e.target.value)
-              }
-              className="mt-3"
-            >
-              <option value="">All Colors</option>
-              {[...new Set(products.flatMap((p) => p.variants.map((v) => v.color)))]
-                .map((color, i) => (
-                  <option key={i} value={color}>
-                    {color}
-                  </option>
-                ))}
-            </AppSelect>
-
-            {/* Price */}
-            <div className="mt-4">
-              <AppInput
-                label={`Max Price: ₹${filters.priceRange[1]}`}
-                type="range"
-                min={0}
-                max={10000}
-                step={10}
-                className="border-0"
-                value={filters.priceRange[1]}
-                onChange={(e) =>
-                  handleFilterChange("priceRange", [
-                    0,
-                    Number(e.target.value),
-                  ])
-                }
-              />
-            </div>
-
-            {/* Sort */}
-            <AppSelect
-              label="Sort By"
-              value={filters.sort}
-              onChange={(e) =>
-                handleFilterChange("sort", e.target.value)
-              }
-              className="mt-4"
-            >
-              <option value="newest">Newest First</option>
-              <option value="priceAsc">Price: Low to High</option>
-              <option value="priceDesc">Price: High to Low</option>
-              <option value="popularity">Popularity</option>
-            </AppSelect>
-
-            {/* Buttons */}
-            <div className="flex gap-2 mt-5">
-              <AppButton className="flex-1 border" onClick={handleReset}>
-                Reset
-              </AppButton>
-
-              <AppButton
-                className="flex-1 bg-orange-500 hover:bg-orange-600 text-white"
-                onClick={applyFilters}
-              >
-                Apply
-              </AppButton>
-            </div>
-          </motion.div>
-        </>
+              Apply
+            </AppButton>
+          </div>
+        </motion.div>
       )}
     </div>
   );

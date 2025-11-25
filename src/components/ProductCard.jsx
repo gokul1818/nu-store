@@ -10,21 +10,18 @@ const cardVariants = {
   whileHover: { scale: 1.04, boxShadow: "0 8px 32px rgba(0,0,0,0.08)" },
 };
 
-export default function ProductCard({ product, onAdd = () => { } }) {
+export default function ProductCard({ product, onAdd = () => {} }) {
   const addItem = useCartStore((s) => s.addItem);
 
   // ➤ Hover State to swap image
   const [hover, setHover] = useState(false);
 
   const productImage1 = product.images?.[0] || "/placeholder.png";
-  const productImage2 = product.images?.[1] || productImage1; // fallback to first
+  const productImage2 = product.images?.[1] || productImage1;
 
   const shownImage = hover ? productImage2 : productImage1;
 
   const hasDiscount = Number(product.discount) > 0;
-  const discountedPrice = hasDiscount
-    ? product.price - product.price * (product.discount / 100)
-    : product.price;
 
   // Calculate total stock from variants
   const totalStock = product.variants?.reduce(
@@ -66,7 +63,6 @@ export default function ProductCard({ product, onAdd = () => { } }) {
         )}
 
         <div className="relative h-40 sm:h-40 md:h-48 lg:h-56 xl:h-64 w-full overflow-hidden rounded-lg">
-
           <AnimatePresence mode="sync">
             <motion.img
               key={shownImage}
@@ -79,14 +75,15 @@ export default function ProductCard({ product, onAdd = () => { } }) {
               className="absolute inset-0 w-full h-full object-cover"
             />
           </AnimatePresence>
-
         </div>
 
         <h3 className="mt-3 font-semibold text-gray-900 line-clamp-2">
           {product.title}
         </h3>
 
-        <p className={`mt-1 text-xs font-medium px-2 py-1 rounded w-fit ${stockClass}`}>
+        <p
+          className={`mt-1 text-xs font-medium px-2 py-1 rounded w-fit ${stockClass}`}
+        >
           {stockLabel}
         </p>
         {/* VARIANTS */}
@@ -129,8 +126,10 @@ export default function ProductCard({ product, onAdd = () => { } }) {
                 onAdd({
                   ...product,
                   qty: 1,
-                  selectedOptions:
-                    product.variants?.[0] || { color: "Default", size: "M" },
+                  selectedOptions: product.variants?.[0] || {
+                    color: "Default",
+                    size: "M",
+                  },
                 })
               }
               className="px-3 py-1 bg-primary text-white rounded shadow hover:bg-gray-800 transition-all"
@@ -140,7 +139,6 @@ export default function ProductCard({ product, onAdd = () => { } }) {
           </div>
         </div>
       </Link>
-
     </motion.div>
   );
 }

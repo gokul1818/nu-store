@@ -1,13 +1,6 @@
-import { useEffect, useRef, useState } from "react";
-import {
-  FiLogOut,
-  FiShoppingBag,
-  FiShoppingCart,
-  FiUser,
-  FiInstagram,
-  FiPhone,
-} from "react-icons/fi";
-import { Link, NavLink, useNavigate } from "react-router-dom";
+import { useState, useRef, useEffect } from "react";
+import { FiUser, FiShoppingCart, FiLogOut, FiShoppingBag } from "react-icons/fi";
+import { Link, NavLink, useNavigate, useLocation } from "react-router-dom";
 import Logo1 from "../assets/logo1.png";
 import useAuthStore from "../stores/useAuthStore";
 import useCartStore from "../stores/useCartStore";
@@ -16,9 +9,13 @@ export default function Header() {
   const { user, logout } = useAuthStore();
   const cart = useCartStore((s) => s.cart);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [showUserMenu, setShowUserMenu] = useState(false);
   const dropdownRef = useRef();
+
+  const searchParams = new URLSearchParams(location.search);
+  const genderQuery = searchParams.get("gender") || "";
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -31,11 +28,8 @@ export default function Header() {
   }, []);
 
   const handleUserClick = () => {
-    if (!user) {
-      navigate("/login");
-    } else {
-      setShowUserMenu(!showUserMenu);
-    }
+    if (!user) navigate("/login");
+    else setShowUserMenu(!showUserMenu);
   };
 
   return (
@@ -48,6 +42,7 @@ export default function Header() {
         <nav className="hidden md:flex gap-6 font-medium text-gray-700">
           <NavLink
             to="/"
+            end
             className={({ isActive }) =>
               `transition-colors duration-200 ${
                 isActive
@@ -61,6 +56,7 @@ export default function Header() {
 
           <NavLink
             to="/about"
+            end
             className={({ isActive }) =>
               `transition-colors duration-200 ${
                 isActive
@@ -72,53 +68,33 @@ export default function Header() {
             About Us
           </NavLink>
 
+          {/* Men Loot */}
           <NavLink
-            to="/men-loot"
-            className={({ isActive }) =>
-              `transition-colors duration-200 ${
-                isActive
-                  ? "text-orange-500 border-b-2 border-orange-500"
-                  : "hover:text-orange-500 hover:border-b-2 hover:border-orange-500"
-              }`
-            }
+            to="/products?gender=men"
+            className={`transition-colors duration-200 ${
+              genderQuery === "men"
+                ? "text-orange-500 border-b-2 border-orange-500"
+                : "hover:text-orange-500 hover:border-b-2 hover:border-orange-500"
+            }`}
           >
             Men Loot
           </NavLink>
 
+          {/* Women Loot */}
           <NavLink
-            to="/women-loot"
-            className={({ isActive }) =>
-              `transition-colors duration-200 ${
-                isActive
-                  ? "text-orange-500 border-b-2 border-orange-500"
-                  : "hover:text-orange-500 hover:border-b-2 hover:border-orange-500"
-              }`
-            }
+            to="/products?gender=women"
+            className={`transition-colors duration-200 ${
+              genderQuery === "women"
+                ? "text-orange-500 border-b-2 border-orange-500"
+                : "hover:text-orange-500 hover:border-b-2 hover:border-orange-500"
+            }`}
           >
             Women Loot
           </NavLink>
         </nav>
+
         {/* Right Side */}
         <div className="flex items-center gap-4 relative">
-          {/* Social Icons */}
-          {/* <a
-            href="https://www.instagram.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hover:text-primary transition-colors"
-          >
-            <FiInstagram className="w-6 h-6" />
-          </a>
-          <a
-            href="https://wa.me/1234567890"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hover:text-primary transition-colors"
-          >
-            <FiPhone className="w-6 h-6" />
-          </a> */}
-
-          {/* Cart Icon */}
           {user && (
             <button
               onClick={() => navigate("/cart")}
@@ -133,7 +109,6 @@ export default function Header() {
             </button>
           )}
 
-          {/* User Icon */}
           <div ref={dropdownRef} className="relative">
             <button
               onClick={handleUserClick}
