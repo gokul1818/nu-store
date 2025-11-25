@@ -49,7 +49,7 @@ export default function Products() {
     size: "",
     color: "",
     priceRange: [0, 5000],
-    sort: "newest", // priceAsc, priceDesc, newest, popularity
+    sort: "newest",
   });
 
   const [showFilterPanel, setShowFilterPanel] = useState(false);
@@ -69,25 +69,18 @@ export default function Products() {
     loadCategories();
   }, []);
 
-  /** Debounce Search */
+  /** Debounce Search Text */
   useEffect(() => {
     const t = setTimeout(() => setDebouncedQ(q), 500);
     return () => clearTimeout(t);
   }, [q]);
 
-  /** Apply Filters - search & category */
+  /** Search triggers API */
   useEffect(() => {
     setFilter("searchText", debouncedQ || activeSearch);
-    setFilter("category", filters.category || activeCategory);
-    setFilter("gender", filters.gender);
-    setFilter("size", filters.size);
-    setFilter("color", filters.color);
-    setFilter("priceRange", filters.priceRange);
-    setFilter("sort", filters.sort);
-
     resetProducts();
     fetchProducts();
-  }, [debouncedQ, filters, activeCategory, activeSearch]);
+  }, [debouncedQ]);
 
   /** Infinite Scroll Observer */
   useEffect(() => {
@@ -106,16 +99,29 @@ export default function Products() {
     return () => observer.disconnect();
   }, [loading, page, pages]);
 
-  /** Handle Filter Change */
+  /** Update filter local state */
   const handleFilterChange = (key, value) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
   };
 
-  /** Reset Filters */
-  const handleReset = () => {
-    resetFilters();
+  /** Apply filters => trigger API */
+  const applyFilters = () => {
+    setFilter("category", filters.category);
+    setFilter("gender", filters.gender);
+    setFilter("size", filters.size);
+    setFilter("color", filters.color);
+    setFilter("priceRange", filters.priceRange);
+    setFilter("sort", filters.sort);
+
     resetProducts();
     fetchProducts();
+
+    setShowFilterPanel(false);
+  };
+
+  /** Reset filters */
+  const handleReset = () => {
+    resetFilters();
     setFilters({
       category: "",
       gender: "",
@@ -125,6 +131,9 @@ export default function Products() {
       sort: "newest",
     });
     setQ("");
+
+    resetProducts();
+    fetchProducts();
   };
 
   return (
@@ -154,44 +163,40 @@ export default function Products() {
       {/* Products Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {products?.length > 0 ? (
-          <>
-            {products.map((p) => (
-              <ProductCard
-                key={p._id}
-                product={p}
-                onAdd={(product) =>
-                  addItem({
-                    ...product,
-                    qty: 1,
-                    selectedOptions: product.variants?.[0] || {
-                      color: "Default",
-                      size: "M",
-                    },
-                  })
-                }
-              />
-            ))}
-          </>
-        ) : (
-          <></>
-        )}
+          products.map((p) => (
+            <ProductCard
+              key={p._id}
+              product={p}
+              onAdd={(product) =>
+                addItem({
+                  ...product,
+                  qty: 1,
+                  selectedOptions: product.variants?.[0] || {
+                    color: "Default",
+                    size: "M",
+                  },
+                })
+              }
+            />
+          ))
+        ) : null}
       </div>
+
       {!products?.length && (
-        <div class=" h-[100%] w-screen flex justify-center items-center">
+        <div className="h-[100%] w-screen flex justify-center items-center">
           <img
             src={Empty}
             alt="No Products Found"
-            class="max-w-52 max-h-52 object-contain self-center"
+            className="max-w-52 max-h-52 object-contain self-center"
           />
         </div>
       )}
 
-      {/* Infinite Scroll Loader */}
+      {/* Loader for infinite scroll */}
       <div ref={loaderRef} className="h-16 flex justify-center items-center">
         {loading && <SpinLoader />}
       </div>
 
-      {/* Filter Panel */}
       {/* Filter Panel */}
       {showFilterPanel && (
         <>
@@ -210,108 +215,114 @@ export default function Products() {
             <h3 className="text-xl font-bold mb-4">Filters</h3>
 
             {/* Category */}
-            <div className="mb-3">
-              <AppSelect
-                label="Category"
-                value={filters.category}
-                onChange={(e) => handleFilterChange("category", e.target.value)}
-              >
-                <option value="">All Categories</option>
-                {categories.map((c) => (
-                  <option key={c._id} value={c._id}>
-                    {c.name}
-                  </option>
-                ))}
-              </AppSelect>
-            </div>
+            <AppSelect
+              label="Category"
+              value={filters.category}
+              onChange={(e) =>
+                handleFilterChange("category", e.target.value)
+              }
+            >
+              <option value="">All Categories</option>
+              {categories.map((c) => (
+                <option key={c._id} value={c._id}>
+                  {c.name}
+                </option>
+              ))}
+            </AppSelect>
 
             {/* Gender */}
-            <div className="mb-3">
-              <AppSelect
-                label="Gender"
-                value={filters.gender}
-                onChange={(e) => handleFilterChange("gender", e.target.value)}
-              >
-                <option value="">All</option>
-                <option value="men">Men</option>
-                <option value="women">Women</option>
-                <option value="kids">Kids</option>
-              </AppSelect>
-            </div>
+            <AppSelect
+              label="Gender"
+              value={filters.gender}
+              onChange={(e) =>
+                handleFilterChange("gender", e.target.value)
+              }
+              className="mt-3"
+            >
+              <option value="">All</option>
+              <option value="men">Men</option>
+              <option value="women">Women</option>
+              <option value="kids">Kids</option>
+            </AppSelect>
 
             {/* Size */}
-            <div className="mb-3">
-              <AppSelect
-                label="Size"
-                value={filters.size}
-                onChange={(e) => handleFilterChange("size", e.target.value)}
-              >
-                <option value="">All Sizes</option>
-                {["S", "M", "L", "XL", "XXL", "XXXL"].map((s) => (
-                  <option key={s} value={s}>
-                    {s}
-                  </option>
-                ))}
-              </AppSelect>
-            </div>
+            <AppSelect
+              label="Size"
+              value={filters.size}
+              onChange={(e) =>
+                handleFilterChange("size", e.target.value)
+              }
+              className="mt-3"
+            >
+              <option value="">All Sizes</option>
+              {["S", "M", "L", "XL", "XXL", "XXXL"].map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </AppSelect>
 
             {/* Color */}
-            <div className="mb-3">
-              <AppSelect
-                label="Color"
-                value={filters.color}
-                onChange={(e) => handleFilterChange("color", e.target.value)}
-              >
-                <option value="">All Colors</option>
-                {[
-                  ...new Set(
-                    products.flatMap((p) => p.variants.map((v) => v.color))
-                  ),
-                ].map((color) => (
-                  <option key={color} value={color}>
+            <AppSelect
+              label="Color"
+              value={filters.color}
+              onChange={(e) =>
+                handleFilterChange("color", e.target.value)
+              }
+              className="mt-3"
+            >
+              <option value="">All Colors</option>
+              {[...new Set(products.flatMap((p) => p.variants.map((v) => v.color)))]
+                .map((color, i) => (
+                  <option key={i} value={color}>
                     {color}
                   </option>
                 ))}
-              </AppSelect>
-            </div>
+            </AppSelect>
 
             {/* Price */}
-            <div className="mb-3">
+            <div className="mt-4">
               <AppInput
                 label={`Max Price: ₹${filters.priceRange[1]}`}
                 type="range"
                 min={0}
-                max={5000}
+                max={10000}
                 step={10}
+                className="border-0"
                 value={filters.priceRange[1]}
                 onChange={(e) =>
-                  handleFilterChange("priceRange", [0, Number(e.target.value)])
+                  handleFilterChange("priceRange", [
+                    0,
+                    Number(e.target.value),
+                  ])
                 }
               />
             </div>
 
-            {/* Sorting */}
-            <div className="mb-3">
-              <AppSelect
-                label="Sort By"
-                value={filters.sort}
-                onChange={(e) => handleFilterChange("sort", e.target.value)}
-              >
-                <option value="newest">Newest First</option>
-                <option value="priceAsc">Price: Low to High</option>
-                <option value="priceDesc">Price: High to Low</option>
-                <option value="popularity">Popularity</option>
-              </AppSelect>
-            </div>
+            {/* Sort */}
+            <AppSelect
+              label="Sort By"
+              value={filters.sort}
+              onChange={(e) =>
+                handleFilterChange("sort", e.target.value)
+              }
+              className="mt-4"
+            >
+              <option value="newest">Newest First</option>
+              <option value="priceAsc">Price: Low to High</option>
+              <option value="priceDesc">Price: High to Low</option>
+              <option value="popularity">Popularity</option>
+            </AppSelect>
 
             {/* Buttons */}
-            <div className="flex gap-2 mt-4">
+            <div className="flex gap-2 mt-5">
               <AppButton className="flex-1 border" onClick={handleReset}>
                 Reset
               </AppButton>
+
               <AppButton
-                className="flex-1 bg-orange-500 hover:bg-orange-600"
-                onClick={() => setShowFilterPanel(false)}
+                className="flex-1 bg-orange-500 hover:bg-orange-600 text-white"
+                onClick={applyFilters}
               >
                 Apply
               </AppButton>
