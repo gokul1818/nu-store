@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { HiOutlineCheckCircle, HiOutlineMail, HiOutlinePhone } from "react-icons/hi";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import SpinLoader from "../../components/SpinLoader";
 import { AdminAPI } from "../../services/api";
 import { showError } from "../../components/AppToast";
 
 export default function CustomerProfile() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [customer, setCustomer] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -36,6 +37,15 @@ export default function CustomerProfile() {
 
   return (
     <div className="container mx-auto p-6 space-y-6">
+
+      {/* Back Button */}
+      <button
+        onClick={() => navigate(-1)}
+        className="mb-4 px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+      >
+        ← Back
+      </button>
+
       <h2 className="text-3xl font-bold mb-4 text-gray-800">{customer.name}</h2>
 
       {/* Personal Details */}

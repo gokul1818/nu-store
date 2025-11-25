@@ -37,6 +37,7 @@ import FAQ from "./pages/FAQ";
 import ShippingPolicy from "./pages/ShippingPolicy";
 import RefundPolicy from "./pages/RefundPolicy";
 import Terms from "./pages/Terms";
+import UserOrderDetails from "./pages/UserOrderDetails";
 
 export default function App() {
   return (
@@ -66,6 +67,7 @@ export default function App() {
 
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/order-details/:id" element={<UserOrderDetails />} />
         </Route>
 
         {/* Admin Login (no layout) */}

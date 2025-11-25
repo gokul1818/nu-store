@@ -8,6 +8,7 @@ import AppSelect from "../components/AppSelect";
 import ProductCard from "../components/ProductCard";
 import PriceRangeSlider from "../components/RangeSelector";
 import SpinLoader from "../components/SpinLoader";
+import { colorOptions } from "../constants/constant";
 import { CategoryAPI } from "../services/api";
 import useCartStore from "../stores/useCartStore";
 import useProductStore from "../stores/useProductStore";
@@ -275,24 +276,30 @@ export default function Products() {
               </option>
             ))}
           </AppSelect>
+          <div>
+            <label className="block mb-1 font-semibold">Color</label>
+            <div className="flex flex-wrap gap-2">
+              {colorOptions.map((color) => (
+                <button
+                  key={color._id}
+                  type="button"
+                  className={`w-8 h-8 rounded-full border-2 ${
+                    filters.color === color.value
+                      ? "border-orange-500"
+                      : "border-gray-300"
+                  }`}
+                  style={{ backgroundColor: color.value }}
+                  onClick={() => handleFilterChange("color", color.value)}
+                >
+                  {/* Optionally indicate selection */}
+                  {filters.color === color.value && (
+                    <span className="block w-full h-full rounded-full bg-white bg-opacity-25"></span>
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
 
-          {/* Color */}
-          <AppSelect
-            label="Color"
-            value={filters.color}
-            onChange={(e) => handleFilterChange("color", e.target.value)}
-          >
-            <option value="">All Colors</option>
-            {[
-              ...new Set(
-                products.flatMap((p) => p.variants.map((v) => v.color))
-              ),
-            ].map((color, i) => (
-              <option key={i} value={color}>
-                {color}
-              </option>
-            ))}
-          </AppSelect>
           <PriceRangeSlider
             value={filters.priceRange}
             min={0}
