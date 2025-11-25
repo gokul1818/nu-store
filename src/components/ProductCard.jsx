@@ -110,10 +110,10 @@ export default function ProductCard({ product, onAdd = () => { } }) {
               {hasDiscount ? (
                 <>
                   <div className="text-sm line-through text-gray-500">
-                    {formatCurrency(product.price)}
+                    {formatCurrency(product.mrp)}
                   </div>
                   <div className="text-lg font-bold text-black">
-                    {formatCurrency(discountedPrice)}
+                    {formatCurrency(product.price)}
                   </div>
                 </>
               ) : (
