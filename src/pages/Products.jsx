@@ -40,15 +40,13 @@ export default function Products() {
   const categoryHeader = categoryNameQuery || activeCategory;
   const activeSearch = searchQuery;
 
-  const isGenderPage = paramCategory === "men" || paramCategory === "women";
-
   const [categories, setCategories] = useState([]);
   const [q, setQ] = useState(activeSearch);
   const [debouncedQ, setDebouncedQ] = useState(activeSearch);
 
   const [filters, setFilters] = useState({
     category: activeCategory || "",
-    gender: isGenderPage ? paramCategory : genderQuery,
+    gender: genderQuery || "",
     size: "",
     color: "",
     priceRange: [0, 5000],
@@ -57,6 +55,11 @@ export default function Products() {
 
   const [showFilterPanel, setShowFilterPanel] = useState(false);
   const loaderRef = useRef(null);
+
+  /** Determine if we are on a gender page */
+  const isGenderPage =
+    (paramCategory === "men" || paramCategory === "women") ||
+    (genderQuery === "men" || genderQuery === "women");
 
   /** Load Categories */
   useEffect(() => {
@@ -77,30 +80,30 @@ export default function Products() {
     return () => clearTimeout(t);
   }, [q]);
 
-  /** Initial API Call */
+  /** Update filters and fetch products when URL params change */
   useEffect(() => {
-    resetProducts();
-    setFilter("category", filters.category);
-    setFilter("gender", filters.gender);
-    fetchProducts();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // only once on mount
+    setFilters((prev) => ({
+      ...prev,
+      category: activeCategory || "",
+      gender: isGenderPage ? paramCategory || genderQuery : "",
+      size: "",
+      color: "",
+      priceRange: [0, 5000],
+      sort: "newest",
+    }));
 
-  /** Search Effect */
+    resetProducts();
+    setFilter("category", activeCategory || "");
+    setFilter("gender", isGenderPage ? paramCategory || genderQuery : "");
+    fetchProducts();
+  }, [paramCategory, genderQuery]);
+
+  /** Trigger API when search text changes */
   useEffect(() => {
     setFilter("searchText", debouncedQ || activeSearch);
     resetProducts();
     fetchProducts();
   }, [debouncedQ]);
-
-  /** Effect for filters.gender only if not coming from Men/Women Loot */
-  useEffect(() => {
-    if (!isGenderPage) {
-      setFilter("gender", filters.gender);
-      resetProducts();
-      fetchProducts();
-    }
-  }, [filters.gender]);
 
   /** Infinite Scroll Observer */
   useEffect(() => {
@@ -141,7 +144,7 @@ export default function Products() {
     resetFilters();
     setFilters({
       category: "",
-      gender: isGenderPage ? paramCategory : "",
+      gender: isGenderPage ? paramCategory || genderQuery : "",
       size: "",
       color: "",
       priceRange: [0, 5000],
@@ -151,6 +154,7 @@ export default function Products() {
 
     resetProducts();
     fetchProducts();
+    setShowFilterPanel(false);
   };
 
   return (
