@@ -4,9 +4,9 @@ import { FiFilter } from "react-icons/fi";
 import { useLocation, useParams } from "react-router-dom";
 import Empty from "../assets/empty.png";
 import AppButton from "../components/AppButton";
-import AppInput from "../components/AppInput";
 import AppSelect from "../components/AppSelect";
 import ProductCard from "../components/ProductCard";
+import PriceRangeSlider from "../components/RangeSelector";
 import SpinLoader from "../components/SpinLoader";
 import { CategoryAPI } from "../services/api";
 import useCartStore from "../stores/useCartStore";
@@ -58,8 +58,10 @@ export default function Products() {
 
   /** Determine if we are on a gender page */
   const isGenderPage =
-    (paramCategory === "men" || paramCategory === "women") ||
-    (genderQuery === "men" || genderQuery === "women");
+    paramCategory === "men" ||
+    paramCategory === "women" ||
+    genderQuery === "men" ||
+    genderQuery === "women";
 
   /** Load Categories */
   useEffect(() => {
@@ -125,13 +127,16 @@ export default function Products() {
     setFilters((prev) => ({ ...prev, [key]: value }));
   };
 
-  /** Apply filters */
   const applyFilters = () => {
     setFilter("category", filters.category);
     if (!isGenderPage) setFilter("gender", filters.gender);
     setFilter("size", filters.size);
     setFilter("color", filters.color);
-    setFilter("priceRange", filters.priceRange);
+
+    // Send minPrice and maxPrice separately instead of priceRange
+    setFilter("minPrice", filters.priceRange[0]);
+    setFilter("maxPrice", filters.priceRange[1]);
+
     setFilter("sort", filters.sort);
 
     resetProducts();
@@ -288,18 +293,12 @@ export default function Products() {
               </option>
             ))}
           </AppSelect>
-
-          <AppInput
-            label={`Max Price: ₹${filters.priceRange[1]}`}
-            type="range"
+          <PriceRangeSlider
+            value={filters.priceRange}
             min={0}
             max={10000}
             step={10}
-            className="border-0"
-            value={filters.priceRange[1]}
-            onChange={(e) =>
-              handleFilterChange("priceRange", [0, Number(e.target.value)])
-            }
+            onChange={(val) => handleFilterChange("priceRange", val)}
           />
 
           {/* Sort */}

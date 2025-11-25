@@ -32,3 +32,64 @@ body { @apply bg-gray-200 text-gray-800; }
   scrollbar-width: none;    
 }
 
+
+/* .container {
+  width: 300px;
+  margin: 50px auto;
+  font-family: Arial, sans-serif;
+} */
+
+.slider {
+  position: relative;
+  width: 100%;
+}
+
+.slider input[type="range"] {
+  position: absolute;
+  width: 100%;
+  pointer-events: none;
+  appearance: none;
+  background: transparent;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  pointer-events: all;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  /* background: #007bff; */
+  cursor: pointer;
+  appearance: none;
+}
+
+.slider-track,
+.slider-range {
+  position: absolute;
+  height: 4px;
+  border-radius: 4px;
+}
+
+.slider-track {
+  width: 100%;
+  background: #ddd;
+  z-index: 1;
+}
+
+.slider-range {
+  /* background: #007bff; */
+  z-index: 2;
+}
+
+.thumb-left {
+  z-index: 3;
+}
+
+.thumb-right {
+  z-index: 4;
+}
+
+.values {
+  text-align: center;
+  margin-top: 15px;
+  font-size: 16px;
+}

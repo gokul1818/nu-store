@@ -2,7 +2,7 @@ import { useState } from "react";
 import { UploadAPI } from "../services/api";
 
 export default function FileUpload({
-  id, // add id here
+  id, // unique id
   label = "Upload Files",
   value = null,
   onChange,
@@ -11,6 +11,7 @@ export default function FileUpload({
 }) {
   const [uploading, setUploading] = useState(false);
 
+  /** Upload a single file */
   const uploadFile = async (file) => {
     const fd = new FormData();
     fd.append("file", file);
@@ -28,7 +29,10 @@ export default function FileUpload({
     }
   };
 
+  /** Handle files selection */
   const handleFiles = async (files) => {
+    if (!files || files.length === 0) return;
+
     if (mode === "single") {
       const url = await uploadFile(files[0]);
       if (url) onChange(url);
@@ -42,6 +46,7 @@ export default function FileUpload({
     }
   };
 
+  /** Handle drag & drop */
   const handleDrop = (e) => {
     e.preventDefault();
     handleFiles(e.dataTransfer.files);
@@ -65,10 +70,9 @@ export default function FileUpload({
           accept="image/*"
           multiple={mode === "multiple"}
           onChange={(e) => handleFiles(e.target.files)}
-          id={id} // use the unique id
+          id={id} // unique id
           className="hidden"
         />
-
         <label htmlFor={id} className="cursor-pointer text-gray-400">
           {uploading
             ? "Uploading..."
@@ -80,11 +84,19 @@ export default function FileUpload({
 
       {/* Preview */}
       {mode === "single" && value && (
-        <img
-          src={value}
-          alt="preview"
-          className="mt-3 w-32 h-32 rounded object-cover border"
-        />
+        <div className="relative inline-block mt-3">
+          <img
+            src={value}
+            alt="preview"
+            className="w-32 h-32 rounded object-cover border"
+          />
+          <button
+            onClick={() => onChange(null)}
+            className="absolute top-1 right-1 bg-red-600 text-white text-xs px-1 rounded"
+          >
+            X
+          </button>
+        </div>
       )}
 
       {mode === "multiple" && Array.isArray(value) && value.length > 0 && (
@@ -96,7 +108,6 @@ export default function FileUpload({
                 className="w-24 h-24 object-cover rounded border"
                 alt="uploaded"
               />
-
               <button
                 onClick={() => {
                   const updated = value.filter((_, idx) => idx !== i);
