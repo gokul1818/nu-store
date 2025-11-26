@@ -3,6 +3,7 @@ import { BiSolidOffer } from "react-icons/bi";
 import { GiDress } from "react-icons/gi";
 import { IoBagCheckOutline, IoCartOutline } from "react-icons/io5";
 import { LiaTshirtSolid } from "react-icons/lia";
+import Nueloot from "../assets/Nueloot.png";
 
 export default function AppLoader() {
   const icons = [
@@ -18,15 +19,15 @@ export default function AppLoader() {
   useEffect(() => {
     const interval = setInterval(() => {
       setIndex((prev) => (prev + 1) % icons.length);
-    }, 800); 
+    }, 800);
     return () => clearInterval(interval);
   }, []);
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen space-y-4 bg-gray-100">
+    <div className="flex flex-col items-center justify-center h-screen bg-gray-100">
       <div className="text-4xl animate-bounce text-primary">{icons[index]}</div>
       <div className="flex space-x-2 text-2xl">
-        <span className="font-semibold text-secondary">{texts[0]}</span>
+        <img src={Nueloot} alt="Logo" className="h-12 w-auto" />
       </div>
     </div>
   );
