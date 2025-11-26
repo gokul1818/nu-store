@@ -1,17 +1,18 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { showError, showSuccess } from "../components/AppToast";
+import { FaStar } from "react-icons/fa";
 import SpinLoader from "../components/SpinLoader";
-import { AdminAPI, ProductAPI } from "../services/api";
 import { generateTrackingSteps } from "../utils/helpers";
+import { AdminAPI, ProductAPI } from "../services/api";
+import { showError, showSuccess } from "../components/AppToast";
 
 export default function UserOrderDetails() {
   const { id } = useParams(); // order id from URL
   const navigate = useNavigate();
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [reviewData, setReviewData] = useState({}); // store rating & comment per item
-  const [submitting, setSubmitting] = useState({}); // track loading per item
+  const [reviewData, setReviewData] = useState({}); // store rating & comment per product
+  const [submitting, setSubmitting] = useState({}); // track loading per product
 
   // ---------------------------
   // Load order by ID
@@ -24,7 +25,7 @@ export default function UserOrderDetails() {
         setOrder(res.data);
       } catch (err) {
         console.error(err);
-        alert("Failed to load order details");
+        showError("Failed to load order details");
       } finally {
         setLoading(false);
       }
@@ -52,20 +53,19 @@ export default function UserOrderDetails() {
   const handleSubmitReview = async (item) => {
     const data = reviewData[item._id];
     if (!data?.rating || !data?.comment) {
-      return showError("Please add rating & comment"); // using toast instead of alert
+      return showError("Please add rating & comment");
     }
 
     setSubmitting((prev) => ({ ...prev, [item._id]: true }));
     try {
-      // Submit review to the correct product ID
       await ProductAPI.addReview(item.product._id, {
         rating: data.rating,
         comment: data.comment,
       });
 
-      showSuccess("Review submitted successfully!"); // toast
+      showSuccess("Review submitted successfully!");
 
-      // Update local state to show the new review immediately
+      // Update order locally to reflect new review
       setOrder((prev) => ({
         ...prev,
         items: prev.items.map((i) =>
@@ -79,6 +79,7 @@ export default function UserOrderDetails() {
                     {
                       rating: data.rating,
                       comment: data.comment,
+                      user: order.user._id,
                       _id: Date.now().toString(), // temporary id
                     },
                   ],
@@ -94,7 +95,7 @@ export default function UserOrderDetails() {
       }));
     } catch (err) {
       console.error(err);
-      showError("Failed to submit review"); // toast
+      showError("Failed to submit review");
     } finally {
       setSubmitting((prev) => ({ ...prev, [item._id]: false }));
     }
@@ -138,73 +139,89 @@ export default function UserOrderDetails() {
         {/* Items */}
         <h3 className="text-xl font-semibold mt-4 mb-2">Items</h3>
         <div className="space-y-4">
-          {order.items.map((item) => (
-            <div
-              key={item._id}
-              className="flex flex-col md:flex-row justify-between items-start border p-3 rounded gap-4"
-            >
-              <div className="flex items-center gap-3">
-                <img
-                  src={item?.product?.images?.[0] || "/placeholder.png"}
-                  alt={item.product.title}
-                  className="w-16 h-16 object-cover rounded border"
-                />
-                <div>
-                  <p className="font-medium text-gray-700">
-                    {item.product.title}
-                  </p>
-                  {item.variant && (
-                    <p className="text-sm text-gray-500">
-                      {item.variant.color} • {item.variant.size}
-                    </p>
-                  )}
-                  <p className="text-gray-500 text-sm">Qty: {item.qty}</p>
-                </div>
-              </div>
-              <div className="font-semibold text-gray-800 whitespace-nowrap">
-                ₹{item.price * item.qty}
-              </div>
+          {order.items.map((item) => {
+            // Check if current user already reviewed this product
+            const hasReviewed = item.product.reviews.some(
+              (r) => r.user === order.user._id
+            );
 
-              {/* Add Review Form */}
-              <div className="mt-2 md:mt-0 w-full md:w-1/3">
-                <h4 className="font-medium text-gray-700 mb-1">Add Review</h4>
-                <select
-                  value={reviewData[item._id]?.rating || 0}
-                  onChange={(e) =>
-                    handleReviewChange(
-                      item._id,
-                      "rating",
-                      Number(e.target.value)
-                    )
-                  }
-                  className="border px-2 py-1 rounded w-full mb-1"
-                >
-                  <option value={0}>Select Rating</option>
-                  {[1, 2, 3, 4, 5].map((num) => (
-                    <option key={num} value={num}>
-                      {num}
-                    </option>
-                  ))}
-                </select>
-                <textarea
-                  value={reviewData[item._id]?.comment || ""}
-                  onChange={(e) =>
-                    handleReviewChange(item._id, "comment", e.target.value)
-                  }
-                  rows={2}
-                  className="border px-2 py-1 rounded w-full mb-1"
-                  placeholder="Write your comment"
-                />
-                <button
-                  onClick={() => handleSubmitReview(item)}
-                  disabled={submitting[item._id]}
-                  className="px-3 py-1 bg-orange-500 text-white rounded hover:bg-orange-600 disabled:bg-gray-300 w-full"
-                >
-                  {submitting[item._id] ? "Submitting..." : "Submit"}
-                </button>
+            return (
+              <div
+                key={item._id}
+                className="flex flex-col md:flex-row justify-between items-start border p-3 rounded gap-4"
+              >
+                {/* Product info */}
+                <div className="flex items-center gap-3">
+                  <img
+                    src={item?.images?.[0] || "/placeholder.png"}
+                    alt={item.title}
+                    className="w-16 h-16 object-cover rounded border"
+                  />
+                  <div>
+                    <p className="font-medium text-gray-700">{item.title}</p>
+                    {item.variant && (
+                      <p className="text-sm text-gray-500">
+                        {item.variant.color} • {item.variant.size}
+                      </p>
+                    )}
+                    <p className="text-gray-500 text-sm">Qty: {item.qty}</p>
+                  </div>
+                </div>
+
+                {/* Price */}
+                <div className="font-semibold text-gray-800 whitespace-nowrap">
+                  ₹{item.price * item.qty}
+                </div>
+
+                {/* Add Review Form */}
+                {!hasReviewed && (
+                  <div className="mt-2 md:mt-0 w-full md:w-1/3">
+                    <h4 className="font-medium text-gray-700 mb-1">
+                      Add Review
+                    </h4>
+
+                    {/* Star Rating */}
+                    <div className="flex gap-1 mb-2">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <FaStar
+                          key={star}
+                          size={20}
+                          className="cursor-pointer transition-colors"
+                          color={
+                            (reviewData[item._id]?.rating || 0) >= star
+                              ? "#FFA500"
+                              : "#ddd"
+                          }
+                          onClick={() =>
+                            handleReviewChange(item._id, "rating", star)
+                          }
+                        />
+                      ))}
+                    </div>
+
+                    {/* Comment */}
+                    <textarea
+                      value={reviewData[item._id]?.comment || ""}
+                      onChange={(e) =>
+                        handleReviewChange(item._id, "comment", e.target.value)
+                      }
+                      rows={2}
+                      className="border px-2 py-1 rounded w-full mb-1"
+                      placeholder="Write your comment"
+                    />
+
+                    <button
+                      onClick={() => handleSubmitReview(item)}
+                      disabled={submitting[item._id]}
+                      className="px-3 py-1 bg-orange-500 text-white rounded hover:bg-orange-600 disabled:bg-gray-300 w-full"
+                    >
+                      {submitting[item._id] ? "Submitting..." : "Submit"}
+                    </button>
+                  </div>
+                )}
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         <p className="mt-4 font-bold text-lg">Total: ₹{order.totalAmount}</p>

@@ -62,6 +62,7 @@ export const ProductAPI = {
   create: (data) => api.post("/api/products", data),
   addReview: (productId, reviewData) =>
     api.post(`/api/products/${productId}/review`, reviewData),
+  getReview: (productId) => api.get(`/api/products/${productId}/review`),
 };
 
 /* -------------------------------------------------------
