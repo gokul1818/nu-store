@@ -39,7 +39,7 @@ export default function Home() {
     setInitialLoading(true);
 
     try {
-      await fetchProducts(); // load all
+      await fetchProducts(); // load all products
       const res = await CategoryAPI.getAll();
       setCategories(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
@@ -56,10 +56,15 @@ export default function Home() {
 
   if (initialLoading) return <AppLoader />;
 
-  /** Sort latest → oldest */
+  /** NEW ARRIVALS → Sort by created date */
   const latestProducts = [...products]
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-    .slice(0, 4); // only 4 items
+    .slice(0, 4);
+
+  /** POPULAR PRODUCTS → Sort by salesCount or views */
+  const popularProducts = [...products]
+    .sort((a, b) => (b.salesCount || 0) - (a.salesCount || 0))
+    .slice(0, 4);
 
   return (
     <>
@@ -70,7 +75,6 @@ export default function Home() {
           Explore Everything
         </h1>
 
-        {/* Categories (snap scroll) */}
         <div className="flex gap-6 w-full overflow-x-auto pb-10 no-scrollbar snap-x snap-mandatory">
           {categories.map((cat) => (
             <div key={cat._id} className="snap-start">
@@ -78,9 +82,9 @@ export default function Home() {
                 category={cat}
                 onClick={() =>
                   navigate(
-                    `/products?category=${
-                      cat._id
-                    }&categoryName=${encodeURIComponent(cat.name)}`
+                    `/products?category=${cat._id}&categoryName=${encodeURIComponent(
+                      cat.name
+                    )}`
                   )
                 }
               />
@@ -88,36 +92,43 @@ export default function Home() {
           ))}
         </div>
 
+        {/* ---------------- New Arrivals ---------------- */}
         <h1 className="text-3xl font-bold text-center my-10 mt-20">
           New Arrivals
         </h1>
 
-        {/* PRODUCT GRID - Only 4 */}
         <motion.div
           initial="hidden"
           animate="visible"
           variants={{ visible: { transition: { staggerChildren: 0.05 } } }}
-          className="
-            w-full 
-            grid 
-            grid-cols-2 
-            sm:grid-cols-2 
-            md:grid-cols-3 
-            lg:grid-cols-4 
-            xl:grid-cols-4
-            gap-6
-          "
+          className="w-full grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-6"
         >
           {latestProducts.map((p) => (
             <ProductCard key={p._id} product={p} onAdd={addItem} />
           ))}
         </motion.div>
 
+        {/* ---------------- Popular Products ---------------- */}
+        <h1 className="text-3xl font-bold text-center my-10 mt-20">
+          Popular Products
+        </h1>
+
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          variants={{ visible: { transition: { staggerChildren: 0.05 } } }}
+          className="w-full grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-6"
+        >
+          {popularProducts.map((p) => (
+            <ProductCard key={p._id} product={p} onAdd={addItem} />
+          ))}
+        </motion.div>
+
         <Link
           to={`/products`}
-          className="my-5 bg-secondary text-white mx-auto block w-52 text-center px-4 py-2 text-sm font-semibold 
-             rounded-md border border-gray-300 
-             hover:bg-orange-400 hover:text-white transition-all"
+          className="my-10 bg-secondary text-white mx-auto block w-52 text-center px-4 py-2 text-sm font-semibold 
+          rounded-md border border-gray-300 
+          hover:bg-orange-400 hover:text-white transition-all"
         >
           View All Products
         </Link>
