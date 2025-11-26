@@ -32,7 +32,6 @@ export const AuthAPI = {
     }
     return res.data;
   },
-
   adminLogin: async (data) => {
     const res = await api.post("/api/auth/login", data);
     if (res.data.token) {
@@ -49,6 +48,8 @@ export const AuthAPI = {
     const res = await api.put("/api/auth/me", payload);
     return res.data;
   },
+  forgotPassword: (data) => api.post("/api/auth/forgot", data),
+  resetPassword: (data) => api.post(`/api/auth/reset`, data),
 };
 
 /* -------------------------------------------------------

@@ -1,3 +1,4 @@
+import { Toaster } from "react-hot-toast";
 import { Route, Routes } from "react-router-dom";
 
 import AdminRoute from "./components/AdminRoute";
@@ -7,6 +8,7 @@ import WebsiteLayout from "./layouts/WebsiteLayout";
 // Website pages
 import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
+import ForgotPassword from "./pages/ForgotPassword";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Orders from "./pages/Orders";
@@ -14,9 +16,10 @@ import ProductDetails from "./pages/ProductDetails";
 import Products from "./pages/Products";
 import Profile from "./pages/Profile";
 import Register from "./pages/Register";
+import ResetPassword from "./pages/ResetPassword";
 
 // Admin pages
-import { Toaster } from "react-hot-toast";
+import About from "./pages/About";
 import BannerForm from "./pages/admin/AddBanner";
 import AddProduct from "./pages/admin/AddProducts";
 import AdminLogin from "./pages/admin/AdminLogin";
@@ -30,12 +33,11 @@ import OrderDetails from "./pages/admin/OrderDetails";
 import OrderList from "./pages/admin/OrderList";
 import ProductDetailsAdmin from "./pages/admin/ProductDetails";
 import ProductList from "./pages/admin/ProductList";
-import Services from "./pages/Services";
-import About from "./pages/About";
 import Contact from "./pages/Contact";
 import FAQ from "./pages/FAQ";
-import ShippingPolicy from "./pages/ShippingPolicy";
 import RefundPolicy from "./pages/RefundPolicy";
+import Services from "./pages/Services";
+import ShippingPolicy from "./pages/ShippingPolicy";
 import Terms from "./pages/Terms";
 import UserOrderDetails from "./pages/UserOrderDetails";
 
@@ -67,6 +69,8 @@ export default function App() {
 
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
           <Route path="/order-details/:id" element={<UserOrderDetails />} />
         </Route>
 

@@ -72,6 +72,12 @@ export default function Login() {
             error={errors.password}
             onChange={(e) => updateField("password", e.target.value)}
           />
+          <Link
+            to="/forgot-password"
+            className="text-orange-600 font-semibold flex justify-end items-end underline mt-6 text-sm"
+          >
+            Forgot Password
+          </Link>
 
           <AppButton loading={loading} className="w-full">
             Log In
