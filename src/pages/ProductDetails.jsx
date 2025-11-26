@@ -18,7 +18,8 @@ export default function ProductDetails() {
   const [currentImage, setCurrentImage] = useState(0);
   const [selectedColorIndex, setSelectedColorIndex] = useState(0);
   const [selectedSize, setSelectedSize] = useState("");
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+
   useEffect(() => {
     async function loadProduct() {
       setLoading(true);
@@ -46,7 +47,6 @@ export default function ProductDetails() {
     [variants, selectedColor]
   );
 
-
   const selectedVariant = useMemo(() => {
     return variants.find(
       (v) => v.color === selectedColor && v.size === selectedSize
@@ -54,7 +54,6 @@ export default function ProductDetails() {
   }, [variants, selectedColor, selectedSize]);
 
   const stock = selectedVariant?.stock || 0;
-
 
   useEffect(() => {
     if (availableSizes.length > 0 && !availableSizes.includes(selectedSize)) {
@@ -89,16 +88,44 @@ export default function ProductDetails() {
       selectedOptions: variant,
     };
 
-    // Send item to checkout via react-router state
     navigate("/checkout", { state: { buyNowItem } });
   };
 
+  /** StarRating Component */
+  const StarRating = ({
+    rating = 0,
+    maxStars = 5,
+    showCount = false,
+    count = 0,
+  }) => {
+    const filledStars = Math.floor(rating);
+    const halfStar = rating - filledStars >= 0.5;
+    const emptyStars = maxStars - filledStars - (halfStar ? 1 : 0);
+
+    return (
+      <div className="flex items-center gap-1 mt-1">
+        {[...Array(filledStars)].map((_, i) => (
+          <span key={`filled-${i}`} className="text-yellow-400 text-lg">
+            ★
+          </span>
+        ))}
+        {halfStar && <span className="text-yellow-400 text-lg">☆</span>}
+        {[...Array(emptyStars)].map((_, i) => (
+          <span key={`empty-${i}`} className="text-gray-300 text-lg">
+            ★
+          </span>
+        ))}
+        {showCount && (
+          <span className="ml-2 text-sm text-gray-500">({count})</span>
+        )}
+      </div>
+    );
+  };
 
   return (
     <div className="bg-white min-h-screen">
       <div className="container mx-auto px-4 py-6">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-
           {/* Thumbnails */}
           <div className="lg:col-span-1 order-2 lg:order-1">
             <div className="flex lg:flex-col gap-2 overflow-x-auto lg:overflow-visible">
@@ -106,10 +133,11 @@ export default function ProductDetails() {
                 <div
                   key={idx}
                   onClick={() => setCurrentImage(idx)}
-                  className={`flex-shrink-0 w-12 h-12 rounded border-2 cursor-pointer transition-all ${idx === currentImage
-                    ? "border-orange-500 shadow-md"
-                    : "border-gray-200 hover:border-gray-400"
-                    }`}
+                  className={`flex-shrink-0 w-12 h-12 rounded border-2 cursor-pointer transition-all ${
+                    idx === currentImage
+                      ? "border-orange-500 shadow-md"
+                      : "border-gray-200 hover:border-gray-400"
+                  }`}
                 >
                   <img
                     src={img}
@@ -139,10 +167,11 @@ export default function ProductDetails() {
                   onClick={handleAddToCart}
                   disabled={stock === 0}
                   className={`flex-1 px-6 py-3 rounded-lg shadow-sm transition-all 
-    ${stock === 0
-                      ? "bg-gray-300 cursor-not-allowed"
-                      : "bg-yellow-400 hover:bg-yellow-500 text-gray-900"
-                    }`}
+    ${
+      stock === 0
+        ? "bg-gray-300 cursor-not-allowed"
+        : "bg-yellow-400 hover:bg-yellow-500 text-gray-900"
+    }`}
                 >
                   Add to Cart
                 </button>
@@ -151,14 +180,14 @@ export default function ProductDetails() {
                   onClick={handleBuyNow}
                   disabled={stock === 0}
                   className={`flex-1 px-6 py-3 rounded-lg shadow-sm transition-all 
-    ${stock === 0
-                      ? "bg-gray-300 cursor-not-allowed"
-                      : "bg-orange-500 hover:bg-orange-600 text-white"
-                    }`}
+    ${
+      stock === 0
+        ? "bg-gray-300 cursor-not-allowed"
+        : "bg-orange-500 hover:bg-orange-600 text-white"
+    }`}
                 >
                   Buy Now
                 </button>
-
               </div>
             </div>
           </div>
@@ -168,6 +197,13 @@ export default function ProductDetails() {
             <h1 className="text-2xl font-normal text-gray-900">
               {selectedProduct.title}
             </h1>
+
+            {/* Average Rating */}
+            <StarRating
+              rating={selectedProduct.averageRating}
+              showCount={true}
+              count={selectedProduct.ratingCount}
+            />
 
             {/* Price */}
             <div className="flex items-baseline gap-2">
@@ -210,7 +246,6 @@ export default function ProductDetails() {
               </div>
             )}
 
-
             {/* Color Selection */}
             {colors.length > 0 && (
               <div className="space-y-2">
@@ -225,10 +260,11 @@ export default function ProductDetails() {
                       <div
                         key={color}
                         onClick={() => setSelectedColorIndex(idx)}
-                        className={`w-8 h-8 rounded-full cursor-pointer border-2 ${isSelected
-                          ? "border-orange-500 shadow-md"
-                          : "border-gray-300 hover:border-gray-400"
-                          }`}
+                        className={`w-8 h-8 rounded-full cursor-pointer border-2 ${
+                          isSelected
+                            ? "border-orange-500 shadow-md"
+                            : "border-gray-300 hover:border-gray-400"
+                        }`}
                         style={{ backgroundColor: color }}
                       />
                     );
@@ -256,12 +292,13 @@ export default function ProductDetails() {
                         onClick={() =>
                           isAvailable && setSelectedSize(size.value)
                         }
-                        className={`px-4 py-2 border rounded-lg text-sm transition ${isSelected
-                          ? "border-orange-500 bg-orange-100 text-orange-800"
-                          : isAvailable
+                        className={`px-4 py-2 border rounded-lg text-sm transition ${
+                          isSelected
+                            ? "border-orange-500 bg-orange-100 text-orange-800"
+                            : isAvailable
                             ? "border-gray-300 hover:bg-gray-50"
                             : "border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed"
-                          }`}
+                        }`}
                       >
                         {size.label}
                       </button>
@@ -290,8 +327,28 @@ export default function ProductDetails() {
                 className="border rounded-lg px-3 py-2 w-20 bg-gray-50 text-sm focus:ring-2 focus:ring-orange-500"
               />
             </div>
-          </div>
 
+            {/* Reviews Section */}
+            {selectedProduct.reviews?.length > 0 && (
+              <div className="mt-6">
+                <h2 className="font-bold text-lg mb-2">Customer Reviews</h2>
+                <div className="space-y-4">
+                  {selectedProduct.reviews.map((r) => (
+                    <div
+                      key={r._id}
+                      className="border rounded-lg p-4 bg-gray-50"
+                    >
+                      <StarRating rating={r.rating} />
+                      <p className="mt-1 text-sm text-gray-700">{r.comment}</p>
+                      <p className="mt-1 text-xs text-gray-400">
+                        Reviewed on {new Date(r.createdAt).toLocaleDateString()}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

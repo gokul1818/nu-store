@@ -44,6 +44,30 @@ export default function ProductCard({ product, onAdd = () => {} }) {
     stockClass = "text-green-500 ";
   }
 
+  function StarRating({ rating = 0, maxStars = 5 }) {
+    const filledStars = Math.floor(rating);
+    const halfStar = rating - filledStars >= 0.5;
+    const emptyStars = maxStars - filledStars - (halfStar ? 1 : 0);
+
+    return (
+      <div className="flex items-center gap-1 mt-1">
+        {[...Array(filledStars)].map((_, i) => (
+          <span key={`filled-${i}`} className="text-yellow-400">
+            ★
+          </span>
+        ))}
+        {halfStar && <span className="text-yellow-400">☆</span>}
+        {[...Array(emptyStars)].map((_, i) => (
+          <span key={`empty-${i}`} className="text-gray-300">
+            ★
+          </span>
+        ))}
+        <span className="ml-2 text-xs text-gray-500">
+          ({product.ratingCount || 0})
+        </span>
+      </div>
+    );
+  }
   return (
     <motion.div
       variants={cardVariants}
@@ -80,7 +104,7 @@ export default function ProductCard({ product, onAdd = () => {} }) {
         <h3 className="mt-3 font-semibold text-gray-900 line-clamp-2">
           {product.title}
         </h3>
-
+        <StarRating rating={product.averageRating} />
         <p
           className={`mt-1 text-xs font-medium px-2 py-1 rounded w-fit ${stockClass}`}
         >
