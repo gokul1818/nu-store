@@ -1,17 +1,22 @@
 import create from "zustand";
 
+// Helper to compare selectedOptions objects
+const isSameVariant = (a, b) => {
+  if (!a || !b) return false;
+  const aKeys = Object.keys(a);
+  const bKeys = Object.keys(b);
+  if (aKeys.length !== bKeys.length) return false;
+  return aKeys.every((key) => a[key] === b[key]);
+};
+
 const useCartStore = create((set, get) => ({
   cart: JSON.parse(localStorage.getItem("cart")) || [],
 
   addItem: (item) => {
     const { cart } = get();
 
-    // Check if same product + variant already exists
     const index = cart.findIndex(
-      (i) =>
-        i._id === item._id &&
-        JSON.stringify(i.selectedOptions) ===
-          JSON.stringify(item.selectedOptions)
+      (i) => i._id === item._id && isSameVariant(i.selectedOptions, item.selectedOptions)
     );
 
     let updatedCart;
@@ -28,8 +33,7 @@ const useCartStore = create((set, get) => ({
 
   updateQty: (id, qty, selectedOptions) => {
     const updatedCart = get().cart.map((item) =>
-      item._id === id &&
-      JSON.stringify(item.selectedOptions) === JSON.stringify(selectedOptions)
+      item._id === id && isSameVariant(item.selectedOptions, selectedOptions)
         ? { ...item, qty }
         : item
     );
@@ -39,12 +43,7 @@ const useCartStore = create((set, get) => ({
 
   removeItem: (id, selectedOptions) => {
     const updatedCart = get().cart.filter(
-      (item) =>
-        !(
-          item._id === id &&
-          JSON.stringify(item.selectedOptions) ===
-            JSON.stringify(selectedOptions)
-        )
+      (item) => !(item._id === id && isSameVariant(item.selectedOptions, selectedOptions))
     );
     set({ cart: updatedCart });
     localStorage.setItem("cart", JSON.stringify(updatedCart));
