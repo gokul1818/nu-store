@@ -42,7 +42,7 @@ export default function OrderDetails() {
   const updateInstant = async (patch) => {
     setUpdating(true);
     try {
-      await AdminAPI.updateOrderStatus(order._id, patch);
+      await AdminAPI.updateOrderStatus(order.id, patch);
       await loadOrder(); // refresh UI
     } catch (err) {
       console.error(err);
@@ -92,7 +92,7 @@ export default function OrderDetails() {
       <div className="bg-white p-6 rounded-lg shadow-md">
 
         {/* ORDER HEADER */}
-        <h2 className="text-2xl font-bold mb-2">Order #{order._id}</h2>
+        <h2 className="text-2xl font-bold mb-2">Order #{order.id}</h2>
 
         <p className="mb-2 text-gray-700">
           <strong>Customer:</strong> {order.user.firstName} {order.user.lastName}

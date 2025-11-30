@@ -82,10 +82,10 @@ export default function CustomerList() {
     setLoading(true);
     try {
       if (row.status === "Active") {
-        await AdminAPI.blockUser(row._id);
+        await AdminAPI.blockUser(row.id);
         showSuccess("User InActive successfully!");
       } else {
-        await AdminAPI.unblockUser(row._id);
+        await AdminAPI.unblockUser(row.id);
         showSuccess("User unInActive successfully!");
       }
       loadUsers(currentPage);
@@ -132,13 +132,13 @@ export default function CustomerList() {
     {
       icon: <FaEye className="w-4 h-4 text-primary" />,
       title: "View Profile",
-      onClick: (row) => navigate(`/admin/users/${row._id}`),
+      onClick: (row) => navigate(`/admin/users/${row.id}`),
       className: "hover:bg-blue-100",
     },
     // {
     //   icon: <FaTrash className="w-4 h-4 text-primary" />,
     //   title: "Delete",
-    //   onClick: (row) => deleteCustomer(row._id),
+    //   onClick: (row) => deleteCustomer(row.id),
     //   className: "hover:bg-red-100",
     // },
     {

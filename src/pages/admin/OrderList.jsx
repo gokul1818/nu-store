@@ -21,14 +21,7 @@ export default function OrderList() {
   const itemsPerPage = 10;
   const navigate = useNavigate();
 
-  const statuses = [
-    "Processing",
-    "Packed",
-    "Shipped",
-    "Delivered",
-    "Cancelled",
-  ];
-
+  
   const tabs = ["New", "Packed", "Shipped", "Delivered", "Cancelled"];
 
   // 👉 Convert "New" tab → "Processing" filter
@@ -58,7 +51,7 @@ export default function OrderList() {
   // ===========================
   const updateStatus = async (id, newStatus) => {
     const updated = orders.map((o) =>
-      o._id === id ? { ...o, status: newStatus } : o
+      o.id === id ? { ...o, status: newStatus } : o
     );
     setOrders(updated);
   };
@@ -116,14 +109,14 @@ export default function OrderList() {
         <div className="space-y-4">
           {orders?.map((o) => (
             <div
-              key={o._id}
+              key={o.id}
               className={`bg-white p-6 rounded-xl shadow-md hover:shadow-lg  overflow-hidden transition-all duration-300 hover:scale-[1.01] ${statusBorderColors[o.status]
                 }`}
             >
               {/* Header */}
               <div className="flex justify-between items-center mb-4">
                 <div className="flex flex-col">
-                  <div className="font-bold text-lg">Order #{o._id}</div>
+                  <div className="font-bold text-lg">Order #{o.id}</div>
                   <div className="text-gray-500 text-sm">{o.user?.firstName} {o.user?.lastName}</div>
                   <div className="text-gray-500 text-sm">{o.user?.email}</div>
                 </div>
@@ -179,7 +172,7 @@ export default function OrderList() {
               <div className="flex items-center justify-between">
                 <button
                   className="text-blue-600 hover:underline mt-2"
-                  onClick={() => navigate(`/admin/orders/details/${o._id}`)}
+                  onClick={() => navigate(`/admin/orders/details/${o.id}`)}
                 >
                   View details
                 </button>

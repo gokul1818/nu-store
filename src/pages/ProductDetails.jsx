@@ -133,11 +133,10 @@ export default function ProductDetails() {
                 <div
                   key={idx}
                   onClick={() => setCurrentImage(idx)}
-                  className={`flex-shrink-0 w-12 h-12 rounded border-2 cursor-pointer transition-all ${
-                    idx === currentImage
+                  className={`flex-shrink-0 w-12 h-12 rounded border-2 cursor-pointer transition-all ${idx === currentImage
                       ? "border-orange-500 shadow-md"
                       : "border-gray-200 hover:border-gray-400"
-                  }`}
+                    }`}
                 >
                   <img
                     src={img}
@@ -167,11 +166,10 @@ export default function ProductDetails() {
                   onClick={handleAddToCart}
                   disabled={stock === 0}
                   className={`flex-1 px-6 py-3 rounded-lg shadow-sm transition-all 
-    ${
-      stock === 0
-        ? "bg-gray-300 cursor-not-allowed"
-        : "bg-yellow-400 hover:bg-yellow-500 text-gray-900"
-    }`}
+    ${stock === 0
+                      ? "bg-gray-300 cursor-not-allowed"
+                      : "bg-yellow-400 hover:bg-yellow-500 text-gray-900"
+                    }`}
                 >
                   Add to Cart
                 </button>
@@ -180,11 +178,10 @@ export default function ProductDetails() {
                   onClick={handleBuyNow}
                   disabled={stock === 0}
                   className={`flex-1 px-6 py-3 rounded-lg shadow-sm transition-all 
-    ${
-      stock === 0
-        ? "bg-gray-300 cursor-not-allowed"
-        : "bg-orange-500 hover:bg-orange-600 text-white"
-    }`}
+    ${stock === 0
+                      ? "bg-gray-300 cursor-not-allowed"
+                      : "bg-orange-500 hover:bg-orange-600 text-white"
+                    }`}
                 >
                   Buy Now
                 </button>
@@ -260,11 +257,10 @@ export default function ProductDetails() {
                       <div
                         key={color}
                         onClick={() => setSelectedColorIndex(idx)}
-                        className={`w-8 h-8 rounded-full cursor-pointer border-2 ${
-                          isSelected
+                        className={`w-8 h-8 rounded-full cursor-pointer border-2 ${isSelected
                             ? "border-orange-500 shadow-md"
                             : "border-gray-300 hover:border-gray-400"
-                        }`}
+                          }`}
                         style={{ backgroundColor: color }}
                       />
                     );
@@ -287,18 +283,17 @@ export default function ProductDetails() {
 
                     return (
                       <button
-                        key={size._id}
+                        key={size.id}
                         disabled={!isAvailable}
                         onClick={() =>
                           isAvailable && setSelectedSize(size.value)
                         }
-                        className={`px-4 py-2 border rounded-lg text-sm transition ${
-                          isSelected
+                        className={`px-4 py-2 border rounded-lg text-sm transition ${isSelected
                             ? "border-orange-500 bg-orange-100 text-orange-800"
                             : isAvailable
-                            ? "border-gray-300 hover:bg-gray-50"
-                            : "border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed"
-                        }`}
+                              ? "border-gray-300 hover:bg-gray-50"
+                              : "border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed"
+                          }`}
                       >
                         {size.label}
                       </button>
@@ -335,7 +330,7 @@ export default function ProductDetails() {
                 <div className="space-y-4">
                   {selectedProduct.reviews.map((r) => (
                     <div
-                      key={r._id}
+                      key={r.id}
                       className="border rounded-lg p-4 bg-gray-50"
                     >
                       <StarRating rating={r.rating} />

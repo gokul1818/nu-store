@@ -19,26 +19,26 @@
 //   // Dummy data
 //   const dummyData = {
 //     colors: [
-//       { _id: 1, name: "Red" },
-//       { _id: 2, name: "Blue" },
-//       { _id: 3, name: "Green" },
+//       { id: 1, name: "Red" },
+//       { id: 2, name: "Blue" },
+//       { id: 3, name: "Green" },
 //     ],
 //     sizes: [
-//       { _id: 1, size: "S" },
-//       { _id: 2, size: "M" },
-//       { _id: 3, size: "L" },
+//       { id: 1, size: "S" },
+//       { id: 2, size: "M" },
+//       { id: 3, size: "L" },
 //     ],
 //     shipping: [
-//       { _id: 1, region: "Delhi", fee: 50 },
-//       { _id: 2, region: "Mumbai", fee: 60 },
+//       { id: 1, region: "Delhi", fee: 50 },
+//       { id: 2, region: "Mumbai", fee: 60 },
 //     ],
 //     offers: [
-//       { _id: 1, title: "Summer Sale", discount: "20%" },
-//       { _id: 2, title: "Festive Offer", discount: "15%" },
+//       { id: 1, title: "Summer Sale", discount: "20%" },
+//       { id: 2, title: "Festive Offer", discount: "15%" },
 //     ],
 //     news: [
-//       { _id: 1, title: "New Arrivals", date: "2025-11-22" },
-//       { _id: 2, title: "Holiday Sale", date: "2025-12-01" },
+//       { id: 1, title: "New Arrivals", date: "2025-11-22" },
+//       { id: 2, title: "Holiday Sale", date: "2025-12-01" },
 //     ],
 //   };
 
@@ -64,12 +64,12 @@
 //   const sectionActions = (sectionKey) => [
 //     {
 //       icon: <TbEdit className="w-5 h-5 text-primary" />,
-//       onClick: (row) => alert(`Edit ${sectionKey}: ${row._id}`),
+//       onClick: (row) => alert(`Edit ${sectionKey}: ${row.id}`),
 //       title: "Edit",
 //     },
 //     {
 //       icon: <FaTrash className="w-4 h-4 text-primary" />,
-//       onClick: (row) => alert(`Delete ${sectionKey}: ${row._id}`),
+//       onClick: (row) => alert(`Delete ${sectionKey}: ${row.id}`),
 //       title: "Delete",
 //     },
 //   ];

@@ -15,11 +15,11 @@ const useAdminStore = create((set) => ({
   loading: false,
   error: null,
 
-  login: async ({ email, password }) => {
+  login: async ({ emailOrPhone, password }) => {
     set({ loading: true, error: null });
 
     try {
-      const res = await AuthAPI.adminLogin({ email, password });
+      const res = await AuthAPI.adminLogin({ emailOrPhone, password });
 
       localStorage.setItem("admin_token", res.token);
       localStorage.setItem("admin", JSON.stringify(res.admin));

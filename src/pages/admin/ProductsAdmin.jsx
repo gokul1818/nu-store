@@ -17,7 +17,7 @@ export default function ProductsAdmin() {
             <thead><tr><th>Name</th><th>Price</th><th>Stock</th><th>Actions</th></tr></thead>
             <tbody>
               {products.map(p => (
-                <tr key={p._id}>
+                <tr key={p.id}>
                   <td>{p.name}</td>
                   <td>{p.price}</td>
                   <td>{p.stock || "-"}</td>

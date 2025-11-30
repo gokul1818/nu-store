@@ -158,7 +158,7 @@ export default function Checkout() {
           <div className="mt-4 space-y-3">
             {items.map((item) => (
               <div
-                key={item._id}
+                key={item.id}
                 className="flex items-center gap-3 border-b pb-3"
               >
                 <img

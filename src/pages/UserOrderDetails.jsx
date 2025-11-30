@@ -43,22 +43,22 @@ export default function UserOrderDetails() {
 
   const steps = generateTrackingSteps(order.status, order.createdAt);
 
-  const handleReviewChange = (_id, field, value) => {
+  const handleReviewChange = (id, field, value) => {
     setReviewData((prev) => ({
       ...prev,
-      [_id]: { ...prev[_id], [field]: value },
+      [id]: { ...prev[id], [field]: value },
     }));
   };
 
   const handleSubmitReview = async (item) => {
-    const data = reviewData[item._id];
+    const data = reviewData[item.id];
     if (!data?.rating || !data?.comment) {
       return showError("Please add rating & comment");
     }
 
-    setSubmitting((prev) => ({ ...prev, [item._id]: true }));
+    setSubmitting((prev) => ({ ...prev, [item.id]: true }));
     try {
-      await ProductAPI.addReview(item.product._id, {
+      await ProductAPI.addReview(item.product.id, {
         rating: data.rating,
         comment: data.comment,
       });
@@ -69,35 +69,35 @@ export default function UserOrderDetails() {
       setOrder((prev) => ({
         ...prev,
         items: prev.items.map((i) =>
-          i._id === item._id
+          i.id === item.id
             ? {
-                ...i,
-                product: {
-                  ...i.product,
-                  reviews: [
-                    ...i.product.reviews,
-                    {
-                      rating: data.rating,
-                      comment: data.comment,
-                      user: order.user._id,
-                      _id: Date.now().toString(), // temporary id
-                    },
-                  ],
-                },
-              }
+              ...i,
+              product: {
+                ...i.product,
+                reviews: [
+                  ...i.product.reviews,
+                  {
+                    rating: data.rating,
+                    comment: data.comment,
+                    user: order.user.id,
+                    id: Date.now().toString(), // temporary id
+                  },
+                ],
+              },
+            }
             : i
         ),
       }));
 
       setReviewData((prev) => ({
         ...prev,
-        [item._id]: { rating: 0, comment: "" },
+        [item.id]: { rating: 0, comment: "" },
       }));
     } catch (err) {
       console.error(err);
       showError("Failed to submit review");
     } finally {
-      setSubmitting((prev) => ({ ...prev, [item._id]: false }));
+      setSubmitting((prev) => ({ ...prev, [item.id]: false }));
     }
   };
 
@@ -113,7 +113,7 @@ export default function UserOrderDetails() {
 
       {/* Order Header */}
       <div className="bg-white shadow-md rounded-lg p-6">
-        <h2 className="text-2xl font-bold mb-2">Order #{order._id}</h2>
+        <h2 className="text-2xl font-bold mb-2">Order #{order.id}</h2>
         <p className="text-gray-600 mb-1">
           <strong>Status:</strong> {order.status}
         </p>
@@ -142,12 +142,12 @@ export default function UserOrderDetails() {
           {order.items.map((item) => {
             // Check if current user already reviewed this product
             const hasReviewed = item.product.reviews.some(
-              (r) => r.user === order.user._id
+              (r) => r.user === order.user.id
             );
 
             return (
               <div
-                key={item._id}
+                key={item.id}
                 className="flex flex-col md:flex-row justify-between items-start border p-3 rounded gap-4"
               >
                 {/* Product info */}
@@ -188,12 +188,12 @@ export default function UserOrderDetails() {
                           size={20}
                           className="cursor-pointer transition-colors"
                           color={
-                            (reviewData[item._id]?.rating || 0) >= star
+                            (reviewData[item.id]?.rating || 0) >= star
                               ? "#FFA500"
                               : "#ddd"
                           }
                           onClick={() =>
-                            handleReviewChange(item._id, "rating", star)
+                            handleReviewChange(item.id, "rating", star)
                           }
                         />
                       ))}
@@ -201,9 +201,9 @@ export default function UserOrderDetails() {
 
                     {/* Comment */}
                     <textarea
-                      value={reviewData[item._id]?.comment || ""}
+                      value={reviewData[item.id]?.comment || ""}
                       onChange={(e) =>
-                        handleReviewChange(item._id, "comment", e.target.value)
+                        handleReviewChange(item.id, "comment", e.target.value)
                       }
                       rows={2}
                       className="border px-2 py-1 rounded w-full mb-1"
@@ -212,10 +212,10 @@ export default function UserOrderDetails() {
 
                     <button
                       onClick={() => handleSubmitReview(item)}
-                      disabled={submitting[item._id]}
+                      disabled={submitting[item.id]}
                       className="px-3 py-1 bg-orange-500 text-white rounded hover:bg-orange-600 disabled:bg-gray-300 w-full"
                     >
-                      {submitting[item._id] ? "Submitting..." : "Submit"}
+                      {submitting[item.id] ? "Submitting..." : "Submit"}
                     </button>
                   </div>
                 )}
@@ -235,23 +235,20 @@ export default function UserOrderDetails() {
             <div key={idx} className="flex items-start relative mb-6">
               {idx < steps.length - 1 && (
                 <span
-                  className={`absolute left-2.5 top-6 w-0.5 h-full ${
-                    steps[idx + 1].completed ? "bg-orange-500" : "bg-gray-300"
-                  }`}
+                  className={`absolute left-2.5 top-6 w-0.5 h-full ${steps[idx + 1].completed ? "bg-orange-500" : "bg-gray-300"
+                    }`}
                 />
               )}
               <div
-                className={`w-5 h-5 rounded-full flex-shrink-0 mt-1 ${
-                  step.completed
+                className={`w-5 h-5 rounded-full flex-shrink-0 mt-1 ${step.completed
                     ? "bg-orange-500"
                     : "bg-gray-200 border border-gray-300"
-                }`}
+                  }`}
               />
               <div className="ml-4 text-sm">
                 <div
-                  className={`font-medium ${
-                    step.completed ? "text-gray-900" : "text-gray-500"
-                  }`}
+                  className={`font-medium ${step.completed ? "text-gray-900" : "text-gray-500"
+                    }`}
                 >
                   {step.title}
                 </div>

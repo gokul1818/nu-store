@@ -57,13 +57,13 @@ export default function BannerList() {
   const actions = [
     {
       icon: <TbEdit className="w-5 h-5 text-primary" />,
-      onClick: (row) => navigate(`/admin/banner/edit/${row._id}`),
+      onClick: (row) => navigate(`/admin/banner/edit/${row.id}`),
       title: "Edit Banner",
       className: "hover:bg-blue-100",
     },
     {
       icon: <FaTrash className="w-4 h-4 text-red-600" />,
-      onClick: (row) => remove(row._id),
+      onClick: (row) => remove(row.id),
       title: "Delete Banner",
       className: "hover:bg-red-100",
     },

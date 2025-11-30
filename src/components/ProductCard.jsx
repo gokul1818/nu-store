@@ -10,7 +10,7 @@ const cardVariants = {
   whileHover: { scale: 1.04, boxShadow: "0 8px 32px rgba(0,0,0,0.08)" },
 };
 
-export default function ProductCard({ product, onAdd = () => {} }) {
+export default function ProductCard({ product, onAdd = () => { } }) {
   const addItem = useCartStore((s) => s.addItem);
 
   // ➤ Hover State to swap image
@@ -78,7 +78,7 @@ export default function ProductCard({ product, onAdd = () => {} }) {
       onMouseLeave={() => setHover(false)}
       className="bg-white w-full rounded-lg shadow p-3 flex flex-col cursor-pointer transition-all relative"
     >
-      <Link to={`/product/${product._id}`} className="block">
+      <Link to={`/product/${product.id}`} className="block">
         {/* DISCOUNT TAG */}
         {product?.discount > 0 && (
           <div className="text-sm text-white bg-red-500 font-medium absolute right-0 z-30 top-0 px-2">

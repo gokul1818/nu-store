@@ -17,12 +17,8 @@ export default function ProductDetailsAdmin() {
       try {
         const res = await ProductAPI.getOne(id); // fetch product
         setProduct(res.data);
-
-        // Fetch category name
-        if (res.data.category) {
-          const catRes = await CategoryAPI.getOne(res.data.category);
-          setCategoryName(catRes.data.name);
-        }
+        setCategoryName(res.data.category)
+       
       } catch (err) {
         console.error(err);
         setProduct(null);
@@ -33,7 +29,7 @@ export default function ProductDetailsAdmin() {
     loadProduct();
   }, [id]);
 
-  if (loading) return <SpinLoader/>;
+  if (loading) return <SpinLoader />;
   if (!product) return <div className="p-6 text-center text-gray-500">Product not found</div>;
 
   const totalStock = product.variants?.reduce((acc, v) => acc + (v.stock || 0), 0) || 0;

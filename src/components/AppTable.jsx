@@ -12,11 +12,10 @@ export default function AppTable({
             {columns.map((col, idx) => (
               <th
                 key={col.key}
-                className={`border-b border-gray-300 p-4 text-left ${
-                  idx !== columns.length - 1 || actions.length > 0
+                className={`border-b border-gray-300 p-4 text-left ${idx !== columns.length - 1 || actions.length > 0
                     ? "border-r border-gray-300"
                     : ""
-                }`}
+                  }`}
               >
                 {col.label}
               </th>
@@ -72,17 +71,16 @@ export default function AppTable({
           ) : (
             data.map((row, rowIndex) => (
               <tr
-                key={row._id || rowIndex}
+                key={row.id || rowIndex}
                 className="hover:bg-gray-50 transition"
               >
                 {columns.map((col, colIndex) => (
                   <td
                     key={col.key}
-                    className={`border-b border-gray-300 p-4 ${
-                      colIndex !== columns.length - 1 || actions.length > 0
+                    className={`border-b border-gray-300 p-4 ${colIndex !== columns.length - 1 || actions.length > 0
                         ? "border-r border-gray-300"
                         : ""
-                    }`}
+                      }`}
                   >
                     {col.render ? col.render(row) : row[col.key]}
                   </td>

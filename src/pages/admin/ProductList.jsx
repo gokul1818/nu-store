@@ -25,8 +25,8 @@ export default function ProductList() {
 
   /** BUILD QUERY STRING */
   const query = buildProductQuery({
-    category: "", 
-    gender: "",   
+    category: "",
+    gender: "",
     size,
     color,
     minPrice,
@@ -34,7 +34,7 @@ export default function ProductList() {
     q: searchText,
     sort,
     page,
-    limit:10
+    limit: 10
   });
 
   /** LOAD DATA */
@@ -69,7 +69,7 @@ export default function ProductList() {
   }, [size, color, minPrice, maxPrice, searchText, sort, page]);
 
   /** FIND CATEGORY NAME */
-  const findCategory = (id) => categoryList.find((c) => c._id == id);
+  const findCategory = (id) => categoryList.find((c) => c.id == id);
 
   /** TABLE COLUMNS */
   const columns = [
@@ -115,17 +115,17 @@ export default function ProductList() {
   const actions = [
     {
       icon: <FaEye className="w-4 h-4 text-primary" />,
-      onClick: (row) => navigate(`/admin/products/view/${row._id}`),
+      onClick: (row) => navigate(`/admin/products/view/${row.id}`),
       title: "View Product",
     },
     {
       icon: <TbEdit className="w-5 h-5 text-primary" />,
-      onClick: (row) => navigate(`/admin/products/add/${row._id}`),
+      onClick: (row) => navigate(`/admin/products/add/${row.id}`),
       title: "Edit Product",
     },
     {
       icon: <FaTrash className="w-4 h-4 text-primary" />,
-      onClick: (row) => deleteProduct(row._id),
+      onClick: (row) => deleteProduct(row.id),
       title: "Delete Product",
     },
   ];

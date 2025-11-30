@@ -191,26 +191,26 @@ export default function Products() {
       <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {products?.length > 0
           ? products.map((p) => (
-              <ProductCard
-                key={p._id}
-                product={p}
-                onAdd={(product) =>
-                  addItem({
-                    ...product,
-                    qty: 1,
-                    selectedOptions: product.variants?.[0] || {
-                      color: "Default",
-                      size: "M",
-                    },
-                  })
-                }
-              />
-            ))
+            <ProductCard
+              key={p.id}
+              product={p}
+              onAdd={(product) =>
+                addItem({
+                  ...product,
+                  qty: 1,
+                  selectedOptions: product.variants?.[0] || {
+                    color: "Default",
+                    size: "M",
+                  },
+                })
+              }
+            />
+          ))
           : null}
       </div>
 
       {!loading && !products?.length && (
-        <div className="h-[100%] w-screen flex justify-center items-center">
+        <div className="h-[100%] w-auto flex justify-center items-center">
           <img
             src={Empty}
             alt="No Products Found"
@@ -243,7 +243,7 @@ export default function Products() {
           >
             <option value="">All Categories</option>
             {categories.map((c) => (
-              <option key={c._id} value={c._id}>
+              <option key={c.id} value={c.id}>
                 {c.name}
               </option>
             ))}
@@ -281,13 +281,12 @@ export default function Products() {
             <div className="flex flex-wrap gap-2">
               {colorOptions.map((color) => (
                 <button
-                  key={color._id}
+                  key={color.id}
                   type="button"
-                  className={`w-8 h-8 rounded-full border-2 ${
-                    filters.color === color.value
+                  className={`w-8 h-8 rounded-full border-2 ${filters.color === color.value
                       ? "border-orange-500"
                       : "border-gray-300"
-                  }`}
+                    }`}
                   style={{ backgroundColor: color.value }}
                   onClick={() => handleFilterChange("color", color.value)}
                 >

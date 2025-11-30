@@ -50,7 +50,7 @@ export default function ProductForm() {
             description: product.data.description || "",
             thumbnail: product.data.thumbnail || "",
             images: product.data.images || [],
-            category: product.data.category?._id || "",
+            category: res.data.length ? res?.data.find(x => x?.name == product?.data?.category).id : "",
             variants:
               product.data.variants.length > 0
                 ? product.data.variants.map((v) => ({
@@ -61,6 +61,7 @@ export default function ProductForm() {
           });
         }
       } catch (err) {
+        console.log('err: ', err);
         showError("Failed to load data");
       }
     };
@@ -287,7 +288,7 @@ export default function ProductForm() {
             <option value="women">Women</option>
             <option value="kids">Kids</option>
             {genderOptions.map((cat) => (
-              <option key={cat._id} value={cat._id}>
+              <option key={cat.id} value={cat.id}>
                 {cat.label}
               </option>
             ))}
@@ -309,7 +310,7 @@ export default function ProductForm() {
           >
             <option value="">Select Category</option>
             {categories.map((cat) => (
-              <option key={cat._id} value={cat._id}>
+              <option key={cat.id} value={cat.id}>
                 {cat.name}
               </option>
             ))}

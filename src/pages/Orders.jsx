@@ -10,7 +10,7 @@ function OrdersList() {
   const { orders, page, totalPages, loading, loadMyOrders } = useOrderStore();
   const [expandedOrder, setExpandedOrder] = useState(null);
   const navigate = useNavigate();
-  
+
   // load page 1 when component mounts
   useEffect(() => {
     loadMyOrders(1);
@@ -35,39 +35,38 @@ function OrdersList() {
 
       <AnimatePresence>
         {orders.map((order) => {
-          const isExpanded = expandedOrder === order._id;
+          const isExpanded = expandedOrder === order.id;
 
           return (
             <motion.div
-              key={order._id}
+              key={order.id}
               layout
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 20 }}
               className="bg-white rounded-xl shadow-md p-4 cursor-pointer hover:shadow-lg transition"
-              onClick={() => setExpandedOrder(isExpanded ? null : order._id)}
+              onClick={() => setExpandedOrder(isExpanded ? null : order.id)}
             >
               {/* ORDER HEADER */}
               <div className="flex justify-between items-center">
                 <div
                   className="font-medium text-gray-800 text-lg cursor-pointer hover:underline"
-                  onClick={() => navigate(`/order-details/${order._id}`)}
+                  onClick={() => navigate(`/order-details/${order.id}`)}
                 >
-                  Order #{order._id}
+                  Order #{order.id}
                 </div>
 
                 <div
-                  className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                    order.status === "Delivered"
+                  className={`px-3 py-1 rounded-full text-sm font-semibold ${order.status === "Delivered"
                       ? "bg-green-100 text-green-800"
                       : order.status === "Shipped"
-                      ? "bg-blue-100 text-blue-800"
-                      : order.status === "Packed"
-                      ? "bg-orange-100 text-orange-800"
-                      : order.status === "Cancelled"
-                      ? "bg-red-100 text-red-800"
-                      : "bg-gray-100 text-gray-800"
-                  }`}
+                        ? "bg-blue-100 text-blue-800"
+                        : order.status === "Packed"
+                          ? "bg-orange-100 text-orange-800"
+                          : order.status === "Cancelled"
+                            ? "bg-red-100 text-red-800"
+                            : "bg-gray-100 text-gray-800"
+                    }`}
                 >
                   {order.status}
                 </div>
@@ -134,30 +133,27 @@ function OrdersList() {
                             {/* Connecting Line */}
                             {idx < steps.length - 1 && (
                               <span
-                                className={`absolute left-2.5 top-6 w-0.5 h-full ${
-                                  steps[idx + 1].completed
+                                className={`absolute left-2.5 top-6 w-0.5 h-full ${steps[idx + 1].completed
                                     ? "bg-orange-500"
                                     : "bg-gray-300"
-                                }`}
+                                  }`}
                               />
                             )}
 
                             {/* Dot */}
                             <div
-                              className={`w-5 h-5 rounded-full flex-shrink-0 mt-1 ${
-                                step.completed
+                              className={`w-5 h-5 rounded-full flex-shrink-0 mt-1 ${step.completed
                                   ? "bg-orange-500"
                                   : "bg-gray-200 border border-gray-300"
-                              }`}
+                                }`}
                             />
 
                             <div className="ml-4 text-sm">
                               <div
-                                className={`font-medium ${
-                                  step.completed
+                                className={`font-medium ${step.completed
                                     ? "text-gray-900"
                                     : "text-gray-500"
-                                }`}
+                                  }`}
                               >
                                 {step.title}
                               </div>
@@ -166,8 +162,8 @@ function OrdersList() {
                                   {idx === 0
                                     ? new Date(step.date).toLocaleDateString() // Processing shows date
                                     : step.completed
-                                    ? "Done"
-                                    : "Pending"}
+                                      ? "Done"
+                                      : "Pending"}
                                 </div>
                               </div>
                             </div>

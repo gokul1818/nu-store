@@ -16,7 +16,7 @@ const useCartStore = create((set, get) => ({
     const { cart } = get();
 
     const index = cart.findIndex(
-      (i) => i._id === item._id && isSameVariant(i.selectedOptions, item.selectedOptions)
+      (i) => i.id === item.id && isSameVariant(i.selectedOptions, item.selectedOptions)
     );
 
     let updatedCart;
@@ -33,7 +33,7 @@ const useCartStore = create((set, get) => ({
 
   updateQty: (id, qty, selectedOptions) => {
     const updatedCart = get().cart.map((item) =>
-      item._id === id && isSameVariant(item.selectedOptions, selectedOptions)
+      item.id === id && isSameVariant(item.selectedOptions, selectedOptions)
         ? { ...item, qty }
         : item
     );
@@ -43,7 +43,7 @@ const useCartStore = create((set, get) => ({
 
   removeItem: (id, selectedOptions) => {
     const updatedCart = get().cart.filter(
-      (item) => !(item._id === id && isSameVariant(item.selectedOptions, selectedOptions))
+      (item) => !(item.id === id && isSameVariant(item.selectedOptions, selectedOptions))
     );
     set({ cart: updatedCart });
     localStorage.setItem("cart", JSON.stringify(updatedCart));

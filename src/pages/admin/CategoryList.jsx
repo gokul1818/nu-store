@@ -66,13 +66,13 @@ export default function CategoryList() {
     {
       icon: <TbEdit className="w-5 h-5 text-primary" />,
       onClick: (row) =>
-        (window.location.href = `/admin/categories/edit/${row._id}`),
+        (window.location.href = `/admin/categories/edit/${row.id}`),
       title: "Edit Category",
       className: "hover:bg-blue-100",
     },
     {
       icon: <FaTrash className="w-4 h-4 text-primary" />,
-      onClick: (row) => deleteCategory(row._id),
+      onClick: (row) => deleteCategory(row.id),
       title: "Delete Category",
       className: "hover:bg-red-100",
     },

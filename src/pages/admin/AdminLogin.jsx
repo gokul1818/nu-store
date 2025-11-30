@@ -28,7 +28,7 @@ export default function AdminLogin() {
     if (!validate()) return;
 
     try {
-      const success = await login({ email: form.email, password: form.password });
+      const success = await login({ emailOrPhone: form.email, password: form.password });
 
       if (success !== false) {
         showSuccess("Logged in successfully!");

@@ -77,12 +77,12 @@ export default function Home() {
 
         <div className="flex gap-6 w-full overflow-x-auto pb-10 no-scrollbar snap-x snap-mandatory">
           {categories.map((cat) => (
-            <div key={cat._id} className="snap-start">
+            <div key={cat.id} className="snap-start">
               <CategoryCard
                 category={cat}
                 onClick={() =>
                   navigate(
-                    `/products?category=${cat._id}&categoryName=${encodeURIComponent(
+                    `/products?category=${cat.name}&categoryName=${encodeURIComponent(
                       cat.name
                     )}`
                   )
@@ -104,7 +104,7 @@ export default function Home() {
           className="w-full grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-6"
         >
           {latestProducts.map((p) => (
-            <ProductCard key={p._id} product={p} onAdd={addItem} />
+            <ProductCard key={p.id} product={p} onAdd={addItem} />
           ))}
         </motion.div>
 
@@ -120,7 +120,7 @@ export default function Home() {
           className="w-full grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-6"
         >
           {popularProducts.map((p) => (
-            <ProductCard key={p._id} product={p} onAdd={addItem} />
+            <ProductCard key={p.id} product={p} onAdd={addItem} />
           ))}
         </motion.div>
 

@@ -42,10 +42,10 @@ export default function Cart() {
         <div className="space-y-3">
           {cart.map((item) => (
             <div
-              key={item._id + JSON.stringify(item.selectedOptions)}
+              key={item.id + JSON.stringify(item.selectedOptions)}
               className="bg-white p-4 rounded-lg flex gap-4 shadow-md hover:shadow-lg transition-all"
             >
-              <Link to={`/product/${item._id}`}>
+              <Link to={`/product/${item.id}`}>
                 <img
                   src={item.thumbnail || "/placeholder.png"}
                   className="w-28 h-28 object-cover rounded shadow"
@@ -53,7 +53,7 @@ export default function Cart() {
               </Link>
 
               <div className="flex-1">
-                <Link to={`/product/${item._id}`}>
+                <Link to={`/product/${item.id}`}>
                   <h3 className="font-semibold text-lg">{item.name}</h3>
                 </Link>
 
@@ -66,12 +66,12 @@ export default function Cart() {
                   <button
                     onClick={() =>
                       item.qty === 1
-                        ? removeItem(item._id, item.selectedOptions)
+                        ? removeItem(item.id, item.selectedOptions)
                         : updateQty(
-                            item._id,
-                            item.qty - 1,
-                            item.selectedOptions
-                          )
+                          item.id,
+                          item.qty - 1,
+                          item.selectedOptions
+                        )
                     }
                     className="px-2 py-1 border rounded shadow-sm hover:bg-gray-100"
                   >
@@ -84,7 +84,7 @@ export default function Cart() {
 
                   <button
                     onClick={() =>
-                      updateQty(item._id, item.qty + 1, item.selectedOptions)
+                      updateQty(item.id, item.qty + 1, item.selectedOptions)
                     }
                     className="px-2 py-1 border rounded shadow-sm hover:bg-gray-100"
                   >
@@ -92,7 +92,7 @@ export default function Cart() {
                   </button>
 
                   <button
-                    onClick={() => removeItem(item._id, item.selectedOptions)}
+                    onClick={() => removeItem(item.id, item.selectedOptions)}
                     className="ml-3"
                   >
                     <FaTrash className="w-4 h-4 text-red-600" />
