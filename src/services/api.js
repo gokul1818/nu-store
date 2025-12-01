@@ -103,8 +103,8 @@ export const AdminAPI = {
     api.get(`/api/orders/all?status=${status}&page=${page}&limit=${limit}`),
   updateOrderStatus: (id, data) => api.put(`/api/orders/${id}/status`, data),
   deleteUser: (id) => api.delete(`/api/admin/users/${id}`),
-  blockUser: (userId) => api.put(`/api/admin/users/${userId}/block`),
-  unblockUser: (userId) => api.put(`/api/admin/users/${userId}/unblock`),
+  blockUser: (user_id) => api.put(`/api/admin/users/${user_id}/block`),
+  unblockUser: (user_id) => api.put(`/api/admin/users/${user_id}/unblock`),
 };
 
 export const CategoryAPI = {

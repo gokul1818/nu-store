@@ -21,9 +21,9 @@ export const buildProductQuery = (params = {}) => {
   return searchParams.toString();
 };
 
-export const generateTrackingSteps = (status, createdAt) => {
+export const generateTrackingSteps = (status, created_at) => {
   const steps = [
-    { title: "Processing", date: createdAt, completed: false },
+    { title: "Processing", date: created_at, completed: false },
     { title: "Packed", date: "", completed: false },
     { title: "Shipped", date: "", completed: false },
     { title: "Delivered", date: "", completed: false },
@@ -36,7 +36,7 @@ export const generateTrackingSteps = (status, createdAt) => {
 
   if (status === "Cancelled") {
     return [
-      { title: "Processing", date: createdAt, completed: true },
+      { title: "Processing", date: created_at, completed: true },
       { title: "Cancelled", date: new Date().toISOString(), completed: true },
     ];
   }
@@ -44,7 +44,7 @@ export const generateTrackingSteps = (status, createdAt) => {
   // Mark all steps up to current status as completed
   for (let i = 0; i <= currentIndex; i++) {
     steps[i].completed = true;
-    steps[i].date = i === 0 ? createdAt : new Date().toISOString();
+    steps[i].date = i === 0 ? created_at : new Date().toISOString();
   }
 
   return steps;

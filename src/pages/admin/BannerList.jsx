@@ -39,11 +39,11 @@ export default function BannerList() {
   // Table columns
   const columns = [
     {
-      key: "imageUrl",
+      key: "image_url",
       label: "Image",
       render: (row) => (
         <img
-          src={row.imageUrl}
+          src={row.image_url}
           className="w-32 h-16 object-cover rounded"
           alt={row.title}
         />

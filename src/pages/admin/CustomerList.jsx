@@ -101,7 +101,7 @@ export default function CustomerList() {
   // Table columns
   // ---------------------------
   const columns = [
-    { key: "uniqId", label: "User ID" },
+    { key: "uniq_id", label: "User ID" },
     { key: "name", label: "Name" },
     { key: "email", label: "Email" },
     { key: "phone", label: "Phone" },

@@ -4,12 +4,13 @@ import ProductCard from "../components/ProductCard";
 import useCartStore from "../stores/useCartStore";
 import { useEffect, useState } from "react";
 import AppLoader from "../components/AppLoader";
-import { BannerAPI, CategoryAPI } from "../services/api";
+import { BannerAPI, CategoryAPI, ProductAPI } from "../services/api";
 import { Link, useNavigate } from "react-router-dom";
 
 import BannerCarousel from "../components/BannerCarousel";
 import CategoryCard from "../components/CategoryCard";
 import Services from "./Services";
+import { buildProductQuery } from "../utils/helpers";
 
 export default function Home() {
   const { products, fetchProducts, resetProducts, resetFilters, loading } =
@@ -20,6 +21,7 @@ export default function Home() {
 
   const [categories, setCategories] = useState([]);
   const [banners, setBanners] = useState([]);
+  const [popularData, setPopularData] = useState([]);
   const [initialLoading, setInitialLoading] = useState(true);
 
   /** LOAD BANNERS */
@@ -48,9 +50,25 @@ export default function Home() {
       setInitialLoading(false);
     }
   }
+  async function loadPopularData() {
+    setInitialLoading(true);
+    const query = buildProductQuery({
+      page: 1,
+      sort: "popular"
+    });
+    try {
+      const res = await ProductAPI.getAll(query);
+      setPopularData(res.data.products)
+    } catch (err) {
+      console.error("Failed to load products or categories", err);
+    } finally {
+      setInitialLoading(false);
+    }
+  }
 
   useEffect(() => {
     loadData();
+    loadPopularData();
     loadBanners();
   }, []);
 
@@ -58,13 +76,11 @@ export default function Home() {
 
   /** NEW ARRIVALS → Sort by created date */
   const latestProducts = [...products]
-    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
     .slice(0, 4);
 
   /** POPULAR PRODUCTS → Sort by salesCount or views */
-  const popularProducts = [...products]
-    .sort((a, b) => (b.salesCount || 0) - (a.salesCount || 0))
-    .slice(0, 4);
+  const popularProducts = popularData.slice(0, 4);
 
   return (
     <>

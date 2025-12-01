@@ -10,8 +10,8 @@ function ProfileView() {
   const authStore = useAuthStore();
 
   const [form, setForm] = useState({
-    firstName: "",
-    lastName: "",
+    first_name: "",
+    last_name: "",
     phone: "",
     addresses: [
       {
@@ -37,31 +37,31 @@ function ProfileView() {
         const res = await AuthAPI.getProfile();
 
         setForm({
-          firstName: res.firstName || "",
-          lastName: res.lastName || "",
+          first_name: res.first_name || "",
+          last_name: res.last_name || "",
           phone: res.phone || "",
           addresses:
             res.addresses?.length > 0
               ? res.addresses.map((addr) => ({
-                  label: addr.label || "",
-                  street: addr.street || "",
-                  city: addr.city || "",
-                  state: addr.state || "",
-                  zipcode: addr.zipcode || "",
-                  country: addr.country || "",
-                  phone: addr.phone || "",
-                }))
+                label: addr.label || "",
+                street: addr.street || "",
+                city: addr.city || "",
+                state: addr.state || "",
+                zipcode: addr.zipcode || "",
+                country: addr.country || "",
+                phone: addr.phone || "",
+              }))
               : [
-                  {
-                    label: "",
-                    street: "",
-                    city: "",
-                    state: "",
-                    zipcode: "",
-                    country: "",
-                    phone: "",
-                  },
-                ],
+                {
+                  label: "",
+                  street: "",
+                  city: "",
+                  state: "",
+                  zipcode: "",
+                  country: "",
+                  phone: "",
+                },
+              ],
         });
       } catch (err) {
         showError("Failed to load profile");
@@ -86,8 +86,8 @@ function ProfileView() {
   const validate = () => {
     const newErrors = {};
 
-    if (!form.firstName.trim()) newErrors.firstName = "First name is required";
-    if (!form.lastName.trim()) newErrors.lastName = "Last name is required";
+    if (!form.first_name.trim()) newErrors.first_name = "First name is required";
+    if (!form.last_name.trim()) newErrors.last_name = "Last name is required";
 
     if (!form.phone.trim()) newErrors.phone = "Mobile number is required";
     else if (!/^[0-9]{10}$/.test(form.phone.trim()))
@@ -137,7 +137,7 @@ function ProfileView() {
   return (
     <div className="container mx-auto px-4 py-6">
       <div className="max-w-lg mx-auto bg-white p-6 rounded shadow-md space-y-4">
-        
+
         <div className="flex justify-between items-center">
           <h2 className="text-2xl font-bold">Profile</h2>
           {!editMode && (
@@ -153,8 +153,8 @@ function ProfileView() {
         {/* VIEW MODE */}
         {!editMode && (
           <div className="space-y-3">
-            <div><strong>First Name:</strong> {form.firstName}</div>
-            <div><strong>Last Name:</strong> {form.lastName}</div>
+            <div><strong>First Name:</strong> {form.first_name}</div>
+            <div><strong>Last Name:</strong> {form.last_name}</div>
             <div><strong>Mobile Number:</strong> {form.phone}</div>
 
             <div>
@@ -178,16 +178,16 @@ function ProfileView() {
 
             <AppInput
               label="First Name"
-              value={form.firstName}
-              onChange={(e) => handleChange("firstName", e.target.value)}
-              error={errors.firstName}
+              value={form.first_name}
+              onChange={(e) => handleChange("first_name", e.target.value)}
+              error={errors.first_name}
             />
 
             <AppInput
               label="Last Name"
-              value={form.lastName}
-              onChange={(e) => handleChange("lastName", e.target.value)}
-              error={errors.lastName}
+              value={form.last_name}
+              onChange={(e) => handleChange("last_name", e.target.value)}
+              error={errors.last_name}
             />
 
             <AppInput

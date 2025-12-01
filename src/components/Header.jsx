@@ -54,11 +54,10 @@ export default function Header() {
           <NavLink
             to="/"
             end
-            className={({ isActive }) =>
-              `transition-colors duration-200 ${
-                isActive
-                  ? "text-orange-500 border-b-2 border-orange-500"
-                  : "hover:text-orange-500 hover:border-b-2 hover:border-orange-500"
+            className={({ is_active }) =>
+              `transition-colors duration-200 ${is_active
+                ? "text-orange-500 border-b-2 border-orange-500"
+                : "hover:text-orange-500 hover:border-b-2 hover:border-orange-500"
               }`
             }
           >
@@ -68,11 +67,10 @@ export default function Header() {
           <NavLink
             to="/about"
             end
-            className={({ isActive }) =>
-              `transition-colors duration-200 ${
-                isActive
-                  ? "text-orange-500 border-b-2 border-orange-500"
-                  : "hover:text-orange-500 hover:border-b-2 hover:border-orange-500"
+            className={({ is_active }) =>
+              `transition-colors duration-200 ${is_active
+                ? "text-orange-500 border-b-2 border-orange-500"
+                : "hover:text-orange-500 hover:border-b-2 hover:border-orange-500"
               }`
             }
           >
@@ -82,11 +80,10 @@ export default function Header() {
           {/* Men Loot */}
           <NavLink
             to="/products?gender=men"
-            className={`transition-colors duration-200 ${
-              genderQuery === "men"
+            className={`transition-colors duration-200 ${genderQuery === "men"
                 ? "text-orange-500 border-b-2 border-orange-500"
                 : "hover:text-orange-500 hover:border-b-2 hover:border-orange-500"
-            }`}
+              }`}
           >
             Men Loot
           </NavLink>
@@ -94,11 +91,10 @@ export default function Header() {
           {/* Women Loot */}
           <NavLink
             to="/products?gender=women"
-            className={`transition-colors duration-200 ${
-              genderQuery === "women"
+            className={`transition-colors duration-200 ${genderQuery === "women"
                 ? "text-orange-500 border-b-2 border-orange-500"
                 : "hover:text-orange-500 hover:border-b-2 hover:border-orange-500"
-            }`}
+              }`}
           >
             Women Loot
           </NavLink>
@@ -129,7 +125,7 @@ export default function Header() {
             >
               <FiUser className="w-8 h-8 text-primary hover:text-gray-700 transition-colors duration-200" />
             </button>
-            
+
             {/* Mobile Menu Button */}
             <button
               onClick={() => setShowMobileMenu(!showMobileMenu)}
@@ -180,9 +176,8 @@ export default function Header() {
             to="/"
             end
             onClick={() => setShowMobileMenu(false)}
-            className={({ isActive }) =>
-              `block px-6 py-3 border-b ${
-                isActive ? "text-orange-500 bg-gray-100" : "hover:bg-gray-100"
+            className={({ is_active }) =>
+              `block px-6 py-3 border-b ${is_active ? "text-orange-500 bg-gray-100" : "hover:bg-gray-100"
               }`
             }
           >
@@ -193,9 +188,8 @@ export default function Header() {
             to="/about"
             end
             onClick={() => setShowMobileMenu(false)}
-            className={({ isActive }) =>
-              `block px-6 py-3 border-b ${
-                isActive ? "text-orange-500 bg-gray-100" : "hover:bg-gray-100"
+            className={({ is_active }) =>
+              `block px-6 py-3 border-b ${is_active ? "text-orange-500 bg-gray-100" : "hover:bg-gray-100"
               }`
             }
           >
@@ -205,11 +199,10 @@ export default function Header() {
           <NavLink
             to="/products?gender=men"
             onClick={() => setShowMobileMenu(false)}
-            className={`block px-6 py-3 border-b ${
-              genderQuery === "men"
+            className={`block px-6 py-3 border-b ${genderQuery === "men"
                 ? "text-orange-500 bg-gray-100"
                 : "hover:bg-gray-100"
-            }`}
+              }`}
           >
             Men Loot
           </NavLink>
@@ -217,11 +210,10 @@ export default function Header() {
           <NavLink
             to="/products?gender=women"
             onClick={() => setShowMobileMenu(false)}
-            className={`block px-6 py-3 border-b ${
-              genderQuery === "women"
+            className={`block px-6 py-3 border-b ${genderQuery === "women"
                 ? "text-orange-500 bg-gray-100"
                 : "hover:bg-gray-100"
-            }`}
+              }`}
           >
             Women Loot
           </NavLink>

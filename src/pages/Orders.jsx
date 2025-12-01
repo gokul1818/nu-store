@@ -58,14 +58,14 @@ function OrdersList() {
 
                 <div
                   className={`px-3 py-1 rounded-full text-sm font-semibold ${order.status === "Delivered"
-                      ? "bg-green-100 text-green-800"
-                      : order.status === "Shipped"
-                        ? "bg-blue-100 text-blue-800"
-                        : order.status === "Packed"
-                          ? "bg-orange-100 text-orange-800"
-                          : order.status === "Cancelled"
-                            ? "bg-red-100 text-red-800"
-                            : "bg-gray-100 text-gray-800"
+                    ? "bg-green-100 text-green-800"
+                    : order.status === "Shipped"
+                      ? "bg-blue-100 text-blue-800"
+                      : order.status === "Packed"
+                        ? "bg-orange-100 text-orange-800"
+                        : order.status === "Cancelled"
+                          ? "bg-red-100 text-red-800"
+                          : "bg-gray-100 text-gray-800"
                     }`}
                 >
                   {order.status}
@@ -85,17 +85,17 @@ function OrdersList() {
                         {item.title}
                       </p>
                       <p className="text-sm text-gray-900 mt-1 font-medium truncate w-54 text-wrap">
-                        ₹ {order.totalAmount}
+                        ₹ {order.total_amount}
                       </p>
-                      {order.trackingNumber && order.trackingUrl && (
+                      {order.tracking_number && order.tracking_url && (
                         <a
-                          href={order.trackingUrl}
+                          href={order.tracking_url}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-sm text-orange-600 mt-3 font-medium truncate w-54 block hover:underline cursor-pointer"
                           title="Open Tracking Link"
                         >
-                          {order.trackingNumber}
+                          {order.tracking_number}
                         </a>
                       )}
                     </div>
@@ -122,7 +122,7 @@ function OrdersList() {
                       {(() => {
                         const steps = generateTrackingSteps(
                           order.status,
-                          order.createdAt
+                          order.created_at
                         );
 
                         return steps.map((step, idx) => (
@@ -134,8 +134,8 @@ function OrdersList() {
                             {idx < steps.length - 1 && (
                               <span
                                 className={`absolute left-2.5 top-6 w-0.5 h-full ${steps[idx + 1].completed
-                                    ? "bg-orange-500"
-                                    : "bg-gray-300"
+                                  ? "bg-orange-500"
+                                  : "bg-gray-300"
                                   }`}
                               />
                             )}
@@ -143,16 +143,16 @@ function OrdersList() {
                             {/* Dot */}
                             <div
                               className={`w-5 h-5 rounded-full flex-shrink-0 mt-1 ${step.completed
-                                  ? "bg-orange-500"
-                                  : "bg-gray-200 border border-gray-300"
+                                ? "bg-orange-500"
+                                : "bg-gray-200 border border-gray-300"
                                 }`}
                             />
 
                             <div className="ml-4 text-sm">
                               <div
                                 className={`font-medium ${step.completed
-                                    ? "text-gray-900"
-                                    : "text-gray-500"
+                                  ? "text-gray-900"
+                                  : "text-gray-500"
                                   }`}
                               >
                                 {step.title}

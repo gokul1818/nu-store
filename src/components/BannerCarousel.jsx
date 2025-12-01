@@ -63,7 +63,7 @@ export default function BannerCarousel({ banners = [] }) {
                 {banners.map((b, i) => (
                     <div key={i} className="w-full h-full flex-shrink-0 snap-start" onClick={() => navigate(b.link)}>
                         <img
-                            src={b.imageUrl}
+                            src={b.image_url}
                             alt={b.title}
                             className="w-full h-full object-cover"
                         />

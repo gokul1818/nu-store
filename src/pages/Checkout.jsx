@@ -119,8 +119,8 @@ export default function Checkout() {
       });
 
       const orderPayload = {
-        shippingAddress: address,
-        paymentMethod: "Online",
+        shipping_address: address,
+        payment_method: "Online",
         items,
       };
 
@@ -205,7 +205,7 @@ export default function Checkout() {
 
           {!editAddress ? (
             <div className="bg-gray-100 p-4 rounded-lg space-y-1">
-              <div className="font-medium">{user.firstName}</div>
+              <div className="font-medium">{user.first_name}</div>
               <div>{address.label}</div>
               <div>{address.street}</div>
               <div>

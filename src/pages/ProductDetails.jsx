@@ -134,8 +134,8 @@ export default function ProductDetails() {
                   key={idx}
                   onClick={() => setCurrentImage(idx)}
                   className={`flex-shrink-0 w-12 h-12 rounded border-2 cursor-pointer transition-all ${idx === currentImage
-                      ? "border-orange-500 shadow-md"
-                      : "border-gray-200 hover:border-gray-400"
+                    ? "border-orange-500 shadow-md"
+                    : "border-gray-200 hover:border-gray-400"
                     }`}
                 >
                   <img
@@ -197,9 +197,9 @@ export default function ProductDetails() {
 
             {/* Average Rating */}
             <StarRating
-              rating={selectedProduct.averageRating}
+              rating={selectedProduct.average_rating}
               showCount={true}
-              count={selectedProduct.ratingCount}
+              count={selectedProduct.rating_count}
             />
 
             {/* Price */}
@@ -258,8 +258,8 @@ export default function ProductDetails() {
                         key={color}
                         onClick={() => setSelectedColorIndex(idx)}
                         className={`w-8 h-8 rounded-full cursor-pointer border-2 ${isSelected
-                            ? "border-orange-500 shadow-md"
-                            : "border-gray-300 hover:border-gray-400"
+                          ? "border-orange-500 shadow-md"
+                          : "border-gray-300 hover:border-gray-400"
                           }`}
                         style={{ backgroundColor: color }}
                       />
@@ -289,10 +289,10 @@ export default function ProductDetails() {
                           isAvailable && setSelectedSize(size.value)
                         }
                         className={`px-4 py-2 border rounded-lg text-sm transition ${isSelected
-                            ? "border-orange-500 bg-orange-100 text-orange-800"
-                            : isAvailable
-                              ? "border-gray-300 hover:bg-gray-50"
-                              : "border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed"
+                          ? "border-orange-500 bg-orange-100 text-orange-800"
+                          : isAvailable
+                            ? "border-gray-300 hover:bg-gray-50"
+                            : "border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed"
                           }`}
                       >
                         {size.label}
@@ -336,7 +336,7 @@ export default function ProductDetails() {
                       <StarRating rating={r.rating} />
                       <p className="mt-1 text-sm text-gray-700">{r.comment}</p>
                       <p className="mt-1 text-xs text-gray-400">
-                        Reviewed on {new Date(r.createdAt).toLocaleDateString()}
+                        Reviewed on {new Date(r.created_at).toLocaleDateString()}
                       </p>
                     </div>
                   ))}

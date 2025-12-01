@@ -11,7 +11,7 @@ export default function Register() {
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
-    firstName: "",
+    first_name: "",
     email: "",
     password: "",
   });
@@ -32,7 +32,7 @@ export default function Register() {
   const validate = () => {
     const temp = {};
 
-    if (!form.firstName.trim()) temp.firstName = "First name is required";
+    if (!form.first_name.trim()) temp.first_name = "First name is required";
 
     if (!form.email.trim()) temp.email = "Email is required";
     else if (!/\S+@\S+\.\S+/.test(form.email))
@@ -76,9 +76,9 @@ export default function Register() {
           <AppInput
             label="First Name"
             placeholder="First name"
-            value={form.firstName}
-            error={errors.firstName}
-            onChange={(e) => updateField("firstName", e.target.value)}
+            value={form.first_name}
+            error={errors.first_name}
+            onChange={(e) => updateField("first_name", e.target.value)}
           />
 
           <AppInput

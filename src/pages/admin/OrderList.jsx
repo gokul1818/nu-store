@@ -21,7 +21,7 @@ export default function OrderList() {
   const itemsPerPage = 10;
   const navigate = useNavigate();
 
-  
+
   const tabs = ["New", "Packed", "Shipped", "Delivered", "Cancelled"];
 
   // 👉 Convert "New" tab → "Processing" filter
@@ -117,7 +117,7 @@ export default function OrderList() {
               <div className="flex justify-between items-center mb-4">
                 <div className="flex flex-col">
                   <div className="font-bold text-lg">Order #{o.id}</div>
-                  <div className="text-gray-500 text-sm">{o.user?.firstName} {o.user?.lastName}</div>
+                  <div className="text-gray-500 text-sm">{o.user?.first_name} {o.user?.last_name}</div>
                   <div className="text-gray-500 text-sm">{o.user?.email}</div>
                 </div>
                 <span

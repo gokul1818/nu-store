@@ -63,7 +63,7 @@ export default function ProductCard({ product, onAdd = () => { } }) {
           </span>
         ))}
         <span className="ml-2 text-xs text-gray-500">
-          ({product.ratingCount || 0})
+          ({product.rating_count || 0})
         </span>
       </div>
     );
@@ -104,7 +104,7 @@ export default function ProductCard({ product, onAdd = () => { } }) {
         <h3 className="mt-3 font-semibold text-gray-900 line-clamp-2">
           {product.title}
         </h3>
-        <StarRating rating={product.averageRating} />
+        <StarRating rating={product.average_rating} />
         <p
           className={`mt-1 text-xs font-medium px-2 py-1 rounded w-fit ${stockClass}`}
         >

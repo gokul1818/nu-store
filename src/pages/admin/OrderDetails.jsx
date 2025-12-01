@@ -55,26 +55,26 @@ export default function OrderDetails() {
   const handleStatusChange = async (value) => {
     await updateInstant({
       status: value,
-      trackingNumber: order.trackingNumber,
-      trackingUrl: order.trackingUrl,
+      tracking_number: order.tracking_number,
+      tracking_url: order.tracking_url,
     });
   };
 
   // TRACKING NUMBER change → auto update
-  const handleTrackingNumberChange = async (value) => {
+  const handletracking_numberChange = async (value) => {
     await updateInstant({
       status: order.status,
-      trackingNumber: value,
-      trackingUrl: order.trackingUrl,
+      tracking_number: value,
+      tracking_url: order.tracking_url,
     });
   };
 
   // TRACKING URL change → auto update
-  const handleTrackingUrlChange = async (value) => {
+  const handletracking_urlChange = async (value) => {
     await updateInstant({
       status: order.status,
-      trackingNumber: order.trackingNumber,
-      trackingUrl: value,
+      tracking_number: order.tracking_number,
+      tracking_url: value,
     });
   };
 
@@ -95,7 +95,7 @@ export default function OrderDetails() {
         <h2 className="text-2xl font-bold mb-2">Order #{order.id}</h2>
 
         <p className="mb-2 text-gray-700">
-          <strong>Customer:</strong> {order.user.firstName} {order.user.lastName}
+          <strong>Customer:</strong> {order.user.first_name} {order.user.last_name}
         </p>
 
         <p className="mb-2 text-gray-700">
@@ -126,9 +126,9 @@ export default function OrderDetails() {
           <strong>Tracking Number:</strong>
           <input
             type="text"
-            defaultValue={order.trackingNumber}
+            defaultValue={order.tracking_number}
             placeholder="Enter tracking number"
-            onBlur={(e) => handleTrackingNumberChange(e.target.value)}
+            onBlur={(e) => handletracking_numberChange(e.target.value)}
             disabled={updating}
             className="ml-2 px-3 py-1 rounded border"
           />
@@ -139,9 +139,9 @@ export default function OrderDetails() {
           <strong>Tracking URL:</strong>
           <input
             type="text"
-            defaultValue={order.trackingUrl}
+            defaultValue={order.tracking_url}
             placeholder="https://tracking..."
-            onBlur={(e) => handleTrackingUrlChange(e.target.value)}
+            onBlur={(e) => handletracking_urlChange(e.target.value)}
             disabled={updating}
             className="ml-2 px-3 py-1 rounded border w-full max-w-md"
           />
@@ -194,7 +194,7 @@ export default function OrderDetails() {
         </div>
 
         <p className="mt-4 font-bold text-lg">
-          Total: ₹{order.totalAmount}
+          Total: ₹{order.total_amount}
         </p>
 
       </div>

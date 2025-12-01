@@ -41,7 +41,7 @@ export default function UserOrderDetails() {
       <div className="p-6 text-center text-gray-600">Order not found.</div>
     );
 
-  const steps = generateTrackingSteps(order.status, order.createdAt);
+  const steps = generateTrackingSteps(order.status, order.created_at);
 
   const handleReviewChange = (id, field, value) => {
     setReviewData((prev) => ({
@@ -119,19 +119,19 @@ export default function UserOrderDetails() {
         </p>
         <p className="text-gray-600 mb-1">
           <strong>Placed On:</strong>{" "}
-          {new Date(order.createdAt).toLocaleDateString()}
+          {new Date(order.created_at).toLocaleDateString()}
         </p>
 
-        {order.trackingNumber && order.trackingUrl && (
+        {order.tracking_number && order.tracking_url && (
           <p className="text-gray-600 mb-2">
             <strong>Tracking:</strong>{" "}
             <a
-              href={order.trackingUrl}
+              href={order.tracking_url}
               target="_blank"
               rel="noopener noreferrer"
               className="text-orange-600 hover:underline"
             >
-              {order.trackingNumber}
+              {order.tracking_number}
             </a>
           </p>
         )}
@@ -224,7 +224,7 @@ export default function UserOrderDetails() {
           })}
         </div>
 
-        <p className="mt-4 font-bold text-lg">Total: ₹{order.totalAmount}</p>
+        <p className="mt-4 font-bold text-lg">Total: ₹{order.total_amount}</p>
       </div>
 
       {/* Tracking Timeline */}
@@ -241,8 +241,8 @@ export default function UserOrderDetails() {
               )}
               <div
                 className={`w-5 h-5 rounded-full flex-shrink-0 mt-1 ${step.completed
-                    ? "bg-orange-500"
-                    : "bg-gray-200 border border-gray-300"
+                  ? "bg-orange-500"
+                  : "bg-gray-200 border border-gray-300"
                   }`}
               />
               <div className="ml-4 text-sm">

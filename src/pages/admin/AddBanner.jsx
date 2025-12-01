@@ -15,9 +15,9 @@ export default function BannerForm() {
   const [form, setForm] = useState({
     title: "",
     link: "",
-    imageUrl: "",
+    image_url: "",
   });
-  const [error, setError] = useState({ title: "", imageUrl: "" });
+  const [error, setError] = useState({ title: "", image_url: "" });
 
   // -------------------------
   // LOAD BANNER (Edit Mode)
@@ -34,7 +34,7 @@ export default function BannerForm() {
         setForm({
           title: b.title,
           link: b.link || "",
-          imageUrl: b.imageUrl,
+          image_url: b.image_url,
         });
       } catch (err) {
         showError("Failed to load banner");
@@ -56,15 +56,15 @@ export default function BannerForm() {
   // -------------------------
   const handleSubmit = async () => {
     let hasError = false;
-    const newError = { title: "", imageUrl: "" };
+    const newError = { title: "", image_url: "" };
 
     if (!form.title.trim()) {
       newError.title = "Title is required";
       hasError = true;
     }
 
-    if (!form.imageUrl) {
-      newError.imageUrl = "Please upload a banner image";
+    if (!form.image_url) {
+      newError.image_url = "Please upload a banner image";
       hasError = true;
     }
 
@@ -76,7 +76,7 @@ export default function BannerForm() {
       const payload = {
         title: form.title,
         link: form.link,
-        imageUrl: form.imageUrl,
+        image_url: form.image_url,
       };
 
       if (isEdit) await BannerAPI.update(id, payload);
@@ -116,9 +116,9 @@ export default function BannerForm() {
         id="banner-upload"
         label="Banner Image"
         mode="single"
-        value={form.imageUrl}
-        onChange={(url) => updateField("imageUrl", url)}
-        error={error.imageUrl}
+        value={form.image_url}
+        onChange={(url) => updateField("image_url", url)}
+        error={error.image_url}
       />
 
       <div className="flex justify-center mt-4">
