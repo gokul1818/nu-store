@@ -7,6 +7,7 @@ export default function Cart() {
   const navigate = useNavigate();
 
   const cart = useCartStore((s) => s.cart);
+  console.log('cart: ', cart);
   const updateQty = useCartStore((s) => s.updateQty);
   const removeItem = useCartStore((s) => s.removeItem);
   const clearCart = useCartStore((s) => s.clearCart);
@@ -47,7 +48,7 @@ export default function Cart() {
             >
               <Link to={`/product/${item.id}`}>
                 <img
-                  src={item.thumbnail || "/placeholder.png"}
+                  src={JSON.parse(item.images)[0] || "/placeholder.png"}
                   className="w-28 h-28 object-cover rounded shadow"
                 />
               </Link>

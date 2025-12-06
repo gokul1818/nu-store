@@ -79,7 +79,7 @@ export default function ProductList() {
       render: (row) =>
         row.images?.length ? (
           <img
-            src={row.images[0]}
+            src={JSON.parse(row.images)[0]}
             alt={row.title}
             className="w-12 h-12 object-cover rounded mx-auto"
           />
@@ -105,8 +105,8 @@ export default function ProductList() {
       key: "stock",
       label: "Stock",
       render: (row) =>
-        row.variants?.length
-          ? row.variants.reduce((acc, v) => acc + (v.stock || 0), 0)
+        JSON.parse(row.variants).length
+          ? JSON.parse(row.variants).reduce((acc, v) => acc + (v.stock || 0), 0)
           : 0,
     },
   ];

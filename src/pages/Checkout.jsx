@@ -17,6 +17,7 @@ export default function Checkout() {
   const createOrder = useOrderStore((s) => s.createOrder);
 
   const items = buyNowItem ? [buyNowItem] : cartItems;
+  console.log('cartItems: ', cartItems);
   console.log('items: ', items);
   const navigate = useNavigate();
 
@@ -162,7 +163,7 @@ export default function Checkout() {
                 className="flex items-center gap-3 border-b pb-3"
               >
                 <img
-                  src={item.thumbnail || item.images?.[0]}
+                  src={item.thumbnail || JSON.parse(item.images)?.[0]}
                   className="w-20 h-20 object-cover rounded"
                 />
                 <div>

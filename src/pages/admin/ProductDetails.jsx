@@ -32,7 +32,7 @@ export default function ProductDetailsAdmin() {
   if (loading) return <SpinLoader />;
   if (!product) return <div className="p-6 text-center text-gray-500">Product not found</div>;
 
-  const totalStock = product.variants?.reduce((acc, v) => acc + (v.stock || 0), 0) || 0;
+  const totalStock = JSON.parse(product?.variants).reduce((acc, v) => acc + (v.stock || 0), 0) || 0;
 
   return (
     <div className="container mx-auto p-6">
@@ -73,7 +73,7 @@ export default function ProductDetailsAdmin() {
           <div>
             <h3 className="text-lg font-semibold mb-2">Gallery</h3>
             <div className="flex gap-3 overflow-x-auto">
-              {product.images.map((img, idx) => (
+              {JSON.parse(product.images).map((img, idx) => (
                 <img
                   key={idx}
                   src={img}
@@ -90,7 +90,7 @@ export default function ProductDetailsAdmin() {
           <div>
             <h3 className="text-lg font-semibold mb-2">Variants</h3>
             <div className="grid md:grid-cols-4 gap-4">
-              {product.variants.map((v, idx) => (
+              {JSON.parse(product.variants).map((v, idx) => (
                 <div
                   key={idx}
                   className="border p-3 rounded-lg bg-gray-50 flex flex-col gap-2"

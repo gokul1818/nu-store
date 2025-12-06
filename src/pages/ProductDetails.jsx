@@ -30,9 +30,10 @@ export default function ProductDetails() {
   }, [id, fetchProductById]);
 
   const images = selectedProduct?.images?.length
-    ? selectedProduct.images
+    ? JSON?.parse(selectedProduct.images)
     : ["/placeholder.png"];
-  const variants = selectedProduct?.variants || [];
+  const variants = selectedProduct?.variants ? JSON.parse(selectedProduct?.variants) : [];
+  console.log('variants: ', variants);
 
   const colors = useMemo(
     () => Array.from(new Set(variants.map((v) => v.color))),
@@ -324,7 +325,7 @@ export default function ProductDetails() {
             </div>
 
             {/* Reviews Section */}
-            {selectedProduct.reviews?.length > 0 && (
+            {JSON.parse(selectedProduct.reviews)?.length > 0 && (
               <div className="mt-6">
                 <h2 className="font-bold text-lg mb-2">Customer Reviews</h2>
                 <div className="space-y-4">

@@ -37,6 +37,7 @@ export default function ProductForm() {
     const loadData = async () => {
       try {
         const res = await CategoryAPI.getAll();
+        console.log('res: ', res.data);
         setCategories(res.data);
 
         if (isEdit) {
@@ -49,11 +50,11 @@ export default function ProductForm() {
             gender: product.data.gender || "men",
             description: product.data.description || "",
             thumbnail: product.data.thumbnail || "",
-            images: product.data.images || [],
-            category: res.data.length ? res?.data.find(x => x?.name == product?.data?.category).id : "",
+            images: JSON.parse(product.data.images) || [],
+            category: product?.data?.category,
             variants:
               product.data.variants.length > 0
-                ? product.data.variants.map((v) => ({
+                ? JSON.parse(product.data.variants).map((v) => ({
                   ...v,
                   stock: v.stock !== undefined ? v.stock : "",
                 }))
