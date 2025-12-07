@@ -147,148 +147,133 @@ export default function Checkout() {
 
   if (!user) return null;
 
-  return (
-    <div className="container mx-auto px-4 py-6">
-      <h2 className="text-2xl font-bold mb-6">Checkout</h2>
+return (
+  <div className="container mx-auto px-4 py-16 relative">
 
-      <div className="grid md:grid-cols-2 gap-6">
-        {/* RIGHT — Order Summary */}
-        <div className="bg-white p-5 rounded-lg shadow-lg h-fit">
-          <h3 className="font-semibold text-xl">Order Summary</h3>
+    {/* Background dashed grid */}
+    <div className="absolute inset-0 grid grid-cols-4 pointer-events-none opacity-30 -z-10">
+      <div className="border-r border-dashed border-gray-300"></div>
+      <div className="border-r border-dashed border-gray-300"></div>
+      <div className="border-r border-dashed border-gray-300"></div>
+    </div>
 
-          <div className="mt-4 space-y-3">
-            {items.map((item) => (
-              <div
-                key={item.id}
-                className="flex items-center gap-3 border-b pb-3"
-              >
-                <img
-                  src={item.thumbnail || JSON.parse(item.images)?.[0]}
-                  className="w-20 h-20 object-cover rounded"
-                />
-                <div>
-                  <p className="font-medium">{item.title}</p>
-                  <p className="text-sm text-gray-500">Qty: {item.qty}</p>
-                  <p className="font-semibold">
-                    {formatCurrencyINR(item.price * item.qty)}
-                  </p>
-                </div>
+    <h2 className="text-4xl font-bold mb-12 text-center">Checkout</h2>
+
+    <div className="grid md:grid-cols-2 gap-10">
+
+      {/* ORDER SUMMARY */}
+      <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-200 h-fit">
+        <h3 className="font-semibold text-2xl mb-4 text-gray-900">
+          Order Summary
+        </h3>
+
+        <div className="space-y-4">
+          {items.map((item) => (
+            <div
+              key={item.id}
+              className="flex items-center gap-4 border-b pb-4"
+            >
+              <img
+                src={item.thumbnail || JSON.parse(item.images)[0]}
+                className="w-20 h-20 rounded-xl object-cover border"
+              />
+              <div className="flex-1">
+                <p className="font-semibold text-gray-800">{item.title}</p>
+                <p className="text-sm text-gray-500">Qty: {item.qty}</p>
+                <p className="font-bold text-v">
+                  {formatCurrencyINR(item.price * item.qty)}
+                </p>
               </div>
-            ))}
-
-            <div className="flex justify-between">
-              <span>Subtotal</span>
-              <span>{formatCurrencyINR(subtotal)}</span>
             </div>
+          ))}
 
-            <div className="flex justify-between">
-              <span>Shipping</span>
-              <span>{formatCurrencyINR(shipping)}</span>
-            </div>
+          <div className="flex justify-between text-gray-700">
+            <span>Subtotal</span>
+            <span>{formatCurrencyINR(subtotal)}</span>
+          </div>
 
-            <div className="flex justify-between">
-              <span>Tax</span>
-              <span>{formatCurrencyINR(tax)}</span>
-            </div>
+          <div className="flex justify-between text-gray-700">
+            <span>Shipping</span>
+            <span>{formatCurrencyINR(shipping)}</span>
+          </div>
 
-            <div className="flex justify-between font-bold text-lg border-t pt-2">
-              <span>Total</span>
-              <span>{formatCurrencyINR(total)}</span>
-            </div>
+          <div className="flex justify-between text-gray-700">
+            <span>Tax</span>
+            <span>{formatCurrencyINR(tax)}</span>
+          </div>
+
+          <div className="flex justify-between font-bold text-2xl pt-4 border-t">
+            <span>Total</span>
+            <span className="text-v">{formatCurrencyINR(total)}</span>
           </div>
         </div>
-        {/* LEFT — Address Card */}
-        <form
-          onSubmit={submit}
-          className="bg-white p-5 rounded-lg shadow-md space-y-4"
-        >
-          <h3 className="text-xl font-semibold">Shipping Address</h3>
-
-          {!editAddress ? (
-            <div className="bg-gray-100 p-4 rounded-lg space-y-1">
-              <div className="font-medium">{user.first_name}</div>
-              <div>{address.label}</div>
-              <div>{address.street}</div>
-              <div>
-                {address.city}, {address.state}
-              </div>
-              <div>{address.zipcode}</div>
-              <div>{address.country}</div>
-              <div>📞 {address.phone}</div>
-
-              <button
-                type="button"
-                className="text-primary text-sm mt-2"
-                onClick={() => setEditAddress(true)}
-              >
-                Edit Address
-              </button>
-            </div>
-          ) : (
-            <div className="space-y-2">
-              <AppInput
-                placeholder="Label (Home/Work)"
-                value={address.label}
-                onChange={(e) => handleAddressChange("label", e.target.value)}
-              />
-
-              <AppInput
-                placeholder="Street"
-                value={address.street}
-                onChange={(e) => handleAddressChange("street", e.target.value)}
-              />
-
-              <AppInput
-                placeholder="City"
-                value={address.city}
-                onChange={(e) => handleAddressChange("city", e.target.value)}
-              />
-
-              <AppInput
-                placeholder="State"
-                value={address.state}
-                onChange={(e) => handleAddressChange("state", e.target.value)}
-              />
-
-              <AppInput
-                placeholder="Zipcode"
-                value={address.zipcode}
-                onChange={(e) => handleAddressChange("zipcode", e.target.value)}
-              />
-
-              <AppInput
-                placeholder="Country"
-                value={address.country}
-                onChange={(e) => handleAddressChange("country", e.target.value)}
-              />
-
-              <AppInput
-                placeholder="Phone"
-                value={address.phone}
-                onChange={(e) => handleAddressChange("phone", e.target.value)}
-              />
-
-              <button
-                type="button"
-                className="text-primary text-sm"
-                onClick={() => setEditAddress(false)}
-              >
-                Save Address
-              </button>
-            </div>
-          )}
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="bg-orange-500 text-white py-2 px-4 rounded shadow-md hover:bg-orange-600 w-full"
-          >
-            {loading ? "Placing order..." : "Place Order"}
-          </button>
-        </form>
-
-
       </div>
+
+      {/* ADDRESS CARD */}
+      <form
+        onSubmit={submit}
+        className="bg-white p-6 rounded-2xl shadow-lg border border-gray-200 space-y-6"
+      >
+        <h3 className="text-2xl font-semibold text-gray-900">
+          Shipping Address
+        </h3>
+
+        {/* VIEW MODE */}
+        {!editAddress ? (
+          <div className="bg-gray-50 p-5 rounded-xl border space-y-1">
+            <p className="font-semibold text-lg">{user.first_name}</p>
+            <p>{address.label}</p>
+            <p>{address.street}</p>
+            <p>
+              {address.city}, {address.state}
+            </p>
+            <p>{address.zipcode}</p>
+            <p>{address.country}</p>
+            <p>📞 {address.phone}</p>
+
+            <button
+              type="button"
+              className="text-v text-sm font-semibold mt-3"
+              onClick={() => setEditAddress(true)}
+            >
+              Edit Address
+            </button>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {/* INPUT FIELDS */}
+            {["label", "street", "city", "state", "zipcode", "country", "phone"].map(
+              (field) => (
+                <input
+                  key={field}
+                  className="w-full border rounded-lg px-4 py-3 bg-gray-50 focus:ring-2 focus:ring-v outline-none text-sm"
+                  placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
+                  value={address[field]}
+                  onChange={(e) => handleAddressChange(field, e.target.value)}
+                />
+              )
+            )}
+
+            <button
+              type="button"
+              className="text-v font-semibold text-sm"
+              onClick={() => setEditAddress(false)}
+            >
+              Save Address
+            </button>
+          </div>
+        )}
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="bg-v text-white py-3 w-full rounded-xl font-semibold text-lg shadow hover:bg-v/90 transition"
+        >
+          {loading ? "Placing Order..." : "Place Order"}
+        </button>
+      </form>
     </div>
-  );
+  </div>
+);
+
 }

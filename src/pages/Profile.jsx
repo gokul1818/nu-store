@@ -42,7 +42,7 @@ function ProfileView() {
           phone: res.phone || "",
           addresses:
             res.addresses?.length > 0
-              ? res.addresses.map((addr) => ({
+              ? JSON.parse(res.addresses).map((addr) => ({
                 label: addr.label || "",
                 street: addr.street || "",
                 city: addr.city || "",
@@ -134,73 +134,90 @@ function ProfileView() {
     }
   };
 
-  return (
-    <div className="container mx-auto px-4 py-6">
-      <div className="max-w-lg mx-auto bg-white p-6 rounded shadow-md space-y-4">
+ return (
+  <div className="container mx-auto px-4 py-16 relative">
 
-        <div className="flex justify-between items-center">
-          <h2 className="text-2xl font-bold">Profile</h2>
-          {!editMode && (
-            <button
-              className="text-secondary text-sm"
-              onClick={() => setEditMode(true)}
-            >
-              Edit
-            </button>
-          )}
-        </div>
+    {/* Background dashed grid */}
+    <div className="absolute inset-0 grid grid-cols-4 pointer-events-none opacity-30 -z-10">
+      <div className="border-r border-dashed border-gray-300"></div>
+      <div className="border-r border-dashed border-gray-300"></div>
+      <div className="border-r border-dashed border-gray-300"></div>
+    </div>
 
-        {/* VIEW MODE */}
+    <div className="max-w-xl mx-auto bg-white p-8 rounded-2xl shadow-xl border border-gray-200 space-y-6">
+
+      {/* Header */}
+      <div className="flex justify-between items-center">
+        <h2 className="text-3xl font-bold text-gray-900">My Profile</h2>
+
         {!editMode && (
-          <div className="space-y-3">
-            <div><strong>First Name:</strong> {form.first_name}</div>
-            <div><strong>Last Name:</strong> {form.last_name}</div>
-            <div><strong>Mobile Number:</strong> {form.phone}</div>
+          <button
+            className="text-orange font-semibold text-sm hover:underline"
+            onClick={() => setEditMode(true)}
+          >
+            Edit
+          </button>
+        )}
+      </div>
 
-            <div>
-              <strong>Address:</strong>
-              <div className="ml-4 mt-1 space-y-1">
-                <div>No: {form.addresses[0].label}</div>
-                <div>Street: {form.addresses[0].street}</div>
-                <div>City: {form.addresses[0].city}</div>
-                <div>State: {form.addresses[0].state}</div>
-                <div>Zipcode: {form.addresses[0].zipcode}</div>
-                <div>Country: {form.addresses[0].country}</div>
-                <div>Phone Number: {form.addresses[0].phone}</div>
-              </div>
+      {/* VIEW MODE */}
+      {!editMode && (
+        <div className="space-y-4 text-gray-800">
+
+          <div className="bg-gray-50 p-4 rounded-xl border space-y-1">
+            <p><strong>First Name:</strong> {form.first_name}</p>
+            <p><strong>Last Name:</strong> {form.last_name}</p>
+            <p><strong>Mobile:</strong> {form.phone}</p>
+          </div>
+
+          <div className="bg-gray-50 p-4 rounded-xl border space-y-1">
+            <p className="font-semibold text-lg">Address</p>
+
+            <div className="ml-2 text-gray-700 space-y-1">
+              <p><strong>No:</strong> {form.addresses[0].label}</p>
+              <p><strong>Street:</strong> {form.addresses[0].street}</p>
+              <p><strong>City:</strong> {form.addresses[0].city}</p>
+              <p><strong>State:</strong> {form.addresses[0].state}</p>
+              <p><strong>Zipcode:</strong> {form.addresses[0].zipcode}</p>
+              <p><strong>Country:</strong> {form.addresses[0].country}</p>
+              <p><strong>Phone:</strong> {form.addresses[0].phone}</p>
             </div>
           </div>
-        )}
+        </div>
+      )}
 
-        {/* EDIT MODE */}
-        {editMode && (
-          <div className="space-y-3">
+      {/* EDIT MODE */}
+      {editMode && (
+        <div className="space-y-5">
+          {/* Basic Fields */}
+          <AppInput
+            label="First Name"
+            value={form.first_name}
+            onChange={(e) => handleChange("first_name", e.target.value)}
+            error={errors.first_name}
+          />
 
-            <AppInput
-              label="First Name"
-              value={form.first_name}
-              onChange={(e) => handleChange("first_name", e.target.value)}
-              error={errors.first_name}
-            />
+          <AppInput
+            label="Last Name"
+            value={form.last_name}
+            onChange={(e) => handleChange("last_name", e.target.value)}
+            error={errors.last_name}
+          />
 
-            <AppInput
-              label="Last Name"
-              value={form.last_name}
-              onChange={(e) => handleChange("last_name", e.target.value)}
-              error={errors.last_name}
-            />
+          <AppInput
+            label="Mobile Number"
+            value={form.phone}
+            onChange={(e) => handleChange("phone", e.target.value)}
+            error={errors.phone}
+          />
 
-            <AppInput
-              label="Mobile Number"
-              value={form.phone}
-              onChange={(e) => handleChange("phone", e.target.value)}
-              error={errors.phone}
-            />
+          {/* Address */}
+          <div className="pt-3">
+            <label className="block font-semibold text-gray-900 text-lg mb-2">
+              Address
+            </label>
 
-            <label className="block font-medium">Address</label>
-
-            <div className="space-y-2">
-
+            <div className="space-y-3">
               <AppInput
                 placeholder="Label (Home / Work)"
                 value={form.addresses[0].label}
@@ -264,19 +281,18 @@ function ProfileView() {
                 error={errors.addresses?.[0]?.phone}
               />
             </div>
-
-            <AppButton
-              loading={loading}
-              onClick={handleSubmit}
-              className="w-full"
-            >
-              Save Changes
-            </AppButton>
           </div>
-        )}
-      </div>
+
+          {/* Save Button */}
+          <AppButton loading={loading} onClick={handleSubmit} className="w-full">
+            Save Changes
+          </AppButton>
+        </div>
+      )}
     </div>
-  );
+  </div>
+);
+
 }
 
 export default function Profile() {

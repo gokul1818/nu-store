@@ -59,10 +59,12 @@ export default function Products() {
 
   /** Determine if we are on a gender page */
   const isGenderPage =
-    paramCategory === "men" ||
-    paramCategory === "women" ||
-    genderQuery === "men" ||
-    genderQuery === "women";
+    paramCategory === "gender_men" ||
+    paramCategory === "gender_women" ||
+    paramCategory === "gender_kids" ||
+    genderQuery === "gender_men" ||
+    genderQuery === "gender_kids" ||
+    genderQuery === "gender_women";
 
   /** Load Categories */
   useEffect(() => {

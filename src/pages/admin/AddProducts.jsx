@@ -285,9 +285,6 @@ export default function ProductForm() {
             <option value="" disabled className="text-gray-400">
               Select Gender
             </option>
-            <option value="men">Men</option>
-            <option value="women">Women</option>
-            <option value="kids">Kids</option>
             {genderOptions.map((cat) => (
               <option key={cat.id} value={cat.id}>
                 {cat.label}

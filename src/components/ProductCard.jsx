@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { formatCurrency } from "../utils/helpers";
 import useCartStore from "../stores/useCartStore";
 import { useState } from "react";
+import { FaStar } from "react-icons/fa";
 
 const cardVariants = {
   hidden: { opacity: 0, y: 30 },
@@ -53,13 +54,14 @@ export default function ProductCard({ product, onAdd = () => { } }) {
       <div className="flex items-center gap-1 mt-1">
         {[...Array(filledStars)].map((_, i) => (
           <span key={`filled-${i}`} className="text-yellow-400">
-            ★
+            <FaStar />
           </span>
         ))}
         {halfStar && <span className="text-yellow-400">☆</span>}
         {[...Array(emptyStars)].map((_, i) => (
           <span key={`empty-${i}`} className="text-gray-300">
-            ★
+            <FaStar />
+
           </span>
         ))}
         <span className="ml-2 text-xs text-gray-500">
@@ -81,7 +83,7 @@ export default function ProductCard({ product, onAdd = () => { } }) {
       <Link to={`/product/${product.id}`} className="block">
         {/* DISCOUNT TAG */}
         {product?.discount > 0 && (
-          <div className="text-sm text-white bg-red-500 font-medium absolute right-0 z-30 top-0 px-2">
+          <div className="text-sm text-white bg-v font-medium absolute right-3 z-30 top-3 px-2 rounded-md">
             {product.discount}% OFF
           </div>
         )}

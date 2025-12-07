@@ -11,6 +11,7 @@ import BannerCarousel from "../components/BannerCarousel";
 import CategoryCard from "../components/CategoryCard";
 import Services from "./Services";
 import { buildProductQuery } from "../utils/helpers";
+import GoogleReviews from "./GoogleReviews";
 
 export default function Home() {
   const { products, fetchProducts, resetProducts, resetFilters, loading } =
@@ -24,7 +25,6 @@ export default function Home() {
   const [popularData, setPopularData] = useState([]);
   const [initialLoading, setInitialLoading] = useState(true);
 
-  /** LOAD BANNERS */
   const loadBanners = async () => {
     try {
       const res = await BannerAPI.getAll();
@@ -34,14 +34,13 @@ export default function Home() {
     }
   };
 
-  /** INITIAL DATA */
   async function loadData() {
     resetProducts();
     resetFilters();
     setInitialLoading(true);
 
     try {
-      await fetchProducts(); // load all products
+      await fetchProducts();
       const res = await CategoryAPI.getAll();
       setCategories(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
@@ -50,17 +49,16 @@ export default function Home() {
       setInitialLoading(false);
     }
   }
+
   async function loadPopularData() {
     setInitialLoading(true);
-    const query = buildProductQuery({
-      page: 1,
-      sort: "popular"
-    });
+    const query = buildProductQuery({ page: 1, sort: "popular" });
+
     try {
       const res = await ProductAPI.getAll(query);
-      setPopularData(res.data.products)
+      setPopularData(res.data.products);
     } catch (err) {
-      console.error("Failed to load products or categories", err);
+      console.error("Failed to load popular products", err);
     } finally {
       setInitialLoading(false);
     }
@@ -74,26 +72,34 @@ export default function Home() {
 
   if (initialLoading) return <AppLoader />;
 
-  /** NEW ARRIVALS → Sort by created date */
   const latestProducts = [...products]
     .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
     .slice(0, 4);
 
-  /** POPULAR PRODUCTS → Sort by salesCount or views */
   const popularProducts = popularData.slice(0, 4);
 
   return (
     <>
       <BannerCarousel banners={banners} />
 
-      <div className="mx-auto w-full container px-4 py-6">
-        <h1 className="text-3xl font-bold text-center my-10">
+      {/* ====================== Category Section ====================== */}
+      <div className="mx-auto container px-4 py-20 relative">
+
+        {/* Background vertical dashed lines for Noire style */}
+        <div className="absolute inset-0 grid grid-cols-4 pointer-events-none">
+          <div className="border-r border-dashed border-gray-300"></div>
+          <div className="border-r border-dashed border-gray-300"></div>
+          <div className="border-r border-dashed border-gray-300"></div>
+          <div></div>
+        </div>
+
+        <h1 className="text-4xl font-bold text-center mb-12 relative z-10">
           Explore Everything
         </h1>
 
-        <div className="flex gap-6 w-full overflow-x-auto pb-10 no-scrollbar snap-x snap-mandatory">
+        <div className="flex gap-6 w-full overflow-x-auto pb-10 no-scrollbar relative z-10">
           {categories.map((cat) => (
-            <div key={cat.id} className="snap-start">
+            <div key={cat.id}>
               <CategoryCard
                 category={cat}
                 onClick={() =>
@@ -108,8 +114,8 @@ export default function Home() {
           ))}
         </div>
 
-        {/* ---------------- New Arrivals ---------------- */}
-        <h1 className="text-3xl font-bold text-center my-10 mt-20">
+        {/* ====================== New Arrivals Section ====================== */}
+        <h1 className="text-4xl font-bold text-center mt-28 mb-12 relative z-10">
           New Arrivals
         </h1>
 
@@ -117,15 +123,15 @@ export default function Home() {
           initial="hidden"
           animate="visible"
           variants={{ visible: { transition: { staggerChildren: 0.05 } } }}
-          className="w-full grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-6"
+          className="relative z-10 w-full grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8"
         >
           {latestProducts.map((p) => (
             <ProductCard key={p.id} product={p} onAdd={addItem} />
           ))}
         </motion.div>
 
-        {/* ---------------- Popular Products ---------------- */}
-        <h1 className="text-3xl font-bold text-center my-10 mt-20">
+        {/* ====================== Popular Products ====================== */}
+        <h1 className="text-4xl font-bold text-center mt-28 mb-12 relative z-10">
           Popular Products
         </h1>
 
@@ -133,22 +139,26 @@ export default function Home() {
           initial="hidden"
           animate="visible"
           variants={{ visible: { transition: { staggerChildren: 0.05 } } }}
-          className="w-full grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-6"
+          className="relative z-10 w-full grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8"
         >
           {popularProducts.map((p) => (
             <ProductCard key={p.id} product={p} onAdd={addItem} />
           ))}
         </motion.div>
 
+        {/* View All Button */}
         <Link
           to={`/products`}
-          className="my-10 bg-secondary text-white mx-auto block w-52 text-center px-4 py-2 text-sm font-semibold 
-          rounded-md border border-gray-300 
-          hover:bg-orange-400 hover:text-white transition-all"
+          className="mt-16 mb-20 bg-orange text-white mx-auto block w-56 text-center px-4 py-3 text-base font-semibold 
+          rounded-md hover:bg-orange/90 transition-all relative z-10"
         >
           View All Products
         </Link>
 
+        {/* Google Reviews Section */}
+        <GoogleReviews />
+
+        {/* Services Section */}
         <Services />
       </div>
     </>
