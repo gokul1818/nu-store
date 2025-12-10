@@ -50,7 +50,7 @@ export default function Contact() {
                 <FaMapMarkerAlt className="text-v" /> Address
               </p>
               <p className="text-v font-semibold mt-1">
-                49th St, Los Angeles, California
+                #12-15, Sri Sai Upadhyaya Nagar, J K Nagar Extension, Pichatoor road, Srikalahasthi- 517644.
               </p>
             </div>
           </div>
@@ -71,7 +71,7 @@ export default function Contact() {
               <FaWhatsapp className="text-green-600" /> WhatsApp
             </p>
             <p className="text-v font-semibold mt-1">
-              +91 98765 43210
+             +91-9100015419
             </p>
           </div>
 

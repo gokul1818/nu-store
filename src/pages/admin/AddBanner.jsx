@@ -116,6 +116,7 @@ export default function BannerForm() {
         id="banner-upload"
         label="Banner Image"
         mode="single"
+        maxSize={5}
         value={form.image_url}
         onChange={(url) => updateField("image_url", url)}
         error={error.image_url}

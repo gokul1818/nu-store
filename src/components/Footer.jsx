@@ -26,11 +26,11 @@ export default function Footer() {
 
         {/* QUICK LINKS */}
         <div>
-          <h3 className="text-black text-lg font-semibold mb-4">quick link</h3>
+          <h3 className="text-black text-lg font-semibold mb-4">Quick link</h3>
 
           <ul className="space-y-3 text-gray-700 font-medium">
             <li><Link to="/about" className="hover:text-orange transition">About Us</Link></li>
-            <li><Link to="/products" className="hover:text-orange transition">Our Store</Link></li>
+            <li><Link to="/contact" className="hover:text-orange transition">Contact Us</Link></li>
             <li><Link to="/products?gender=gender_men" className="hover:text-orange transition">Men Loot</Link></li>
             <li><Link to="/products?gender=gender_women" className="hover:text-orange transition">Women Loot</Link></li>
             <li><Link to="/products?gender=gender_kids" className="hover:text-orange transition">Kids Loot</Link></li>
@@ -39,18 +39,19 @@ export default function Footer() {
 
         {/* SUPPORT */}
         <div>
-          <h3 className="text-black text-lg font-semibold mb-4">support</h3>
+          <h3 className="text-black text-lg font-semibold mb-4">Customer Services</h3>
 
           <ul className="space-y-3 text-gray-700 font-medium">
-            <li><Link to="/contact" className="hover:text-orange transition">Contact Us</Link></li>
-            <li><Link to="/refund-policy" className="hover:text-orange transition">Return Policy</Link></li>
-            <li><Link to="/shipping-policy" className="hover:text-orange transition">Product Guarantee</Link></li>
+            <li><Link to="/refund-policy" className="hover:text-orange transition">Refund Policy</Link></li>
+            <li><Link to="/shipping-policy" className="hover:text-orange transition">Shipping Policy</Link></li>
+            <li><Link to="/privacy-policy" className="hover:text-orange transition">Privacy Policy</Link></li>
+            <li><Link to="/terms-condition" className="hover:text-orange transition">Terms & Conditions</Link></li>
           </ul>
         </div>
 
         {/* SOCIAL MEDIA */}
         <div>
-          <h3 className="text-black text-lg font-semibold mb-4">social media</h3>
+          <h3 className="text-black text-lg font-semibold mb-4">Social media</h3>
 
           <ul className="space-y-4 text-gray-700 text-sm font-medium">
             <li className="flex items-center gap-3">

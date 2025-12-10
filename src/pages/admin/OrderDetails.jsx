@@ -17,7 +17,7 @@ export default function OrderDetails() {
   const [order, setOrder] = useState(null);
   const [updating, setUpdating] = useState(false);
 
-  // 🔥 Load order from backend
+  // Load order
   const loadOrder = async () => {
     try {
       const res = await AdminAPI.getOrderById(id);
@@ -38,12 +38,12 @@ export default function OrderDetails() {
       </div>
     );
 
-  // 🔥 Instant update function
+  // Auto-update function (status, tracking number, tracking url)
   const updateInstant = async (patch) => {
     setUpdating(true);
     try {
       await AdminAPI.updateOrderStatus(order.id, patch);
-      await loadOrder(); // refresh UI
+      await loadOrder(); // refresh
     } catch (err) {
       console.error(err);
       alert("Failed to update order");
@@ -51,7 +51,6 @@ export default function OrderDetails() {
     setUpdating(false);
   };
 
-  // STATUS change → auto update
   const handleStatusChange = async (value) => {
     await updateInstant({
       status: value,
@@ -60,8 +59,7 @@ export default function OrderDetails() {
     });
   };
 
-  // TRACKING NUMBER change → auto update
-  const handletracking_numberChange = async (value) => {
+  const handleTrackingNumberChange = async (value) => {
     await updateInstant({
       status: order.status,
       tracking_number: value,
@@ -69,8 +67,7 @@ export default function OrderDetails() {
     });
   };
 
-  // TRACKING URL change → auto update
-  const handletracking_urlChange = async (value) => {
+  const handleTrackingUrlChange = async (value) => {
     await updateInstant({
       status: order.status,
       tracking_number: order.tracking_number,
@@ -78,10 +75,18 @@ export default function OrderDetails() {
     });
   };
 
+  // Parse shipping address JSON safely
+  let addr = {};
+  try {
+    addr = JSON.parse(order.shipping_address || "{}");
+  } catch (err) {
+    console.log("Address parse error", err);
+  }
+
   return (
     <div className="container mx-auto p-6">
 
-      {/* Back */}
+      {/* Back button */}
       <button
         className="mb-4 px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
         onClick={() => navigate(-1)}
@@ -94,20 +99,35 @@ export default function OrderDetails() {
         {/* ORDER HEADER */}
         <h2 className="text-2xl font-bold mb-2">Order #{order.id}</h2>
 
+        {/* CUSTOMER INFO */}
         <p className="mb-2 text-gray-700">
-          <strong>Customer:</strong> {order.user.first_name} {order.user.last_name}
+          <strong>Customer:</strong> {order.user.first_name}{" "}
+          {order.user.last_name || ""}
         </p>
 
         <p className="mb-2 text-gray-700">
           <strong>Email:</strong> {order.user.email}
         </p>
 
-        <p className="mb-2 text-gray-700">
-          <strong>Phone:</strong> {order.user.phone}
-        </p>
-
-        {/* STATUS */}
+        {/* SHIPPING ADDRESS FROM JSON */}
         <div className="mt-4">
+          <h3 className="text-lg font-semibold mb-1">Shipping Address</h3>
+
+          <div className="text-gray-700 leading-relaxed">
+            <p>
+              {addr.doorNo}, {addr.street}, <br />
+              {addr.city}, {addr.state} - {addr.zipcode} <br />
+              {addr.country}
+            </p>
+
+            <p className="mt-2">
+              <strong>Phone:</strong> {addr.phone || "N/A"}
+            </p>
+          </div>
+        </div>
+
+        {/* STATUS DROPDOWN */}
+        <div className="mt-6">
           <strong>Status:</strong>
           <select
             value={order.status}
@@ -128,7 +148,7 @@ export default function OrderDetails() {
             type="text"
             defaultValue={order.tracking_number}
             placeholder="Enter tracking number"
-            onBlur={(e) => handletracking_numberChange(e.target.value)}
+            onBlur={(e) => handleTrackingNumberChange(e.target.value)}
             disabled={updating}
             className="ml-2 px-3 py-1 rounded border"
           />
@@ -141,56 +161,55 @@ export default function OrderDetails() {
             type="text"
             defaultValue={order.tracking_url}
             placeholder="https://tracking..."
-            onBlur={(e) => handletracking_urlChange(e.target.value)}
+            onBlur={(e) => handleTrackingUrlChange(e.target.value)}
             disabled={updating}
             className="ml-2 px-3 py-1 rounded border w-full max-w-md"
           />
         </div>
 
-        {/* ITEMS */}
+        {/* ORDER ITEMS */}
         <h3 className="text-xl font-semibold mt-6 mb-2">Items</h3>
 
         <div className="space-y-2">
-          {order.items.map((item) => (
-            <div
-              key={item.productId}
-              className="flex justify-between items-center border p-3 rounded gap-4"
-            >
-              {/* LEFT: IMAGE + TITLE + QTY */}
-              <div className="flex items-center gap-3">
-                {/* IMAGE */}
-                <img
-                  src={
-                    item?.images?.[0] ||
-                    item.thumbnail ||
-                    item.selectedOptions?.image ||
-                    "/placeholder.png"
-                  }
-                  alt={item.title}
-                  className="w-16 h-16 object-cover rounded border"
-                />
+          {JSON.parse(order.items).map((item) => {
+            let imgs = [];
+            try {
+              imgs = JSON.parse(item.images);
+            } catch {}
 
-                {/* TEXT */}
-                <div>
-                  <p className="font-medium text-gray-700">{item.title}</p>
+            return (
+              <div
+                key={item.productId}
+                className="flex justify-between items-center border p-3 rounded gap-4"
+              >
+                {/* LEFT SIDE - image + title */}
+                <div className="flex items-center gap-3">
+                  <img
+                    src={imgs[0] || "/placeholder.png"}
+                    alt={item.title}
+                    className="w-16 h-16 object-cover rounded border"
+                  />
 
-                  {item.selectedOptions && (
-                    <p className="text-sm text-gray-500">
-                      {item.selectedOptions.color} • {item.selectedOptions.size}
-                    </p>
-                  )}
+                  <div>
+                    <p className="font-medium text-gray-700">{item.title}</p>
 
-                  <p className="text-gray-500 text-sm">Qty: {item.qty}</p>
+                    {item.variant && (
+                      <p className="text-sm text-gray-500">
+                        {item.variant.color} • {item.variant.size}
+                      </p>
+                    )}
+
+                    <p className="text-gray-500 text-sm">Qty: {item.qty}</p>
+                  </div>
+                </div>
+
+                {/* RIGHT SIDE - price */}
+                <div className="font-semibold text-gray-800 whitespace-nowrap">
+                  ₹{item.price * item.qty}
                 </div>
               </div>
-
-              {/* RIGHT: PRICE */}
-              <div className="font-semibold text-gray-800 whitespace-nowrap">
-                ₹{item.price * item.qty}
-              </div>
-            </div>
-          ))}
-
+            );
+          })}
         </div>
 
         <p className="mt-4 font-bold text-lg">

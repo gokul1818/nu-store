@@ -61,9 +61,15 @@ export const ProductAPI = {
   updateProduct: (id, data) => api.put(`/api/products/${id}`, data),
   deleteOne: (id) => api.delete(`/api/products/${id}`),
   create: (data) => api.post("/api/products", data),
-  addReview: (productId, reviewData) =>
-    api.post(`/api/products/${productId}/review`, reviewData),
-  getReview: (productId) => api.get(`/api/products/${productId}/review`),
+addReview: (productId, reviewData) =>
+  api.post(`/api/products/${productId}/review`, reviewData),
+
+getReviews: (productId) =>
+  api.get(`/api/products/${productId}/reviews`),
+
+deleteReview: (productId, userId) =>
+  api.delete(`/api/products/${productId}/review/${userId}`)
+
 };
 
 /* -------------------------------------------------------

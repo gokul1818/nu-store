@@ -39,13 +39,7 @@ export default function GoogleReviews() {
 
   return (
     <section className="py-16 relative">
-      {/* Background grid lines */}
-      <div className="absolute inset-0 grid grid-cols-4 pointer-events-none">
-        <div className="border-r border-dashed border-gray-300"></div>
-        <div className="border-r border-dashed border-gray-300"></div>
-        <div className="border-r border-dashed border-gray-300"></div>
-        <div></div>
-      </div>
+     
 
       <div className="container mx-auto px-4 relative">
 

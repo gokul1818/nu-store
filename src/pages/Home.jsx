@@ -85,13 +85,6 @@ export default function Home() {
       {/* ====================== Category Section ====================== */}
       <div className="mx-auto container px-4 py-20 relative">
 
-        {/* Background vertical dashed lines for Noire style */}
-        <div className="absolute inset-0 grid grid-cols-4 pointer-events-none">
-          <div className="border-r border-dashed border-gray-300"></div>
-          <div className="border-r border-dashed border-gray-300"></div>
-          <div className="border-r border-dashed border-gray-300"></div>
-          <div></div>
-        </div>
 
         <h1 className="text-4xl font-bold text-center mb-12 relative z-10">
           Explore Everything
@@ -149,8 +142,8 @@ export default function Home() {
         {/* View All Button */}
         <Link
           to={`/products`}
-          className="mt-16 mb-20 bg-orange text-white mx-auto block w-56 text-center px-4 py-3 text-base font-semibold 
-          rounded-md hover:bg-orange/90 transition-all relative z-10"
+          className="mt-16 mb-20 bg-v text-white mx-auto block w-56 text-center px-4 py-3 text-base font-semibold 
+          rounded-md hover:bg-v/90 transition-all relative z-10"
         >
           View All Products
         </Link>

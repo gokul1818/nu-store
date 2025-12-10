@@ -338,7 +338,7 @@ return (
             <div className="mt-8">
               <h2 className="font-bold text-xl mb-3">Customer Reviews</h2>
               <div className="space-y-4">
-                {selectedProduct.reviews.map((r) => (
+                {JSON.parse(selectedProduct.reviews).map((r) => (
                   <div key={r.id} className="bg-gray-50 p-4 rounded-xl shadow-sm border">
                     <StarRating rating={r.rating} />
                     <p className="text-sm text-gray-700 mt-1">{r.comment}</p>

@@ -51,15 +51,16 @@ export default function ProductForm() {
             description: product.data.description || "",
             thumbnail: product.data.thumbnail || "",
             images: JSON.parse(product.data.images) || [],
-            category: product?.data?.category,
+            category: product.data.category,
             variants:
               product.data.variants.length > 0
-                ? JSON.parse(product.data.variants).map((v) => ({
-                  ...v,
-                  stock: v.stock !== undefined ? v.stock : "",
-                }))
-                : [{ size: "", color: colorOptions[0].value, sku: "", stock: "" }],
+                ? JSON.parse(product.data.variants)
+                : [{ size: "", color: "", sku: "", stock: "" }],
+
+            // ⭐ ADD THIS
+            reviews: JSON.parse(product.data.reviews || "[]"),
           });
+
         }
       } catch (err) {
         console.log('err: ', err);
@@ -117,6 +118,25 @@ export default function ProductForm() {
 
     setForm({ ...form, variants: updated });
   };
+
+  const deleteReview = async (index, review) => {
+    if (!window.confirm("Delete this review?")) return;
+
+    try {
+      await  ProductAPI.deleteReview(id, review.user);
+
+
+      const updatedReviews = form.reviews.filter((_, i) => i !== index);
+
+      setForm((prev) => ({ ...prev, reviews: updatedReviews }));
+
+      showSuccess("Review deleted successfully");
+    } catch (err) {
+      console.error(err);
+      showError("Failed to delete review");
+    }
+  };
+
 
   const addVariant = () => {
     const lastVariant = form.variants[form.variants.length - 1];
@@ -429,6 +449,44 @@ export default function ProductForm() {
             </AppButton>
           </div>
         </div>
+        {/* =======================
+      PRODUCT REVIEWS LIST
+========================== */}
+        <div className="mt-8">
+          <h3 className="text-lg font-semibold mb-3">Customer Reviews</h3>
+
+          {form.reviews.length === 0 && (
+            <p className="text-gray-500">No reviews yet.</p>
+          )}
+
+          <div className="space-y-3">
+            {form.reviews.map((review, index) => (
+              <div
+                key={index}
+                className="p-4 border rounded-lg bg-gray-50 flex justify-between items-start"
+              >
+                <div>
+                  <p className="font-semibold text-gray-700">
+                    ⭐ {review.rating} / 5
+                  </p>
+                  <p className="text-sm text-gray-600">{review.comment}</p>
+                  <p className="text-xs text-gray-400 mt-1">
+                    {new Date(review.created_at).toLocaleDateString()}
+                  </p>
+                </div>
+
+                {/* DELETE BUTTON */}
+                <button
+                  onClick={() => deleteReview(index, review)}
+                  className="text-red-600 hover:text-red-800"
+                >
+                  <FaTrash />
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+
       </div>
     </div>
   );

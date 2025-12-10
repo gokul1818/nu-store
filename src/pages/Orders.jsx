@@ -4,14 +4,16 @@ import ProtectedRoute from "../components/ProtectedRoute";
 import { Pagination } from "../components/Pagination";
 import { useOrderStore } from "../stores/useOrderStore";
 import { generateTrackingSteps } from "../utils/helpers";
-import { useNavigate } from "react-router-dom";
+import { ProductAPI } from "../services/api";
 
 function OrdersList() {
   const { orders, page, totalPages, loading, loadMyOrders } = useOrderStore();
   const [expandedOrder, setExpandedOrder] = useState(null);
-  const navigate = useNavigate();
 
-  // load page 1 when component mounts
+  // review form state
+  const [reviewData, setReviewData] = useState({});
+  const [submitting, setSubmitting] = useState({});
+
   useEffect(() => {
     loadMyOrders(1);
   }, []);
@@ -27,6 +29,49 @@ function OrdersList() {
       </div>
     );
 
+  // -------------------------
+  // UPDATE REVIEW DATA
+  // -------------------------
+  const handleReviewChange = (itemId, field, value) => {
+    setReviewData((prev) => ({
+      ...prev,
+      [itemId]: { ...prev[itemId], [field]: value },
+    }));
+  };
+
+  // -------------------------
+  // SUBMIT REVIEW
+  // -------------------------
+  const handleSubmitReview = async (item) => {
+    const data = reviewData[item.productId];
+
+    if (!data?.rating || !data?.comment) {
+      return alert("Please provide rating & comment");
+    }
+
+    setSubmitting((p) => ({ ...p, [item.productId]: true }));
+
+    try {
+      await ProductAPI.addReview(item.productId, {
+        rating: data.rating,
+        comment: data.comment,
+      });
+
+      alert("Review submitted!");
+
+      // clear form
+      setReviewData((prev) => ({
+        ...prev,
+        [item.productId]: { rating: 0, comment: "" },
+      }));
+    } catch (err) {
+      console.error(err);
+      alert("Failed to submit review");
+    } finally {
+      setSubmitting((p) => ({ ...p, [item.productId]: false }));
+    }
+  };
+
   return (
     <div className="container mx-auto px-4 py-6 space-y-3">
       <h2 className="text-2xl font-bold mb-4">Your Orders</h2>
@@ -37,22 +82,27 @@ function OrdersList() {
         {orders.map((order) => {
           const isExpanded = expandedOrder === order.id;
 
+          // parse items JSON
+          let parsedItems = [];
+          try {
+            parsedItems = JSON.parse(order.items || "[]");
+          } catch { }
+
           return (
             <motion.div
               key={order.id}
               layout
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 20 }}
-              className="bg-white rounded-xl shadow-md p-4 cursor-pointer hover:shadow-lg transition"
-              onClick={() => setExpandedOrder(isExpanded ? null : order.id)}
+              onClick={(e) => {
+                e.stopPropagation()
+                setExpandedOrder(isExpanded ? null : order.id)
+              }}
+              className="bg-white rounded-xl shadow-md p-4 hover:shadow-lg transition cursor-pointer"
             >
               {/* ORDER HEADER */}
               <div className="flex justify-between items-center">
-                <div
-                  className="font-medium text-gray-800 text-lg cursor-pointer hover:underline"
-                  onClick={() => navigate(`/order-details/${order.id}`)}
-                >
+                <div className="font-medium text-gray-800 text-lg">
                   Order #{order.id}
                 </div>
 
@@ -72,114 +122,250 @@ function OrdersList() {
                 </div>
               </div>
 
-              {/* ITEM IMAGES */}
+              {/* ITEM PREVIEW */}
               <div className="flex mt-3 overflow-x-auto w-full">
-                {order.items.map((item, idx) => (
-                  <div key={idx} className="flex flex-row gap-5">
-                    <img
-                      src={item?.images?.[0] || "/placeholder.png"}
-                      className="w-20 h-20  rounded-lg border mx-auto object-cover"
-                    />
-                    <div>
-                      <p className="text-sm text-gray-600 mt-1 font-medium truncate w-54 text-wrap">
-                        {item.title}
-                      </p>
-                      <p className="text-sm text-gray-900 mt-1 font-medium truncate w-54 text-wrap">
-                        ₹ {order.total_amount}
-                      </p>
-                      {order.tracking_number && order.tracking_url && (
-                        <a
-                          href={order.tracking_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-sm text-orange-600 mt-3 font-medium truncate w-54 block hover:underline cursor-pointer"
-                          title="Open Tracking Link"
-                        >
-                          {order.tracking_number}
-                        </a>
-                      )}
+                {parsedItems.map((item, idx) => {
+                  let imgs = [];
+                  try {
+                    imgs = JSON.parse(item.images || "[]");
+                  } catch { }
+
+                  return (
+                    <div
+                      key={idx}
+                      className="flex flex-row gap-5 pr-4 items-center"
+                    >
+                      <img
+                        src={imgs[0] || "/placeholder.png"}
+                        className="w-20 h-20 rounded-lg border object-cover"
+                      />
+                      <div>
+                        <p className="text-sm text-gray-600 font-medium truncate">
+                          {item.title}
+                        </p>
+                        <p className="text-sm text-gray-900 font-medium">
+                          ₹ {order.total_amount}
+                        </p>
+
+                        {/* Tracking link */}
+                        {order.tracking_number && order.tracking_url && (
+                          <a
+                            href={order.tracking_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-orange-600 mt-2 block hover:underline text-sm"
+                          >
+                            {order.tracking_number}
+                          </a>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
 
               {/* EXPANDED CONTENT */}
               <AnimatePresence>
                 {isExpanded && (
                   <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: "auto", opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
+                    layout
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
                     transition={{ duration: 0.3 }}
                     className="mt-4 border-t border-gray-200 pt-4"
                   >
-                    <h4 className="font-semibold text-gray-700 mb-3">
-                      Tracking Timeline
-                    </h4>
+                    {/* ITEM LIST */}
+                    <h3 className="font-semibold text-gray-700 mb-2">
+                      Order Items
+                    </h3>
 
-                    {/* TRACKING TIMELINE */}
-                    <div className="relative ml-4">
-                      {(() => {
-                        const steps = generateTrackingSteps(
-                          order.status,
-                          order.created_at
-                        );
+                    <div className="space-y-4">
+                      {parsedItems.map((item, idx) => {
+                        let imgs = [];
+                        try {
+                          imgs = JSON.parse(item.images || "[]");
+                        } catch { }
 
-                        return steps.map((step, idx) => (
+                        return (
                           <div
                             key={idx}
-                            className="flex items-start relative mb-6"
+                            className="flex justify-between items-start border p-3 rounded"
                           >
-                            {/* Connecting Line */}
-                            {idx < steps.length - 1 && (
-                              <span
-                                className={`absolute left-2.5 top-6 w-0.5 h-full ${steps[idx + 1].completed
-                                  ? "bg-orange-500"
-                                  : "bg-gray-300"
-                                  }`}
+                            <div className="flex items-center gap-3">
+                              <img
+                                src={imgs[0] || "/placeholder.png"}
+                                className="w-16 h-16 rounded border object-cover"
                               />
-                            )}
-
-                            {/* Dot */}
-                            <div
-                              className={`w-5 h-5 rounded-full flex-shrink-0 mt-1 ${step.completed
-                                ? "bg-orange-500"
-                                : "bg-gray-200 border border-gray-300"
-                                }`}
-                            />
-
-                            <div className="ml-4 text-sm">
-                              <div
-                                className={`font-medium ${step.completed
-                                  ? "text-gray-900"
-                                  : "text-gray-500"
-                                  }`}
-                              >
-                                {step.title}
-                              </div>
-                              <div className="text-gray-400 text-xs">
-                                <div className="text-gray-400 text-xs">
-                                  {idx === 0
-                                    ? new Date(step.date).toLocaleDateString() // Processing shows date
-                                    : step.completed
-                                      ? "Done"
-                                      : "Pending"}
-                                </div>
+                              <div>
+                                <p className="font-medium text-gray-700">
+                                  {item.title}
+                                </p>
+                                {item.variant && (
+                                  <p className="text-sm text-gray-500">
+                                    {item.variant.color} •{" "}
+                                    {item.variant.size}
+                                  </p>
+                                )}
+                                <p className="text-sm text-gray-500">
+                                  Qty: {item.qty}
+                                </p>
                               </div>
                             </div>
+
+                            <div className="font-semibold text-gray-800">
+                              ₹{item.price * item.qty}
+                            </div>
+
+                            {/* REVIEW SECTION - ONLY IF DELIVERED */}
+                            {order.status === "Delivered" && (
+                              <div className="w-1/3 ml-4">
+
+                                <h4 className="font-medium text-gray-700 mb-1">
+                                  Add Review
+                                </h4>
+
+                                {/* STAR RATING */}
+                                <div className="flex gap-1 mb-2">
+                                  {[1, 2, 3, 4, 5].map((star) => (
+                                    <span
+                                      key={star}
+                                      className="cursor-pointer text-xl"
+                                      style={{
+                                        color:
+                                          (reviewData[item.productId]
+                                            ?.rating || 0) >= star
+                                            ? "#FFA500"
+                                            : "#ddd",
+                                      }}
+                                      onClick={(e) => {
+                                        e.stopPropagation()
+
+                                        handleReviewChange(
+                                          item.productId,
+                                          "rating",
+                                          star
+                                        )
+                                      }
+                                      }
+                                    >
+                                      ★
+                                    </span>
+                                  ))}
+                                </div>
+
+                                {/* COMMENT */}
+                                <textarea
+                                  className="border px-2 py-1 rounded w-full mb-2"
+                                  rows={2}
+                                  placeholder="Write your review..."
+                                  value={
+                                    reviewData[item.productId]?.comment ||
+                                    ""
+                                  }
+                                  onClick={(e) => e.stopPropagation()}
+                                  onChange={(e) => {
+                                    e.stopPropagation()
+                                    handleReviewChange(
+                                      item.productId,
+                                      "comment",
+                                      e.target.value
+                                    )
+                                  }
+                                  }
+                                />
+
+                                {/* SUBMIT */}
+                                <button
+                                  disabled={submitting[item.productId]}
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    handleSubmitReview(item)
+                                  }}
+                                  className="px-3 py-1 bg-orange-500 text-white rounded hover:bg-orange-600 w-full disabled:bg-gray-300"
+                                >
+                                  {submitting[item.productId]
+                                    ? "Submitting..."
+                                    : "Submit Review"}
+                                </button>
+                              </div>
+                            )}
                           </div>
-                        ));
-                      })()}
+                        );
+                      })}
                     </div>
 
-                    {/* CANCEL ORDER */}
-                    {order.status === "Placed" && (
-                      <div className="mt-4">
-                        <button className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">
-                          Cancel Order
-                        </button>
-                      </div>
-                    )}
+                    {/* SHIPPING */}
+                    <h3 className="font-semibold text-gray-700 mt-5 mb-2">
+                      Shipping Address
+                    </h3>
+
+                    {(() => {
+                      let addr = {};
+                      try {
+                        addr = JSON.parse(order.shipping_address || "{}");
+                      } catch { }
+                      return (
+                        <div className="text-gray-600 text-sm leading-relaxed">
+                          {addr.doorNo}, {addr.street}, {addr.city},{" "}
+                          {addr.state} - {addr.zipcode} <br />
+                          {addr.country} <br />
+                          📞 {addr.phone}
+                        </div>
+                      );
+                    })()}
+
+                    {/* TOTAL */}
+                    <p className="mt-4 text-lg font-bold">
+                      Total: ₹{order.total_amount}
+                    </p>
+
+                    {/* TRACKING TIMELINE */}
+                    <h3 className="font-semibold mt-4 mb-2">
+                      Tracking Timeline
+                    </h3>
+
+                    <div className="relative ml-4">
+                      {generateTrackingSteps(
+                        order.status,
+                        order.created_at
+                      ).map((step, idx, arr) => (
+                        <div
+                          key={idx}
+                          className="flex items-start relative mb-6"
+                        >
+                          {idx < arr.length - 1 && (
+                            <span
+                              className={`absolute left-2.5 top-6 w-0.5 h-full ${arr[idx + 1].completed
+                                ? "bg-orange-500"
+                                : "bg-gray-300"
+                                }`}
+                            />
+                          )}
+
+                          <div
+                            className={`w-5 h-5 rounded-full mt-1 ${step.completed
+                              ? "bg-orange-500"
+                              : "bg-gray-200 border"
+                              }`}
+                          />
+
+                          <div className="ml-4 text-sm">
+                            <p
+                              className={`font-medium ${step.completed
+                                ? "text-gray-900"
+                                : "text-gray-500"
+                                }`}
+                            >
+                              {step.title}
+                            </p>
+                            <p className="text-xs text-gray-400">
+                              {step.completed ? "Done" : "Pending"}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </motion.div>
                 )}
               </AnimatePresence>

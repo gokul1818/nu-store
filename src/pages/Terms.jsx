@@ -1,60 +1,89 @@
 export default function TermsConditions() {
-    return (
-        <div className="container mx-auto px-4 py-10">
-            <h1 className="text-3xl font-bold mb-6">Terms & Conditions</h1>
+  return (
+    <div className="container mx-auto px-4 py-16">
 
-            <p className="text-gray-700 mb-4">
-                Welcome to <strong>Nueloot</strong>. By accessing or using our website, products, or
-                services, you agree to comply with the following terms and conditions.
-            </p>
+      {/* PAGE TITLE */}
+      <div className="border-l-4 border-orange pl-4 mb-10">
+        <h1 className="text-4xl font-bold text-black">
+          <span className="text-orange-500 text-6xl">*</span>
+          Terms & Conditions
+        </h1>
+      </div>
 
-            {/* Use of Site */}
-            <h3 className="font-semibold mt-6 mb-2">1. Use of Site</h3>
-            <p className="text-gray-700 mb-4">
-                You may browse and make purchases on our platform in accordance with these Terms &
-                Conditions. Any unlawful or unauthorized use of the site is strictly prohibited.
-            </p>
+      {/* INTRO */}
+      <div className="bg-gray-50 p-6 rounded-xl border border-gray-200 mb-10">
+        <p className="text-gray-700 leading-relaxed">
+          Welcome to <strong>Nueloot</strong>. By using our website, products, or services,
+          you agree to follow the terms and conditions outlined below.
+        </p>
+      </div>
 
-            {/* Payments */}
-            <h3 className="font-semibold mt-6 mb-2">2. Payments</h3>
-            <p className="text-gray-700 mb-4">
-                All payments are processed securely through <strong>Razorpay</strong>.
-                Prices displayed on our website are in <strong>INR</strong> and include applicable taxes unless stated otherwise.
-            </p>
+      {/* SECTIONS */}
+      <div className="space-y-10 text-gray-700">
 
-            {/* User Obligations */}
-            <h3 className="font-semibold mt-6 mb-2">3. User Obligations</h3>
-            <ul className="list-disc pl-6 text-gray-700 mb-4 space-y-1">
-                <li>You agree not to misuse our services or website functionalities.</li>
-                <li>You must not engage in fraudulent activities or attempt to breach website security.</li>
-                <li>You are responsible for maintaining the confidentiality of your account credentials.</li>
-            </ul>
+        {/* Use of Site */}
+        <section>
+          <h3 className="text-2xl font-semibold text-black mb-3">🌐 1. Use of Site</h3>
+          <p className="leading-relaxed">
+            You may browse and make purchases on our platform in accordance with these Terms &
+            Conditions. Any misuse, unauthorized access, or harmful activity on the website is strictly 
+            prohibited.
+          </p>
+        </section>
 
-            {/* Intellectual Property */}
-            <h3 className="font-semibold mt-6 mb-2">4. Intellectual Property</h3>
-            <p className="text-gray-700 mb-4">
-                All content on this site—including text, graphics, logos, designs, and images—is the
-                intellectual property of <strong>Nueloot</strong>.
-                It may not be copied, reproduced, or used without written permission.
-            </p>
+        {/* Payments */}
+        <section>
+          <h3 className="text-2xl font-semibold text-black mb-3">💳 2. Payments</h3>
+          <p className="leading-relaxed">
+            All payments made on Nueloot are securely processed through 
+            <strong> Razorpay</strong>. Prices shown on the website are in 
+            <strong> INR</strong> and include applicable taxes unless mentioned otherwise.
+          </p>
+        </section>
 
-            {/* Modifications */}
-            <h3 className="font-semibold mt-6 mb-2">5. Modification of Terms</h3>
-            <p className="text-gray-700 mb-4">
-                Nueloot reserves the right to update or modify these Terms & Conditions at any time
-                without prior notice. Continued use of the site indicates acceptance of updated terms.
-            </p>
+        {/* User Obligations */}
+        <section>
+          <h3 className="text-2xl font-semibold text-black mb-3">🧾 3. User Obligations</h3>
+          <ul className="list-disc pl-6 space-y-2">
+            <li>Use the platform responsibly and lawfully.</li>
+            <li>Avoid fraudulent activities or attempts to breach website security.</li>
+            <li>Maintain the confidentiality of your login and account details.</li>
+          </ul>
+        </section>
 
-            {/* Contact */}
-            <h3 className="font-semibold mt-6 mb-2">6. Contact Us</h3>
-            <p className="text-gray-700">
-                If you have any questions or concerns about these terms, feel free to contact us:
-                <br />
-                📧 Email:{" "}
-                <a href="mailto:Info@nueloot.com" className="text-blue-600 underline">
-                    Info@nueloot.com
-                </a>
-            </p>
-        </div>
-    );
+        {/* Intellectual Property */}
+        <section>
+          <h3 className="text-2xl font-semibold text-black mb-3">📚 4. Intellectual Property</h3>
+          <p className="leading-relaxed">
+            All content on this website—including text, images, designs, logos, and graphics—is the 
+            exclusive intellectual property of <strong>Nueloot</strong>. Reproduction or distribution 
+            without written permission is strictly prohibited.
+          </p>
+        </section>
+
+        {/* Modification */}
+        <section>
+          <h3 className="text-2xl font-semibold text-black mb-3">⚙️ 5. Modification of Terms</h3>
+          <p className="leading-relaxed">
+            Nueloot reserves the right to modify, update, or change these Terms & Conditions at any 
+            time. Continued use of the website signifies your acceptance of the updated terms.
+          </p>
+        </section>
+
+        {/* Contact Section */}
+        <section className="p-6 bg-gray-50 rounded-xl border border-gray-200">
+          <h3 className="text-2xl font-semibold text-black mb-3">📩 6. Contact Us</h3>
+          <p className="leading-relaxed">
+            If you have any questions regarding these Terms & Conditions, feel free to reach out:
+            <br />
+            Email:{" "}
+            <a href="mailto:Info@nueloot.com" className="text-orange underline">
+              Info@nueloot.com
+            </a>
+          </p>
+        </section>
+
+      </div>
+    </div>
+  );
 }

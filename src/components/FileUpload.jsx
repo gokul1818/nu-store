@@ -8,8 +8,19 @@ export default function FileUpload({
   onChange,
   mode = "single",
   error = "",
+  maxSize = 5, // ⭐ Max file size in MB
 }) {
   const [uploading, setUploading] = useState(false);
+
+  /** Check file size */
+  const validateFileSize = (file) => {
+    const fileSizeMB = file.size / (1024 * 1024);
+    if (fileSizeMB > maxSize) {
+      alert(`File "${file.name}" is too large. Max allowed size is ${maxSize}MB.`);
+      return false;
+    }
+    return true;
+  };
 
   /** Upload a single file */
   const uploadFile = async (file) => {
@@ -29,9 +40,16 @@ export default function FileUpload({
     }
   };
 
-  /** Handle files selection */
+  /** Handle file selection */
   const handleFiles = async (files) => {
     if (!files || files.length === 0) return;
+
+    // Validate size(s)
+    for (let file of files) {
+      if (!validateFileSize(file)) {
+        return; // Stop if any file is too large
+      }
+    }
 
     if (mode === "single") {
       const url = await uploadFile(files[0]);
@@ -70,19 +88,20 @@ export default function FileUpload({
           accept="image/*"
           multiple={mode === "multiple"}
           onChange={(e) => handleFiles(e.target.files)}
-          id={id} // unique id
+          id={id}
           className="hidden"
         />
+
         <label htmlFor={id} className="cursor-pointer text-gray-400">
           {uploading
             ? "Uploading..."
-            : `Click or Drag files to upload (${mode})`}
+            : `Click or Drag files to upload (${mode}) — Max ${maxSize}MB`}
         </label>
       </div>
 
       {error && <p className="text-sm text-red-600 mt-1">{error}</p>}
 
-      {/* Preview */}
+      {/* Single Preview */}
       {mode === "single" && value && (
         <div className="relative inline-block mt-3">
           <img
@@ -99,6 +118,7 @@ export default function FileUpload({
         </div>
       )}
 
+      {/* Multiple Previews */}
       {mode === "multiple" && Array.isArray(value) && value.length > 0 && (
         <div className="flex flex-wrap gap-3 mt-3">
           {value.map((url, i) => (

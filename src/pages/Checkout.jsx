@@ -17,15 +17,13 @@ export default function Checkout() {
   const createOrder = useOrderStore((s) => s.createOrder);
 
   const items = buyNowItem ? [buyNowItem] : cartItems;
-  console.log('cartItems: ', cartItems);
-  console.log('items: ', items);
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(false);
   const [editAddress, setEditAddress] = useState(false);
 
   const [address, setAddress] = useState({
-    label: "",
+    doorNo: "",
     street: "",
     city: "",
     state: "",
@@ -45,7 +43,7 @@ export default function Checkout() {
 
         if (addr) {
           setAddress({
-            label: addr.label || addr.house || "",
+            doorNo: addr.doorNo || addr.house || "",
             street: addr.street || "",
             city: addr.city || "",
             state: addr.state || "",
@@ -73,7 +71,7 @@ export default function Checkout() {
 
   const validateAddress = () => {
     const required = [
-      "label",
+      "doorNo",
       "street",
       "city",
       "state",
@@ -142,20 +140,12 @@ export default function Checkout() {
     0
   );
   const shipping = subtotal > 1000 ? 0 : 50;
-  const tax = subtotal * 0.12;
-  const total = subtotal + shipping + tax;
+  const total = subtotal + shipping ;
 
   if (!user) return null;
 
 return (
   <div className="container mx-auto px-4 py-16 relative">
-
-    {/* Background dashed grid */}
-    <div className="absolute inset-0 grid grid-cols-4 pointer-events-none opacity-30 -z-10">
-      <div className="border-r border-dashed border-gray-300"></div>
-      <div className="border-r border-dashed border-gray-300"></div>
-      <div className="border-r border-dashed border-gray-300"></div>
-    </div>
 
     <h2 className="text-4xl font-bold mb-12 text-center">Checkout</h2>
 
@@ -197,10 +187,10 @@ return (
             <span>{formatCurrencyINR(shipping)}</span>
           </div>
 
-          <div className="flex justify-between text-gray-700">
+          {/* <div className="flex justify-between text-gray-700">
             <span>Tax</span>
             <span>{formatCurrencyINR(tax)}</span>
-          </div>
+          </div> */}
 
           <div className="flex justify-between font-bold text-2xl pt-4 border-t">
             <span>Total</span>
@@ -222,7 +212,7 @@ return (
         {!editAddress ? (
           <div className="bg-gray-50 p-5 rounded-xl border space-y-1">
             <p className="font-semibold text-lg">{user.first_name}</p>
-            <p>{address.label}</p>
+            <p>{address.doorNo}</p>
             <p>{address.street}</p>
             <p>
               {address.city}, {address.state}
@@ -242,7 +232,7 @@ return (
         ) : (
           <div className="space-y-3">
             {/* INPUT FIELDS */}
-            {["label", "street", "city", "state", "zipcode", "country", "phone"].map(
+            {["doorNo", "street", "city", "state", "zipcode", "country", "phone"].map(
               (field) => (
                 <input
                   key={field}

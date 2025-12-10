@@ -40,6 +40,7 @@ import Services from "./pages/Services";
 import ShippingPolicy from "./pages/ShippingPolicy";
 import Terms from "./pages/Terms";
 import UserOrderDetails from "./pages/UserOrderDetails";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
 
 export default function App() {
   return (
@@ -65,7 +66,8 @@ export default function App() {
           <Route path="/faq" element={<FAQ />} />
           <Route path="/shipping-policy" element={<ShippingPolicy />} />
           <Route path="/refund-policy" element={<RefundPolicy />} />
-          <Route path="/terms" element={<Terms />} />
+          <Route path="/terms-condition" element={<Terms />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
 
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />

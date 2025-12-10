@@ -50,7 +50,7 @@ export default function Header() {
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
 
         {/* Logo + Brand Name */}
-        <Link to="/" className="flex items-center gap-2">
+        <Link to="/" className="flex items-center ">
           <img src={Logo1} alt="Logo" className="h-12 w-auto" />
           <img src={Logo2} alt="Logo2" className="h-12 w-auto" />
         </Link>

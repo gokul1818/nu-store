@@ -130,7 +130,7 @@ export default function OrderList() {
 
               {/* Items */}
               <div className="flex flex-col gap-3 mb-4">
-                {o.items?.map((item) => (
+                {JSON.parse(o.items)?.map((item) => (
                   <div
                     key={item.productId}
                     className="flex items-center gap-3 p-2 border rounded-lg"
@@ -138,7 +138,7 @@ export default function OrderList() {
                     {/* IMAGE */}
                     <img
                       src={
-                        item.images?.[0] ||
+                        JSON.parse(item.images)?.[0] ||
                         "/placeholder.png"
                       }
                       alt={item.title}
