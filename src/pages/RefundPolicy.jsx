@@ -5,14 +5,14 @@ export default function RefundPolicy() {
       {/* PAGE TITLE */}
       <div className="border-l-4 border-orange pl-4 mb-10">
         <h1 className="text-4xl font-bold text-black">
-                    <span className="text-orange-500 text-6xl">*</span>
+          <span className="text-orange-500 text-6xl">*</span>
           Refund & Cancellation Policy</h1>
       </div>
 
       {/* INTRO */}
       <div className="bg-gray-50 p-6 rounded-xl border border-gray-200 mb-10">
         <p className="text-gray-700 leading-relaxed">
-          At <strong>Nueloot</strong>, your satisfaction is our priority. If something is not right, 
+          At <strong>Nueloot</strong>, your satisfaction is our priority. If something is not right,
           we’re here to help. Please read the policy carefully before initiating a return or exchange.
         </p>
       </div>
@@ -33,7 +33,7 @@ export default function RefundPolicy() {
             <li>The product must be unused, unworn, unwashed, and in original packaging.</li>
             <li>All tags and labels must be intact.</li>
             <li>
-              A <strong>mandatory unboxing video</strong> is required (from opening the parcel to 
+              A <strong>mandatory unboxing video</strong> is required (from opening the parcel to
               showing the product fully).
             </li>
           </ul>
@@ -72,7 +72,7 @@ export default function RefundPolicy() {
         <section>
           <h3 className="text-2xl font-semibold text-black mb-3">❌ Order Cancellations</h3>
           <p>
-            Orders can be cancelled <strong>before they are shipped</strong>. To cancel, contact us via 
+            Orders can be cancelled <strong>before they are shipped</strong>. To cancel, contact us via
             email or WhatsApp (details below).
           </p>
         </section>
@@ -107,8 +107,7 @@ export default function RefundPolicy() {
           <p>
             In case of dispute, the jurisdiction will be{" "}
             <strong>
-              #12-15, Sri Sai Upadhyaya Nagar, J K Nagar Extension, Pichatoor road,
-              Srikalahasthi- 517644
+              1-289, Pathaveerapuram (V), Yerpedu (M), Tirupati (D), Andhra Pradesh, 517619
             </strong>.
           </p>
         </section>

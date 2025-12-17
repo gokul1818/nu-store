@@ -455,12 +455,12 @@ export default function ProductForm() {
         <div className="mt-8">
           <h3 className="text-lg font-semibold mb-3">Customer Reviews</h3>
 
-          {form.reviews.length === 0 && (
+          {form?.reviews?.length === 0 && (
             <p className="text-gray-500">No reviews yet.</p>
           )}
 
           <div className="space-y-3">
-            {form.reviews.map((review, index) => (
+            {form?.reviews?.map((review, index) => (
               <div
                 key={index}
                 className="p-4 border rounded-lg bg-gray-50 flex justify-between items-start"

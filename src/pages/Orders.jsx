@@ -74,7 +74,7 @@ function OrdersList() {
 
   return (
     <div className="container mx-auto px-4 py-6 space-y-3">
-      <h2 className="text-2xl font-bold mb-4">Your Orders</h2>
+      <h2 className="text-2xl font-bold mb-4">My Orders</h2>
 
       {loading && <div className="text-center py-10">Loading...</div>}
 
@@ -144,7 +144,7 @@ function OrdersList() {
                           {item.title}
                         </p>
                         <p className="text-sm text-gray-900 font-medium">
-                          ₹ {order.total_amount}
+                          ₹ {Number(order.total_amount).toFixed(2)}
                         </p>
 
                         {/* Tracking link */}
@@ -317,7 +317,7 @@ function OrdersList() {
 
                     {/* TOTAL */}
                     <p className="mt-4 text-lg font-bold">
-                      Total: ₹{order.total_amount}
+                      Total: ₹ {Number(order.total_amount).toFixed(2)}
                     </p>
 
                     {/* TRACKING TIMELINE */}

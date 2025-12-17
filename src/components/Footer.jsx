@@ -55,14 +55,14 @@ export default function Footer() {
 
           <ul className="space-y-4 text-gray-700 text-sm font-medium">
             <li className="flex items-center gap-3">
-              <FaPhone className="text-orange" /> (+91) 9100015419
+              <FaPhone className="text-orange" /> (+91) 9573312206
             </li>
             <li className="flex items-center gap-3">
               <FaEnvelope className="text-orange" /> info@nueloot.com
             </li>
             <li className="flex items-center gap-3">
               <FaMapMarkerAlt className="text-orange" />
-              #12-15, Sri Sai Upadhyaya Nagar, J K Nagar Extension, Pichatoor road, Srikalahasthi- 517644
+              1-289, Pathaveerapuram (V), Yerpedu (M), Tirupati (D), Andhra Pradesh, 517619
 
             </li>
           </ul>

@@ -50,7 +50,7 @@ export default function Contact() {
                 <FaMapMarkerAlt className="text-v" /> Address
               </p>
               <p className="text-v font-semibold mt-1">
-                #12-15, Sri Sai Upadhyaya Nagar, J K Nagar Extension, Pichatoor road, Srikalahasthi- 517644.
+                1-289, Pathaveerapuram (V), Yerpedu (M), Tirupati (D), Andhra Pradesh, 517619.
               </p>
             </div>
           </div>
@@ -64,14 +64,14 @@ export default function Contact() {
               info@nueloot.com
             </p>
           </div>
-
+       
           {/* WhatsApp */}
           <div className="mt-6">
             <p className="flex items-center gap-2 text-lg font-bold">
               <FaWhatsapp className="text-green-600" /> WhatsApp
             </p>
             <p className="text-v font-semibold mt-1">
-             +91-9100015419
+              +91-9100015419
             </p>
           </div>
 

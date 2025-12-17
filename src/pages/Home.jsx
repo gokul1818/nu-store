@@ -21,6 +21,7 @@ export default function Home() {
   const navigate = useNavigate();
 
   const [categories, setCategories] = useState([]);
+  console.log('categories: ', categories);
   const [banners, setBanners] = useState([]);
   const [popularData, setPopularData] = useState([]);
   const [initialLoading, setInitialLoading] = useState(true);
@@ -97,7 +98,7 @@ export default function Home() {
                 category={cat}
                 onClick={() =>
                   navigate(
-                    `/products?category=${cat.name}&categoryName=${encodeURIComponent(
+                    `/products?category=${cat.id}&categoryName=${encodeURIComponent(
                       cat.name
                     )}`
                   )
@@ -149,7 +150,7 @@ export default function Home() {
         </Link>
 
         {/* Google Reviews Section */}
-        <GoogleReviews />
+        {/* <GoogleReviews /> */}
 
         {/* Services Section */}
         <Services />
