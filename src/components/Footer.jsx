@@ -55,15 +55,23 @@ export default function Footer() {
 
           <ul className="space-y-4 text-gray-700 text-sm font-medium">
             <li className="flex items-center gap-3">
-              <FaPhone className="text-orange" /> (+91) 9573312206
+              <FaPhone className="text-orange text-lg" />
+              <p>
+                (+91) 9573312206
+              </p>
             </li>
             <li className="flex items-center gap-3">
-              <FaEnvelope className="text-orange" /> info@nueloot.com
+              <FaEnvelope className="text-orange text-lg" />
+              <p>
+                info@nueloot.com
+              </p>
             </li>
-            <li className="flex items-center gap-3">
-              <FaMapMarkerAlt className="text-orange" />
-              1-289, Pathaveerapuram (V), Yerpedu (M), Tirupati (D), Andhra Pradesh, 517619
+            <li className="flex items-center gap-3 text-wrap">
+              <FaMapMarkerAlt className="text-orange text-lg  w-8" />
+              <p>
 
+                1-289, Pathaveerapuram (V), Yerpedu (M), Tirupati (D), Andhra Pradesh, 517619
+              </p>
             </li>
           </ul>
           {/* Icons */}
