@@ -1,6 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { AdminAPI } from "../../services/api";
+import { safeParse } from "../../utils/helpers";
 
 const statusColors = {
   Processing: "bg-yellow-200 text-yellow-800",
@@ -78,7 +79,7 @@ export default function OrderDetails() {
   // Parse shipping address JSON safely
   let addr = {};
   try {
-    addr = JSON.parse(order.shipping_address || "{}");
+    addr = safeParse(order.shipping_address || "{}");
   } catch (err) {
     console.log("Address parse error", err);
   }
@@ -171,11 +172,11 @@ export default function OrderDetails() {
         <h3 className="text-xl font-semibold mt-6 mb-2">Items</h3>
 
         <div className="space-y-2">
-          {JSON.parse(order.items).map((item) => {
+          {safeParse(order.items).map((item) => {
             let imgs = [];
             try {
-              imgs = JSON.parse(item.images);
-            } catch {}
+              imgs = safeParse(item.images);
+            } catch { }
 
             return (
               <div

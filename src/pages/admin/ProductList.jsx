@@ -4,7 +4,7 @@ import { TbEdit } from "react-icons/tb";
 import { Link, useNavigate } from "react-router-dom";
 import AppTable from "../../components/AppTable";
 import { CategoryAPI, ProductAPI } from "../../services/api";
-import { buildProductQuery, formatCurrencyINR } from "../../utils/helpers";
+import { buildProductQuery, formatCurrencyINR, safeParse } from "../../utils/helpers";
 import { Pagination } from "../../components/Pagination";
 
 export default function ProductList() {
@@ -79,7 +79,7 @@ export default function ProductList() {
       render: (row) =>
         row.images?.length ? (
           <img
-            src={JSON.parse(row.images)[0]}
+            src={safeParse(row.images)[0]}
             alt={row.title}
             className="w-12 h-12 object-cover rounded mx-auto"
           />
@@ -105,8 +105,8 @@ export default function ProductList() {
       key: "stock",
       label: "Stock",
       render: (row) =>
-        JSON.parse(row.variants).length
-          ? JSON.parse(row.variants).reduce((acc, v) => acc + (v.stock || 0), 0)
+        safeParse(row.variants).length
+          ? safeParse(row.variants).reduce((acc, v) => acc + (v.stock || 0), 0)
           : 0,
     },
   ];

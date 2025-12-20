@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Pagination } from "../../components/Pagination";
 import { useNavigate } from "react-router-dom";
 import { AdminAPI } from "../../services/api";
+import { safeParse } from "../../utils/helpers";
 
 const statusBorderColors = {
   Processing: "border-l-4 border-yellow-500",
@@ -130,7 +131,7 @@ export default function OrderList() {
 
               {/* Items */}
               <div className="flex flex-col gap-3 mb-4">
-                {JSON.parse(o.items)?.map((item) => (
+                {safeParse(o.items)?.map((item) => (
                   <div
                     key={item.productId}
                     className="flex items-center gap-3 p-2 border rounded-lg"
@@ -138,7 +139,7 @@ export default function OrderList() {
                     {/* IMAGE */}
                     <img
                       src={
-                        JSON.parse(item.images)?.[0] ||
+                        safeParse(item.images)?.[0] ||
                         "/placeholder.png"
                       }
                       alt={item.title}

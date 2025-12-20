@@ -8,6 +8,7 @@ import { showError, showSuccess } from "../../components/AppToast";
 import FileUpload from "../../components/FileUpload";
 import { CategoryAPI, ProductAPI } from "../../services/api";
 import { colorOptions, genderOptions, sizeOptions } from "../../constants/constant";
+import { safeParse } from "../../utils/helpers";
 
 
 
@@ -50,15 +51,15 @@ export default function ProductForm() {
             gender: product.data.gender || "men",
             description: product.data.description || "",
             thumbnail: product.data.thumbnail || "",
-            images: JSON.parse(product.data.images) || [],
+            images: safeParse(product.data.images) || [],
             category: product.data.category,
             variants:
               product.data.variants.length > 0
-                ? JSON.parse(product.data.variants)
+                ? safeParse(product.data.variants)
                 : [{ size: "", color: "", sku: "", stock: "" }],
 
             // ⭐ ADD THIS
-            reviews: JSON.parse(product.data.reviews || "[]"),
+            reviews: safeParse(product.data.reviews || "[]"),
           });
 
         }
@@ -123,7 +124,7 @@ export default function ProductForm() {
     if (!window.confirm("Delete this review?")) return;
 
     try {
-      await  ProductAPI.deleteReview(id, review.user);
+      await ProductAPI.deleteReview(id, review.user);
 
 
       const updatedReviews = form.reviews.filter((_, i) => i !== index);

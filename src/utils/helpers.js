@@ -51,3 +51,16 @@ export const generateTrackingSteps = (status, created_at) => {
 };
 
 
+export const safeParse = (value, fallback = null) => {
+  if (value == null) return fallback;
+
+  if (typeof value === "string") {
+    try {
+      return safeParse(value);
+    } catch {
+      return fallback;
+    }
+  }
+
+  return value;
+};

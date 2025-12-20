@@ -86,11 +86,18 @@ export const CartAPI = {
     ORDERS
 --------------------------------------------------------- */
 export const OrderAPI = {
-  createOrder: (data) => api.post("/api/orders", data),
+  createOrder: (data) =>
+    api.post("/api/orders/create", data),
+  verifyPayment: (data) =>
+    api.post("/api/orders/verify-payment", data),
   getMyOrders: (page = 1, limit = 10) =>
-    api.get(`/api/orders?page=${page}&limit=${limit}`),
-  cancelOrder: (id) => api.post(`/api/orders/${id}/cancel`),
+    api.get(`/api/orders/my?page=${page}&limit=${limit}`),
+  getOrderById: (id) =>
+    api.get(`/api/orders/${id}`),
+  cancelOrder: (id) =>
+    api.post(`/api/orders/${id}/cancel`),
 };
+
 
 /* -------------------------------------------------------
     ADMIN

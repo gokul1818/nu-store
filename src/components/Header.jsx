@@ -146,7 +146,7 @@ export default function Header() {
             </Link>
           </nav>
           {/* Cart */}
-          {user && (
+          {/* {user && ( */}
             <button
               onClick={() => navigate("/cart")}
               className="relative p-1 rounded hover:bg-gray-100 transition-all duration-200"
@@ -159,7 +159,7 @@ export default function Header() {
                 </span>
               )}
             </button>
-          )}
+          {/* )} */}
 
           {/* User Menu */}
           <div ref={dropdownRef} className="relative">

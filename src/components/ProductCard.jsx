@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { formatCurrency } from "../utils/helpers";
+import { formatCurrency, safeParse } from "../utils/helpers";
 import useCartStore from "../stores/useCartStore";
 import { useState } from "react";
 import { FaStar } from "react-icons/fa";
@@ -17,15 +17,15 @@ export default function ProductCard({ product, onAdd = () => { } }) {
   // ➤ Hover State to swap image
   const [hover, setHover] = useState(false);
 
-  const productImage1 = JSON.parse(product.images)[0] || "/placeholder.png";
-  const productImage2 = JSON.parse(product.images)[1] || productImage1;
+  const productImage1 = safeParse(product.images)[0] || "/placeholder.png";
+  const productImage2 = safeParse(product.images)[1] || productImage1;
 
   const shownImage = hover ? productImage2 : productImage1;
 
   const hasDiscount = Number(product.discount) > 0;
 
   // Calculate total stock from variants
-  const totalStock = JSON.parse(product?.variants).reduce(
+  const totalStock = safeParse(product?.variants).reduce(
     (sum, v) => sum + (v.stock || 0),
     0
   );
@@ -115,7 +115,7 @@ export default function ProductCard({ product, onAdd = () => { } }) {
         {/* VARIANTS */}
         {product.variants?.length > 0 && (
           <div className="mt-2 flex gap-2 flex-wrap">
-            {JSON.parse(product.variants).map((v, index) => (
+            {safeParse(product.variants).map((v, index) => (
               <div
                 key={index}
                 title={v.color}

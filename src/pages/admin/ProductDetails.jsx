@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import SpinLoader from "../../components/SpinLoader";
 import { CategoryAPI, ProductAPI } from "../../services/api";
-import { formatCurrencyINR } from "../../utils/helpers";
+import { formatCurrencyINR, safeParse } from "../../utils/helpers";
 
 export default function ProductDetailsAdmin() {
   const { id } = useParams();
@@ -18,7 +18,7 @@ export default function ProductDetailsAdmin() {
         const res = await ProductAPI.getOne(id); // fetch product
         setProduct(res.data);
         setCategoryName(res.data.category)
-       
+
       } catch (err) {
         console.error(err);
         setProduct(null);
@@ -32,7 +32,7 @@ export default function ProductDetailsAdmin() {
   if (loading) return <SpinLoader />;
   if (!product) return <div className="p-6 text-center text-gray-500">Product not found</div>;
 
-  const totalStock = JSON.parse(product?.variants).reduce((acc, v) => acc + (v.stock || 0), 0) || 0;
+  const totalStock = safeParse(product?.variants).reduce((acc, v) => acc + (v.stock || 0), 0) || 0;
 
   return (
     <div className="container mx-auto p-6">
@@ -73,7 +73,7 @@ export default function ProductDetailsAdmin() {
           <div>
             <h3 className="text-lg font-semibold mb-2">Gallery</h3>
             <div className="flex gap-3 overflow-x-auto">
-              {JSON.parse(product.images).map((img, idx) => (
+              {safeParse(product.images).map((img, idx) => (
                 <img
                   key={idx}
                   src={img}
@@ -90,7 +90,7 @@ export default function ProductDetailsAdmin() {
           <div>
             <h3 className="text-lg font-semibold mb-2">Variants</h3>
             <div className="grid md:grid-cols-4 gap-4">
-              {JSON.parse(product.variants).map((v, idx) => (
+              {safeParse(product.variants).map((v, idx) => (
                 <div
                   key={idx}
                   className="border p-3 rounded-lg bg-gray-50 flex flex-col gap-2"

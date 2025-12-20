@@ -5,6 +5,7 @@ import AppButton from "../components/AppButton";
 import AppInput from "../components/AppInput";
 import { showError, showSuccess } from "../components/AppToast";
 import { AuthAPI } from "../services/api";
+import { safeParse } from "../utils/helpers";
 
 function ProfileView() {
   const authStore = useAuthStore();
@@ -42,7 +43,7 @@ function ProfileView() {
           phone: res.phone || "",
           addresses:
             res.addresses?.length > 0
-              ? JSON.parse(res.addresses).map((addr) => ({
+              ? safeParse(res.addresses).map((addr) => ({
                 label: addr.label || "",
                 street: addr.street || "",
                 city: addr.city || "",
@@ -134,164 +135,164 @@ function ProfileView() {
     }
   };
 
- return (
-  <div className="container mx-auto px-4 py-16 relative">
+  return (
+    <div className="container mx-auto px-4 py-16 relative">
 
-    {/* Background dashed grid */}
-    <div className="absolute inset-0 grid grid-cols-4 pointer-events-none opacity-30 -z-10">
-      <div className="border-r border-dashed border-gray-300"></div>
-      <div className="border-r border-dashed border-gray-300"></div>
-      <div className="border-r border-dashed border-gray-300"></div>
-    </div>
-
-    <div className="max-w-xl mx-auto bg-white p-8 rounded-2xl shadow-xl border border-gray-200 space-y-6">
-
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <h2 className="text-3xl font-bold text-gray-900">My Profile</h2>
-
-        {!editMode && (
-          <button
-            className="text-orange font-semibold text-sm hover:underline"
-            onClick={() => setEditMode(true)}
-          >
-            Edit
-          </button>
-        )}
+      {/* Background dashed grid */}
+      <div className="absolute inset-0 grid grid-cols-4 pointer-events-none opacity-30 -z-10">
+        <div className="border-r border-dashed border-gray-300"></div>
+        <div className="border-r border-dashed border-gray-300"></div>
+        <div className="border-r border-dashed border-gray-300"></div>
       </div>
 
-      {/* VIEW MODE */}
-      {!editMode && (
-        <div className="space-y-4 text-gray-800">
+      <div className="max-w-xl mx-auto bg-white p-8 rounded-2xl shadow-xl border border-gray-200 space-y-6">
 
-          <div className="bg-gray-50 p-4 rounded-xl border space-y-1">
-            <p><strong>First Name:</strong> {form.first_name}</p>
-            <p><strong>Last Name:</strong> {form.last_name}</p>
-            <p><strong>Mobile:</strong> {form.phone}</p>
-          </div>
+        {/* Header */}
+        <div className="flex justify-between items-center">
+          <h2 className="text-3xl font-bold text-gray-900">My Profile</h2>
 
-          <div className="bg-gray-50 p-4 rounded-xl border space-y-1">
-            <p className="font-semibold text-lg">Address</p>
+          {!editMode && (
+            <button
+              className="text-orange font-semibold text-sm hover:underline"
+              onClick={() => setEditMode(true)}
+            >
+              Edit
+            </button>
+          )}
+        </div>
 
-            <div className="ml-2 text-gray-700 space-y-1">
-              <p><strong>No:</strong> {form.addresses[0].label}</p>
-              <p><strong>Street:</strong> {form.addresses[0].street}</p>
-              <p><strong>City:</strong> {form.addresses[0].city}</p>
-              <p><strong>State:</strong> {form.addresses[0].state}</p>
-              <p><strong>Zipcode:</strong> {form.addresses[0].zipcode}</p>
-              <p><strong>Country:</strong> {form.addresses[0].country}</p>
-              <p><strong>Phone:</strong> {form.addresses[0].phone}</p>
+        {/* VIEW MODE */}
+        {!editMode && (
+          <div className="space-y-4 text-gray-800">
+
+            <div className="bg-gray-50 p-4 rounded-xl border space-y-1">
+              <p><strong>First Name:</strong> {form.first_name}</p>
+              <p><strong>Last Name:</strong> {form.last_name}</p>
+              <p><strong>Mobile:</strong> {form.phone}</p>
+            </div>
+
+            <div className="bg-gray-50 p-4 rounded-xl border space-y-1">
+              <p className="font-semibold text-lg">Address</p>
+
+              <div className="ml-2 text-gray-700 space-y-1">
+                <p><strong>No:</strong> {form.addresses[0].label}</p>
+                <p><strong>Street:</strong> {form.addresses[0].street}</p>
+                <p><strong>City:</strong> {form.addresses[0].city}</p>
+                <p><strong>State:</strong> {form.addresses[0].state}</p>
+                <p><strong>Zipcode:</strong> {form.addresses[0].zipcode}</p>
+                <p><strong>Country:</strong> {form.addresses[0].country}</p>
+                <p><strong>Phone:</strong> {form.addresses[0].phone}</p>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* EDIT MODE */}
-      {editMode && (
-        <div className="space-y-5">
-          {/* Basic Fields */}
-          <AppInput
-            label="First Name"
-            value={form.first_name}
-            onChange={(e) => handleChange("first_name", e.target.value)}
-            error={errors.first_name}
-          />
+        {/* EDIT MODE */}
+        {editMode && (
+          <div className="space-y-5">
+            {/* Basic Fields */}
+            <AppInput
+              label="First Name"
+              value={form.first_name}
+              onChange={(e) => handleChange("first_name", e.target.value)}
+              error={errors.first_name}
+            />
 
-          <AppInput
-            label="Last Name"
-            value={form.last_name}
-            onChange={(e) => handleChange("last_name", e.target.value)}
-            error={errors.last_name}
-          />
+            <AppInput
+              label="Last Name"
+              value={form.last_name}
+              onChange={(e) => handleChange("last_name", e.target.value)}
+              error={errors.last_name}
+            />
 
-          <AppInput
-            label="Mobile Number"
-            value={form.phone}
-            onChange={(e) => handleChange("phone", e.target.value)}
-            error={errors.phone}
-          />
+            <AppInput
+              label="Mobile Number"
+              value={form.phone}
+              onChange={(e) => handleChange("phone", e.target.value)}
+              error={errors.phone}
+            />
 
-          {/* Address */}
-          <div className="pt-3">
-            <label className="block font-semibold text-gray-900 text-lg mb-2">
-              Address
-            </label>
+            {/* Address */}
+            <div className="pt-3">
+              <label className="block font-semibold text-gray-900 text-lg mb-2">
+                Address
+              </label>
 
-            <div className="space-y-3">
-              <AppInput
-                placeholder="Label (Home / Work)"
-                value={form.addresses[0].label}
-                onChange={(e) =>
-                  handleChange("addresses", e.target.value, 0, "label")
-                }
-                error={errors.addresses?.[0]?.label}
-              />
+              <div className="space-y-3">
+                <AppInput
+                  placeholder="Label (Home / Work)"
+                  value={form.addresses[0].label}
+                  onChange={(e) =>
+                    handleChange("addresses", e.target.value, 0, "label")
+                  }
+                  error={errors.addresses?.[0]?.label}
+                />
 
-              <AppInput
-                placeholder="Street"
-                value={form.addresses[0].street}
-                onChange={(e) =>
-                  handleChange("addresses", e.target.value, 0, "street")
-                }
-                error={errors.addresses?.[0]?.street}
-              />
+                <AppInput
+                  placeholder="Street"
+                  value={form.addresses[0].street}
+                  onChange={(e) =>
+                    handleChange("addresses", e.target.value, 0, "street")
+                  }
+                  error={errors.addresses?.[0]?.street}
+                />
 
-              <AppInput
-                placeholder="City"
-                value={form.addresses[0].city}
-                onChange={(e) =>
-                  handleChange("addresses", e.target.value, 0, "city")
-                }
-                error={errors.addresses?.[0]?.city}
-              />
+                <AppInput
+                  placeholder="City"
+                  value={form.addresses[0].city}
+                  onChange={(e) =>
+                    handleChange("addresses", e.target.value, 0, "city")
+                  }
+                  error={errors.addresses?.[0]?.city}
+                />
 
-              <AppInput
-                placeholder="State"
-                value={form.addresses[0].state}
-                onChange={(e) =>
-                  handleChange("addresses", e.target.value, 0, "state")
-                }
-                error={errors.addresses?.[0]?.state}
-              />
+                <AppInput
+                  placeholder="State"
+                  value={form.addresses[0].state}
+                  onChange={(e) =>
+                    handleChange("addresses", e.target.value, 0, "state")
+                  }
+                  error={errors.addresses?.[0]?.state}
+                />
 
-              <AppInput
-                placeholder="Zipcode"
-                value={form.addresses[0].zipcode}
-                onChange={(e) =>
-                  handleChange("addresses", e.target.value, 0, "zipcode")
-                }
-                error={errors.addresses?.[0]?.zipcode}
-              />
+                <AppInput
+                  placeholder="Zipcode"
+                  value={form.addresses[0].zipcode}
+                  onChange={(e) =>
+                    handleChange("addresses", e.target.value, 0, "zipcode")
+                  }
+                  error={errors.addresses?.[0]?.zipcode}
+                />
 
-              <AppInput
-                placeholder="Country"
-                value={form.addresses[0].country}
-                onChange={(e) =>
-                  handleChange("addresses", e.target.value, 0, "country")
-                }
-                error={errors.addresses?.[0]?.country}
-              />
+                <AppInput
+                  placeholder="Country"
+                  value={form.addresses[0].country}
+                  onChange={(e) =>
+                    handleChange("addresses", e.target.value, 0, "country")
+                  }
+                  error={errors.addresses?.[0]?.country}
+                />
 
-              <AppInput
-                placeholder="Phone Number"
-                value={form.addresses[0].phone}
-                onChange={(e) =>
-                  handleChange("addresses", e.target.value, 0, "phone")
-                }
-                error={errors.addresses?.[0]?.phone}
-              />
+                <AppInput
+                  placeholder="Phone Number"
+                  value={form.addresses[0].phone}
+                  onChange={(e) =>
+                    handleChange("addresses", e.target.value, 0, "phone")
+                  }
+                  error={errors.addresses?.[0]?.phone}
+                />
+              </div>
             </div>
-          </div>
 
-          {/* Save Button */}
-          <AppButton loading={loading} onClick={handleSubmit} className="w-full">
-            Save Changes
-          </AppButton>
-        </div>
-      )}
+            {/* Save Button */}
+            <AppButton loading={loading} onClick={handleSubmit} className="w-full">
+              Save Changes
+            </AppButton>
+          </div>
+        )}
+      </div>
     </div>
-  </div>
-);
+  );
 
 }
 

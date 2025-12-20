@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import ProtectedRoute from "../components/ProtectedRoute";
 import { Pagination } from "../components/Pagination";
 import { useOrderStore } from "../stores/useOrderStore";
-import { generateTrackingSteps } from "../utils/helpers";
+import { generateTrackingSteps, safeParse } from "../utils/helpers";
 import { ProductAPI } from "../services/api";
 
 function OrdersList() {
@@ -85,7 +85,7 @@ function OrdersList() {
           // parse items JSON
           let parsedItems = [];
           try {
-            parsedItems = JSON.parse(order.items || "[]");
+            parsedItems = safeParse(order.items || "[]");
           } catch { }
 
           return (
@@ -127,7 +127,7 @@ function OrdersList() {
                 {parsedItems.map((item, idx) => {
                   let imgs = [];
                   try {
-                    imgs = JSON.parse(item.images || "[]");
+                    imgs = safeParse(item.images || "[]");
                   } catch { }
 
                   return (
@@ -184,7 +184,7 @@ function OrdersList() {
                       {parsedItems.map((item, idx) => {
                         let imgs = [];
                         try {
-                          imgs = JSON.parse(item.images || "[]");
+                          imgs = safeParse(item.images || "[]");
                         } catch { }
 
                         return (
@@ -303,7 +303,7 @@ function OrdersList() {
                     {(() => {
                       let addr = {};
                       try {
-                        addr = JSON.parse(order.shipping_address || "{}");
+                        addr = safeParse(order.shipping_address || "{}");
                       } catch { }
                       return (
                         <div className="text-gray-600 text-sm leading-relaxed">

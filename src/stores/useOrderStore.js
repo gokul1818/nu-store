@@ -6,22 +6,48 @@ export const useOrderStore = create((set) => ({
   loading: false,
   page: 1,
   totalPages: 1,
-  loading: false,
 
+  // =========================================
+  // CREATE ORDER (RETURNS RAZORPAY DATA)
+  // =========================================
   createOrder: async (payload) => {
-    const res = await OrderAPI.createOrder(payload);
-    return res.data;
+    try {
+      set({ loading: true });
+      const res = await OrderAPI.createOrder(payload);
+      return res.data; // { orderId, razorpayOrder, key }
+    } finally {
+      set({ loading: false });
+    }
   },
 
-  loadMyOrders: async (page = 1, limit = 10) => {
-    set({ loading: true });
-    const res = await OrderAPI.getMyOrders(page, limit);
+  // =========================================
+  // VERIFY PAYMENT
+  // =========================================
+  verifyPayment: async (payload) => {
+    try {
+      set({ loading: true });
+      const res = await OrderAPI.verifyPayment(payload);
+      return res.data;
+    } finally {
+      set({ loading: false });
+    }
+  },
 
-    set({
-      orders: res.data.orders,
-      page: res.data.page,
-      totalPages: res.data.totalPages,
-      loading: false,
-    });
+  // =========================================
+  // LOAD USER ORDERS (PAGINATION)
+  // =========================================
+  loadMyOrders: async (page = 1, limit = 10) => {
+    try {
+      set({ loading: true });
+      const res = await OrderAPI.getMyOrders(page, limit);
+
+      set({
+        orders: res.data.orders,
+        page: res.data.page,
+        totalPages: res.data.totalPages,
+      });
+    } finally {
+      set({ loading: false });
+    }
   },
 }));
