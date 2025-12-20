@@ -34,7 +34,7 @@ export default function Contact() {
                 <FaPhone className="text-v" /> Phone Number
               </p>
               <p className="text-v font-semibold mt-1 text-sm sm:text-base">
-                +91 98765 43210
+                +91 9573312206
               </p>
             </div>
 
