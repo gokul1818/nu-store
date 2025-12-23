@@ -37,32 +37,37 @@ function ProfileView() {
       try {
         const res = await AuthAPI.getProfile();
 
+        // Parse addresses safely
+        const parsedAddresses = Array.isArray(safeParse(res.addresses))
+          ? safeParse(res.addresses)
+          : [];
+
         setForm({
           first_name: res.first_name || "",
           last_name: res.last_name || "",
           phone: res.phone || "",
           addresses:
-            res.addresses?.length > 0
-              ? safeParse(res.addresses).map((addr) => ({
-                label: addr.label || "",
-                street: addr.street || "",
-                city: addr.city || "",
-                state: addr.state || "",
-                zipcode: addr.zipcode || "",
-                country: addr.country || "",
-                phone: addr.phone || "",
-              }))
+            parsedAddresses.length > 0
+              ? parsedAddresses.map((addr) => ({
+                  label: addr.label || "",
+                  street: addr.street || "",
+                  city: addr.city || "",
+                  state: addr.state || "",
+                  zipcode: addr.zipcode || "",
+                  country: addr.country || "",
+                  phone: addr.phone || "",
+                }))
               : [
-                {
-                  label: "",
-                  street: "",
-                  city: "",
-                  state: "",
-                  zipcode: "",
-                  country: "",
-                  phone: "",
-                },
-              ],
+                  {
+                    label: "",
+                    street: "",
+                    city: "",
+                    state: "",
+                    zipcode: "",
+                    country: "",
+                    phone: "",
+                  },
+                ],
         });
       } catch (err) {
         showError("Failed to load profile");
@@ -94,26 +99,25 @@ function ProfileView() {
     else if (!/^[0-9]{10}$/.test(form.phone.trim()))
       newErrors.phone = "Enter valid 10-digit number";
 
-    const addr = form.addresses[0];
+    const addr = form.addresses?.[0] || {};
     const addrErrors = {};
 
-    if (!addr.label.trim()) addrErrors.label = "Label is required";
-    if (!addr.street.trim()) addrErrors.street = "Street is required";
-    if (!addr.city.trim()) addrErrors.city = "City is required";
-    if (!addr.state.trim()) addrErrors.state = "State is required";
+    if (!addr.label?.trim()) addrErrors.label = "Label is required";
+    if (!addr.street?.trim()) addrErrors.street = "Street is required";
+    if (!addr.city?.trim()) addrErrors.city = "City is required";
+    if (!addr.state?.trim()) addrErrors.state = "State is required";
 
-    if (!addr.zipcode.trim()) addrErrors.zipcode = "Zipcode is required";
+    if (!addr.zipcode?.trim()) addrErrors.zipcode = "Zipcode is required";
     else if (!/^[0-9]{5,6}$/.test(addr.zipcode.trim()))
       addrErrors.zipcode = "Enter valid zipcode";
 
-    if (!addr.country.trim()) addrErrors.country = "Country is required";
+    if (!addr.country?.trim()) addrErrors.country = "Country is required";
 
-    if (!addr.phone.trim()) addrErrors.phone = "Phone is required";
+    if (!addr.phone?.trim()) addrErrors.phone = "Phone is required";
     else if (!/^[0-9]{10}$/.test(addr.phone.trim()))
       addrErrors.phone = "Enter valid 10-digit phone";
 
-    if (Object.keys(addrErrors).length > 0)
-      newErrors.addresses = [addrErrors];
+    if (Object.keys(addrErrors).length > 0) newErrors.addresses = [addrErrors];
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -135,9 +139,19 @@ function ProfileView() {
     }
   };
 
+  // Ensure we always have an address to display
+  const address = form.addresses?.[0] || {
+    label: "",
+    street: "",
+    city: "",
+    state: "",
+    zipcode: "",
+    country: "",
+    phone: "",
+  };
+
   return (
     <div className="container mx-auto px-4 py-16 relative">
-
       {/* Background dashed grid */}
       <div className="absolute inset-0 grid grid-cols-4 pointer-events-none opacity-30 -z-10">
         <div className="border-r border-dashed border-gray-300"></div>
@@ -146,7 +160,6 @@ function ProfileView() {
       </div>
 
       <div className="max-w-xl mx-auto bg-white p-8 rounded-2xl shadow-xl border border-gray-200 space-y-6">
-
         {/* Header */}
         <div className="flex justify-between items-center">
           <h2 className="text-3xl font-bold text-gray-900">My Profile</h2>
@@ -164,24 +177,43 @@ function ProfileView() {
         {/* VIEW MODE */}
         {!editMode && (
           <div className="space-y-4 text-gray-800">
-
             <div className="bg-gray-50 p-4 rounded-xl border space-y-1">
-              <p><strong>First Name:</strong> {form.first_name}</p>
-              <p><strong>Last Name:</strong> {form.last_name}</p>
-              <p><strong>Mobile:</strong> {form.phone}</p>
+              <p>
+                <strong>First Name:</strong> {form.first_name}
+              </p>
+              <p>
+                <strong>Last Name:</strong> {form.last_name}
+              </p>
+              <p>
+                <strong>Mobile:</strong> {form.phone}
+              </p>
             </div>
 
             <div className="bg-gray-50 p-4 rounded-xl border space-y-1">
               <p className="font-semibold text-lg">Address</p>
 
               <div className="ml-2 text-gray-700 space-y-1">
-                <p><strong>No:</strong> {form.addresses[0].label}</p>
-                <p><strong>Street:</strong> {form.addresses[0].street}</p>
-                <p><strong>City:</strong> {form.addresses[0].city}</p>
-                <p><strong>State:</strong> {form.addresses[0].state}</p>
-                <p><strong>Zipcode:</strong> {form.addresses[0].zipcode}</p>
-                <p><strong>Country:</strong> {form.addresses[0].country}</p>
-                <p><strong>Phone:</strong> {form.addresses[0].phone}</p>
+                <p>
+                  <strong>No:</strong> {address.label}
+                </p>
+                <p>
+                  <strong>Street:</strong> {address.street}
+                </p>
+                <p>
+                  <strong>City:</strong> {address.city}
+                </p>
+                <p>
+                  <strong>State:</strong> {address.state}
+                </p>
+                <p>
+                  <strong>Zipcode:</strong> {address.zipcode}
+                </p>
+                <p>
+                  <strong>Country:</strong> {address.country}
+                </p>
+                <p>
+                  <strong>Phone:</strong> {address.phone}
+                </p>
               </div>
             </div>
           </div>
@@ -221,7 +253,7 @@ function ProfileView() {
               <div className="space-y-3">
                 <AppInput
                   placeholder="Label (Home / Work)"
-                  value={form.addresses[0].label}
+                  value={address.label}
                   onChange={(e) =>
                     handleChange("addresses", e.target.value, 0, "label")
                   }
@@ -230,7 +262,7 @@ function ProfileView() {
 
                 <AppInput
                   placeholder="Street"
-                  value={form.addresses[0].street}
+                  value={address.street}
                   onChange={(e) =>
                     handleChange("addresses", e.target.value, 0, "street")
                   }
@@ -239,7 +271,7 @@ function ProfileView() {
 
                 <AppInput
                   placeholder="City"
-                  value={form.addresses[0].city}
+                  value={address.city}
                   onChange={(e) =>
                     handleChange("addresses", e.target.value, 0, "city")
                   }
@@ -248,7 +280,7 @@ function ProfileView() {
 
                 <AppInput
                   placeholder="State"
-                  value={form.addresses[0].state}
+                  value={address.state}
                   onChange={(e) =>
                     handleChange("addresses", e.target.value, 0, "state")
                   }
@@ -257,7 +289,7 @@ function ProfileView() {
 
                 <AppInput
                   placeholder="Zipcode"
-                  value={form.addresses[0].zipcode}
+                  value={address.zipcode}
                   onChange={(e) =>
                     handleChange("addresses", e.target.value, 0, "zipcode")
                   }
@@ -266,7 +298,7 @@ function ProfileView() {
 
                 <AppInput
                   placeholder="Country"
-                  value={form.addresses[0].country}
+                  value={address.country}
                   onChange={(e) =>
                     handleChange("addresses", e.target.value, 0, "country")
                   }
@@ -275,7 +307,7 @@ function ProfileView() {
 
                 <AppInput
                   placeholder="Phone Number"
-                  value={form.addresses[0].phone}
+                  value={address.phone}
                   onChange={(e) =>
                     handleChange("addresses", e.target.value, 0, "phone")
                   }
@@ -293,7 +325,6 @@ function ProfileView() {
       </div>
     </div>
   );
-
 }
 
 export default function Profile() {

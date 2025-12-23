@@ -3,24 +3,6 @@ export const formatCurrency = (n) => {
   return `₹${Number(n).toFixed(2)}`;
 };
 
-export function formatCurrencyINR(amount) {
-  return new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-  }).format(amount);
-}
-export const buildProductQuery = (params = {}) => {
-  const searchParams = new URLSearchParams();
-
-  Object.entries(params).forEach(([key, val]) => {
-    if (val !== undefined && val !== null && val !== "") {
-      searchParams.append(key, val);
-    }
-  });
-
-  return searchParams.toString();
-};
-
 export const generateTrackingSteps = (status, created_at) => {
   const steps = [
     { title: "Processing", date: created_at, completed: false },
@@ -50,17 +32,58 @@ export const generateTrackingSteps = (status, created_at) => {
   return steps;
 };
 
+// utils/helpers.js
 
-export const safeParse = (value, fallback = null) => {
-  if (value == null) return fallback;
+/**
+ * Safely parse JSON strings
+ * Returns the parsed data or a default value if parsing fails
+ */
+export const safeParse = (data, defaultValue = []) => {
+  // If data is null or undefined, return default
+  if (data == null) return defaultValue;
 
-  if (typeof value === "string") {
+  // If data is already an array or object, return it
+  if (typeof data === "object") return data;
+
+  // If data is a string, try to parse it
+  if (typeof data === "string") {
     try {
-      return safeParse(value);
-    } catch {
-      return fallback;
+      const parsed = JSON.parse(data);
+      return parsed;
+    } catch (e) {
+      console.error("JSON parse error:", e, "Data:", data);
+      return defaultValue;
     }
   }
 
-  return value;
+  // For any other type, return default
+  return defaultValue;
+};
+
+/**
+ * Format currency in INR
+ */
+export const formatCurrencyINR = (amount) => {
+  return new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  }).format(amount);
+};
+
+/**
+ * Build product query string
+ */
+export const buildProductQuery = (params) => {
+  const queryParams = new URLSearchParams();
+
+  Object.keys(params).forEach((key) => {
+    const value = params[key];
+    if (value !== undefined && value !== null && value !== "") {
+      queryParams.append(key, value);
+    }
+  });
+
+  return queryParams.toString();
 };

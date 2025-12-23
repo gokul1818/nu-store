@@ -7,10 +7,11 @@ import AppSelect from "../../components/AppSelect";
 import { showError, showSuccess } from "../../components/AppToast";
 import FileUpload from "../../components/FileUpload";
 import { CategoryAPI, ProductAPI } from "../../services/api";
-import { colorOptions, genderOptions, sizeOptions } from "../../constants/constant";
-import { safeParse } from "../../utils/helpers";
-
-
+import {
+  colorOptions,
+  genderOptions,
+  sizeOptions,
+} from "../../constants/constant";
 
 export default function ProductForm() {
   const { id } = useParams();
@@ -32,42 +33,88 @@ export default function ProductForm() {
     images: [],
     category: "",
     variants: [{ size: "", color: "", sku: "", stock: "" }],
+    reviews: [],
   });
+
+  // Robust JSON parser
+  const parseJSON = (data) => {
+    if (!data) return [];
+    if (Array.isArray(data)) return data;
+    if (typeof data === 'string') {
+      try {
+        return JSON.parse(data);
+      } catch (e) {
+        console.error('JSON parse error:', e);
+        return [];
+      }
+    }
+    return [];
+  };
 
   useEffect(() => {
     const loadData = async () => {
       try {
         const res = await CategoryAPI.getAll();
-        console.log('res: ', res.data);
-        setCategories(res.data);
+        setCategories(res.data || []);
 
         if (isEdit) {
-          const product = await ProductAPI.getOne(id);
-          setForm({
-            title: product.data.title || "",
-            mrp: product.data.mrp || "",
-            price: product.data.price || "",
-            discount: product.data.discount || "",
-            gender: product.data.gender || "men",
-            description: product.data.description || "",
-            thumbnail: product.data.thumbnail || "",
-            images: safeParse(product.data.images) || [],
-            category: product.data.category,
-            variants:
-              product.data.variants.length > 0
-                ? safeParse(product.data.variants)
-                : [{ size: "", color: "", sku: "", stock: "" }],
+          const productRes = await ProductAPI.getOne(id);
+          const product = productRes.data;
 
-            // ⭐ ADD THIS
-            reviews: safeParse(product.data.reviews || "[]"),
-          });
+          console.log('Raw product data:', product);
+          console.log('Raw images:', product?.images);
+          console.log('Raw variants:', product?.variants);
 
+          // Parse JSON strings from database using robust parser
+          const parsedImages = parseJSON(product?.images);
+          const parsedVariants = parseJSON(product?.variants);
+          const parsedReviews = parseJSON(product?.reviews);
+
+          console.log('Parsed images:', parsedImages);
+          console.log('Parsed variants:', parsedVariants);
+
+          // Format images - convert to objects with url property for FileUpload
+          const formattedImages = parsedImages.map(url => ({ url: url }));
+
+          // Format variants - ensure proper format
+          const formattedVariants = parsedVariants.map(v => ({
+            size: v.size?.toUpperCase() || "", // Convert to uppercase (XL, L, S)
+            color: v.color?.toLowerCase() || "", // Convert to lowercase (black, navy_blue, white)
+            sku: v.sku || "",
+            stock: v.stock !== undefined && v.stock !== null ? String(v.stock) : ""
+          }));
+
+          console.log('Formatted images:', formattedImages);
+          console.log('Formatted variants:', formattedVariants);
+
+          // Remove "gender_" prefix from gender
+          const formattedGender = product?.gender?.replace("gender_", "") || "";
+
+          const newFormData = {
+            title: product?.title || "",
+            mrp: product?.mrp || "",
+            price: product?.price || "",
+            discount: product?.discount || "",
+            gender: formattedGender,
+            description: product?.description || "",
+            thumbnail: product?.thumbnail || "",
+            images: formattedImages,
+            category: String(product?.category || ""),
+            variants: formattedVariants.length > 0
+              ? formattedVariants
+              : [{ size: "", color: "", sku: "", stock: "" }],
+            reviews: parsedReviews
+          };
+
+          console.log('Final form state:', newFormData);
+          setForm(newFormData);
         }
       } catch (err) {
-        console.log('err: ', err);
+        console.error('Load data error:', err);
         showError("Failed to load data");
       }
     };
+
     loadData();
   }, [id, isEdit]);
 
@@ -106,7 +153,7 @@ export default function ProductForm() {
     setErrors((prev) => {
       const newErrors = { ...prev };
       delete newErrors[`${key}-${index}`];
-      delete newErrors[`sku-${index}`]; // also clear SKU error
+      delete newErrors[`sku-${index}`];
       return newErrors;
     });
 
@@ -126,7 +173,6 @@ export default function ProductForm() {
     try {
       await ProductAPI.deleteReview(id, review.user);
 
-
       const updatedReviews = form.reviews.filter((_, i) => i !== index);
 
       setForm((prev) => ({ ...prev, reviews: updatedReviews }));
@@ -137,7 +183,6 @@ export default function ProductForm() {
       showError("Failed to delete review");
     }
   };
-
 
   const addVariant = () => {
     const lastVariant = form.variants[form.variants.length - 1];
@@ -195,16 +240,25 @@ export default function ProductForm() {
   const submit = async () => {
     if (!validate()) return;
 
+    // Extract URLs from image objects for submission
+    const imageUrls = form.images.map(img => img.url || img);
+
     const payload = {
       ...form,
+      images: imageUrls,
       mrp: Number(form.mrp),
       price: Number(form.price),
       discount: Number(form.discount),
+      gender: `gender_${form.gender}`, // Add gender_ prefix back
       variants: form.variants.map((v) => ({
         ...v,
+        size: v.size.toUpperCase(),
+        color: v.color.toLowerCase(),
         stock: Number(v.stock),
       })),
     };
+
+    console.log('Submit payload:', payload);
 
     setLoading(true);
     try {
@@ -214,6 +268,7 @@ export default function ProductForm() {
       showSuccess(`Product ${isEdit ? "updated" : "added"} successfully!`);
       navigate("/admin/products");
     } catch (err) {
+      console.error('Submit error:', err);
       const message = err?.response?.data?.message || "Failed to save product";
       showError(message);
     } finally {
@@ -292,7 +347,6 @@ export default function ProductForm() {
           <AppSelect
             label="Gender"
             value={form.gender}
-
             onChange={(e) => {
               setForm({ ...form, gender: e.target.value });
               setErrors((prev) => {
@@ -334,21 +388,20 @@ export default function ProductForm() {
               </option>
             ))}
           </AppSelect>
-          {/* <FileUpload
-            id="thumbnail-upload"
-            label="Thumbnail Image"
-            mode="single"
-            value={form.thumbnail}
-            onChange={(url) => setForm((prev) => ({ ...prev, thumbnail: url }))}
-            error={errors.thumbnail}
-          /> */}
 
           <FileUpload
             id="gallery-upload"
             label="Gallery Images"
             mode="multiple"
             value={form.images}
-            onChange={(urls) => setForm((prev) => ({ ...prev, images: urls }))}
+            onChange={(urls) => {
+              setForm((prev) => ({ ...prev, images: urls }));
+              setErrors((prev) => {
+                const newErrors = { ...prev };
+                delete newErrors.images;
+                return newErrors;
+              });
+            }}
             error={errors.images}
           />
 
@@ -359,9 +412,14 @@ export default function ProductForm() {
             type="textarea"
             rows={4}
             value={form.description}
-            onChange={(e) =>
-              setForm((prev) => ({ ...prev, description: e.target.value }))
-            }
+            onChange={(e) => {
+              setForm((prev) => ({ ...prev, description: e.target.value }));
+              setErrors((prev) => {
+                const newErrors = { ...prev };
+                delete newErrors.description;
+                return newErrors;
+              });
+            }}
             className="md:col-span-2"
             error={errors.description}
           />
@@ -370,73 +428,78 @@ export default function ProductForm() {
         {/* Variants */}
         <div className="mt-6">
           <h3 className="text-lg font-semibold mb-3">Variants</h3>
-          {form.variants.map((v, i) => (
-            <div
-              key={i}
-              className="relative grid md:grid-cols-4 gap-4 mb-4 p-4 border rounded-lg bg-gray-50 items-end"
-            >
-              {/* Size */}
-              <AppSelect
-                label="Size"
-                value={v.size}
-                onChange={(e) => updateVariant(i, "size", e.target.value)}
-                error={errors[`size-${i}`]}
+          {Array.isArray(form.variants) &&
+            form.variants.map((v, i) => (
+              <div
+                key={i}
+                className="relative grid md:grid-cols-4 gap-4 mb-4 p-4 border rounded-lg bg-gray-50 items-end"
               >
-                <option value="" disabled>Select Size</option>
-                {sizeOptions.map((opt) => (
-                  <option key={opt.value} value={opt.value}>
-                    {opt.label}
+                {/* Size */}
+                <AppSelect
+                  label="Size"
+                  value={v.size}
+                  onChange={(e) => updateVariant(i, "size", e.target.value)}
+                  error={errors[`size-${i}`]}
+                >
+                  <option value="" disabled>
+                    Select Size
                   </option>
-                ))}
-              </AppSelect>
+                  {sizeOptions.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </AppSelect>
 
-              {/* Color */}
-              <AppSelect
-                label="Color"
-                value={v.color}
-                onChange={(e) => updateVariant(i, "color", e.target.value)}
-                error={errors[`color-${i}`]}
-              >
-                <option value="" disabled>Select Color</option>
-                {colorOptions.map((opt) => (
-                  <option key={opt.value} value={opt.value}>
-                    {opt.label}
+                {/* Color */}
+                <AppSelect
+                  label="Color"
+                  value={v.color}
+                  onChange={(e) => updateVariant(i, "color", e.target.value)}
+                  error={errors[`color-${i}`]}
+                >
+                  <option value="" disabled>
+                    Select Color
                   </option>
-                ))}
-              </AppSelect>
+                  {colorOptions.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </AppSelect>
 
-              <AppInput
-                placeholder="SKU"
-                value={v.sku}
-                disabled
-                error={errors[`sku-${i}`]}
-              />
-              <div className="flex flex-row items-center">
                 <AppInput
-                  placeholder="Stock"
-                  type="number"
-                  value={v.stock}
-                  onChange={(e) => updateVariant(i, "stock", e.target.value)}
-                  error={errors[`stock-${i}`]}
-                  className="w-[95%]"
+                  placeholder="SKU"
+                  value={v.sku}
+                  disabled
+                  error={errors[`sku-${i}`]}
                 />
+                <div className="flex flex-row items-center">
+                  <AppInput
+                    placeholder="Stock"
+                    type="number"
+                    value={v.stock}
+                    onChange={(e) => updateVariant(i, "stock", e.target.value)}
+                    error={errors[`stock-${i}`]}
+                    className="w-[95%]"
+                  />
 
-                {i > 0 && (
-                  <button
-                    onClick={() => {
-                      const updated = form.variants.filter(
-                        (_, idx) => idx !== i
-                      );
-                      setForm({ ...form, variants: updated });
-                    }}
-                    className="text-l text-red-600 hover:text-red-800 ml-2"
-                  >
-                    <FaTrash />
-                  </button>
-                )}
+                  {i > 0 && (
+                    <button
+                      onClick={() => {
+                        const updated = form.variants.filter(
+                          (_, idx) => idx !== i
+                        );
+                        setForm({ ...form, variants: updated });
+                      }}
+                      className="text-l text-red-600 hover:text-red-800 ml-2"
+                    >
+                      <FaTrash />
+                    </button>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
 
           <div className="flex flex-col md:flex-row mt-5 items-center justify-between gap-4">
             <AppButton
@@ -450,9 +513,8 @@ export default function ProductForm() {
             </AppButton>
           </div>
         </div>
-        {/* =======================
-      PRODUCT REVIEWS LIST
-========================== */}
+
+        {/* Product Reviews List */}
         <div className="mt-8">
           <h3 className="text-lg font-semibold mb-3">Customer Reviews</h3>
 
@@ -461,33 +523,33 @@ export default function ProductForm() {
           )}
 
           <div className="space-y-3">
-            {form?.reviews?.map((review, index) => (
-              <div
-                key={index}
-                className="p-4 border rounded-lg bg-gray-50 flex justify-between items-start"
-              >
-                <div>
-                  <p className="font-semibold text-gray-700">
-                    ⭐ {review.rating} / 5
-                  </p>
-                  <p className="text-sm text-gray-600">{review.comment}</p>
-                  <p className="text-xs text-gray-400 mt-1">
-                    {new Date(review.created_at).toLocaleDateString()}
-                  </p>
-                </div>
-
-                {/* DELETE BUTTON */}
-                <button
-                  onClick={() => deleteReview(index, review)}
-                  className="text-red-600 hover:text-red-800"
+            {Array.isArray(form.reviews) &&
+              form?.reviews?.map((review, index) => (
+                <div
+                  key={index}
+                  className="p-4 border rounded-lg bg-gray-50 flex justify-between items-start"
                 >
-                  <FaTrash />
-                </button>
-              </div>
-            ))}
+                  <div>
+                    <p className="font-semibold text-gray-700">
+                      ⭐ {review.rating} / 5
+                    </p>
+                    <p className="text-sm text-gray-600">{review.comment}</p>
+                    <p className="text-xs text-gray-400 mt-1">
+                      {new Date(review.created_at).toLocaleDateString()}
+                    </p>
+                  </div>
+
+                  {/* DELETE BUTTON */}
+                  <button
+                    onClick={() => deleteReview(index, review)}
+                    className="text-red-600 hover:text-red-800"
+                  >
+                    <FaTrash />
+                  </button>
+                </div>
+              ))}
           </div>
         </div>
-
       </div>
     </div>
   );

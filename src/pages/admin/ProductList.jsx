@@ -4,7 +4,11 @@ import { TbEdit } from "react-icons/tb";
 import { Link, useNavigate } from "react-router-dom";
 import AppTable from "../../components/AppTable";
 import { CategoryAPI, ProductAPI } from "../../services/api";
-import { buildProductQuery, formatCurrencyINR, safeParse } from "../../utils/helpers";
+import {
+  buildProductQuery,
+  formatCurrencyINR,
+  safeParse,
+} from "../../utils/helpers";
 import { Pagination } from "../../components/Pagination";
 
 export default function ProductList() {
@@ -34,7 +38,7 @@ export default function ProductList() {
     q: searchText,
     sort,
     page,
-    limit: 10
+    limit: 10,
   });
 
   /** LOAD DATA */
@@ -44,8 +48,8 @@ export default function ProductList() {
       const productRes = await ProductAPI.getAll(query);
       const categoryRes = await CategoryAPI.getAll();
 
-      setCategoryList(categoryRes.data);
-      setProducts(productRes.data); // contains { products, total, pages }
+      setCategoryList(categoryRes.data || []);
+      setProducts(productRes.data || {});
     } finally {
       setLoading(false);
     }
@@ -69,45 +73,66 @@ export default function ProductList() {
   }, [size, color, minPrice, maxPrice, searchText, sort, page]);
 
   /** FIND CATEGORY NAME */
-  const findCategory = (id) => categoryList.find((c) => c.id == id);
+  const findCategory = (id) =>
+    categoryList.find((c) => String(c.id) === String(id));
 
   /** TABLE COLUMNS */
   const columns = [
     {
       key: "thumbnail",
       label: "Thumbnail",
-      render: (row) =>
-        row.images?.length ? (
+      render: (row) => {
+        console.log('Row images:', row?.images);
+        const images = safeParse(row?.images, []);
+        console.log('Parsed images:', images);
+        const thumbnail = images[0];
+
+        return thumbnail ? (
           <img
-            src={safeParse(row.images)[0]}
-            alt={row.title}
+            src={thumbnail}
+            alt={row?.title}
             className="w-12 h-12 object-cover rounded mx-auto"
           />
         ) : (
-          "-"
-        ),
+          <span className="text-gray-400">No image</span>
+        );
+      },
     },
+
     { key: "title", label: "Title" },
 
     {
       key: "category",
       label: "Category",
-      render: (row) => findCategory(row.category)?.name || "-",
+      render: (row) => findCategory(row?.category)?.name || "-",
     },
 
     {
       key: "price",
       label: "Price",
-      render: (row) => formatCurrencyINR(row.price),
+      render: (row) => formatCurrencyINR(row?.price || 0),
     },
 
     {
       key: "stock",
       label: "Stock",
-      render: (row) =>
-        safeParse(row.variants).length
-          ? safeParse(row.variants).reduce((acc, v) => acc + (v.stock || 0), 0)
-          : 0,
+      render: (row) => {
+        console.log('Row variants:', row?.variants);
+        const variants = safeParse(row?.variants, []);
+        console.log('Parsed variants:', variants);
+        
+        if (!Array.isArray(variants) || variants.length === 0) {
+          return <span className="text-gray-400">0</span>;
+        }
+        
+        const totalStock = variants.reduce(
+          (sum, v) => sum + (Number(v?.stock) || 0),
+          0
+        );
+        
+        console.log('Total stock:', totalStock);
+        return <span className="font-medium">{totalStock}</span>;
+      },
     },
   ];
 
