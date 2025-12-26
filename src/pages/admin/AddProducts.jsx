@@ -74,7 +74,7 @@ export default function ProductForm() {
           console.log('Parsed variants:', parsedVariants);
 
           // Format images - convert to objects with url property for FileUpload
-          const formattedImages = parsedImages.map(url => ({ url: url }));
+          const formattedImages = parsedImages.map(url => ( url ));
 
           // Format variants - ensure proper format
           const formattedVariants = parsedVariants.map(v => ({
