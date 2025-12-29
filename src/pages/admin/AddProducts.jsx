@@ -36,81 +36,65 @@ export default function ProductForm() {
     reviews: [],
   });
 
-  // Robust JSON parser
+  /* ===========================
+     SAFE JSON PARSER
+  ============================ */
   const parseJSON = (data) => {
     if (!data) return [];
     if (Array.isArray(data)) return data;
-    if (typeof data === 'string') {
+    if (typeof data === "string") { 
       try {
         return JSON.parse(data);
       } catch (e) {
-        console.error('JSON parse error:', e);
-        return [];
+        console.error("JSON parse failed:", e, data);
+        return data;
       }
     }
     return [];
   };
 
+  /* ===========================
+     LOAD DATA
+  ============================ */
   useEffect(() => {
     const loadData = async () => {
       try {
-        const res = await CategoryAPI.getAll();
-        setCategories(res.data || []);
+        const catRes = await CategoryAPI.getAll();
+        setCategories(catRes.data || []);
 
-        if (isEdit) {
-          const productRes = await ProductAPI.getOne(id);
-          const product = productRes.data;
+        if (!isEdit) return;
 
-          console.log('Raw product data:', product);
-          console.log('Raw images:', product?.images);
-          console.log('Raw variants:', product?.variants);
+        const productRes = await ProductAPI.getOne(id);
+        const product = productRes.data;
 
-          // Parse JSON strings from database using robust parser
-          const parsedImages = parseJSON(product?.images);
-          const parsedVariants = parseJSON(product?.variants);
-          const parsedReviews = parseJSON(product?.reviews);
+        const images = parseJSON(product?.images).map((url) => ( url ));
+        const variants = parseJSON(product?.variants).map((v) => ({
+          size: v.size?.toUpperCase() || "",
+          color: v.color?.toLowerCase() || "",
+          sku: v.sku || "",
+          stock:
+            v.stock !== undefined && v.stock !== null
+              ? String(v.stock)
+              : "",
+        }));
 
-          console.log('Parsed images:', parsedImages);
-          console.log('Parsed variants:', parsedVariants);
-
-          // Format images - convert to objects with url property for FileUpload
-          const formattedImages = parsedImages.map(url => ( url ));
-
-          // Format variants - ensure proper format
-          const formattedVariants = parsedVariants.map(v => ({
-            size: v.size?.toUpperCase() || "", // Convert to uppercase (XL, L, S)
-            color: v.color?.toLowerCase() || "", // Convert to lowercase (black, navy_blue, white)
-            sku: v.sku || "",
-            stock: v.stock !== undefined && v.stock !== null ? String(v.stock) : ""
-          }));
-
-          console.log('Formatted images:', formattedImages);
-          console.log('Formatted variants:', formattedVariants);
-
-          // Remove "gender_" prefix from gender
-          const formattedGender = product?.gender?.replace("gender_", "") || "";
-
-          const newFormData = {
-            title: product?.title || "",
-            mrp: product?.mrp || "",
-            price: product?.price || "",
-            discount: product?.discount || "",
-            gender: formattedGender,
-            description: product?.description || "",
-            thumbnail: product?.thumbnail || "",
-            images: formattedImages,
-            category: String(product?.category || ""),
-            variants: formattedVariants.length > 0
-              ? formattedVariants
-              : [{ size: "", color: "", sku: "", stock: "" }],
-            reviews: parsedReviews
-          };
-
-          console.log('Final form state:', newFormData);
-          setForm(newFormData);
-        }
+        setForm({
+          title: product?.title || "",
+          mrp: product?.mrp || "",
+          price: product?.price || "",
+          discount: product?.discount || "",
+          gender: product?.gender?.replace("gender_", "") || "",
+          description: product?.description || "",
+          thumbnail: product?.thumbnail || "",
+          images,
+          category: String(product?.category || ""),
+          variants: variants.length
+            ? variants
+            : [{ size: "", color: "", sku: "", stock: "" }],
+          reviews: parseJSON(product?.reviews),
+        });
       } catch (err) {
-        console.error('Load data error:', err);
+        console.error(err);
         showError("Failed to load data");
       }
     };
@@ -118,138 +102,122 @@ export default function ProductForm() {
     loadData();
   }, [id, isEdit]);
 
-  // Auto-calculate price
+  /* ===========================
+     AUTO PRICE CALCULATION
+  ============================ */
   useEffect(() => {
-    if (form.mrp !== "" && form.discount !== "") {
-      const discountedPrice = form.mrp - (form.mrp * form.discount) / 100;
-      setForm((f) => ({ ...f, price: discountedPrice.toFixed(2) }));
+    const mrp = Number(form.mrp);
+    const discount = Number(form.discount);
+
+    if (!isNaN(mrp) && !isNaN(discount)) {
+      const price = mrp - (mrp * discount) / 100;
+      setForm((f) => ({ ...f, price: price.toFixed(2) }));
     }
   }, [form.mrp, form.discount]);
 
-  // Update SKU when title changes for all variants
-  useEffect(() => {
-    if (!form.title) return;
-    const updatedVariants = form.variants.map((v) => ({
-      ...v,
-      sku: v.size && v.color ? generateSKU(form.title, v.size, v.color) : v.sku,
-    }));
-    setForm((f) => ({ ...f, variants: updatedVariants }));
-  }, [form.title]);
-
+  /* ===========================
+     SKU GENERATOR
+  ============================ */
   const generateSKU = (title, size, color) => {
     if (!title || !size || !color) return "";
     const code = title
       .split(" ")
-      .map((w) => w[0].toUpperCase())
+      .map((w) => w[0]?.toUpperCase())
       .join("");
-    return `${code}-${size.toUpperCase()}-${color.slice(0, 3).toUpperCase()}`;
+    return `${code}-${size.toUpperCase()}-${color
+      .slice(0, 3)
+      .toUpperCase()}`;
   };
 
+  /* ===========================
+     UPDATE VARIANT
+  ============================ */
   const updateVariant = (index, key, value) => {
     const updated = [...form.variants];
     updated[index][key] = value;
 
-    // Clear respective error
-    setErrors((prev) => {
-      const newErrors = { ...prev };
-      delete newErrors[`${key}-${index}`];
-      delete newErrors[`sku-${index}`];
-      return newErrors;
-    });
-
-    // Update SKU if possible
     const size = key === "size" ? value : updated[index].size;
     const color = key === "color" ? value : updated[index].color;
-    if (form.title && size && color) {
+
+    if (!updated[index].sku && form.title && size && color) {
       updated[index].sku = generateSKU(form.title, size, color);
     }
+
+    setErrors((e) => {
+      const n = { ...e };
+      delete n[`${key}-${index}`];
+      delete n[`sku-${index}`];
+      return n;
+    });
 
     setForm({ ...form, variants: updated });
   };
 
-  const deleteReview = async (index, review) => {
-    if (!window.confirm("Delete this review?")) return;
-
-    try {
-      await ProductAPI.deleteReview(id, review.user);
-
-      const updatedReviews = form.reviews.filter((_, i) => i !== index);
-
-      setForm((prev) => ({ ...prev, reviews: updatedReviews }));
-
-      showSuccess("Review deleted successfully");
-    } catch (err) {
-      console.error(err);
-      showError("Failed to delete review");
-    }
-  };
-
+  /* ===========================
+     ADD VARIANT
+  ============================ */
   const addVariant = () => {
-    const lastVariant = form.variants[form.variants.length - 1];
-    const tempErrors = {};
+    const last = form.variants[form.variants.length - 1];
+    const stock = Number(last.stock);
+    const temp = {};
 
-    if (!lastVariant.size.trim())
-      tempErrors[`size-${form.variants.length - 1}`] = "Size is required";
-    if (!lastVariant.color.trim())
-      tempErrors[`color-${form.variants.length - 1}`] = "Color is required";
-    if (!lastVariant.sku.trim())
-      tempErrors[`sku-${form.variants.length - 1}`] = "SKU is required";
-    if (lastVariant.stock === "" || lastVariant.stock < 0)
-      tempErrors[`stock-${form.variants.length - 1}`] =
-        "Stock must be zero or greater";
+    if (!last.size) temp[`size-${form.variants.length - 1}`] = "Required";
+    if (!last.color) temp[`color-${form.variants.length - 1}`] = "Required";
+    if (!last.sku) temp[`sku-${form.variants.length - 1}`] = "Required";
+    if (isNaN(stock) || stock < 0)
+      temp[`stock-${form.variants.length - 1}`] = "Invalid stock";
 
-    if (Object.keys(tempErrors).length > 0) {
-      setErrors((prev) => ({ ...prev, ...tempErrors }));
+    if (Object.keys(temp).length) {
+      setErrors((e) => ({ ...e, ...temp }));
       return;
     }
 
-    setForm({
-      ...form,
-      variants: [
-        ...form.variants,
-        { size: "", color: colorOptions[0].value, sku: "", stock: "" },
-      ],
-    });
+    setForm((f) => ({
+      ...f,
+      variants: [...f.variants, { size: "", color: "", sku: "", stock: "" }],
+    }));
   };
 
+  /* ===========================
+     VALIDATION
+  ============================ */
   const validate = () => {
-    const temp = {};
-    if (!form.title.trim()) temp.title = "Title is required";
-    if (form.mrp === "" || form.mrp < 0)
-      temp.mrp = "MRP must be greater than 0";
-    if (form.price > form.mrp) temp.price = "Price cannot exceed MRP";
-    if (form.discount < 0 || form.discount > 100)
-      temp.discount = "Discount must be between 0 and 100";
-    if (!form.gender) temp.gender = "Gender is required";
-    if (!form.category) temp.category = "Category is required";
-    if (form.images.length === 0) temp.images = "Gallery images are required";
-    if (!form.description.trim()) temp.description = "Description is required";
+    const e = {};
+
+    if (!form.title.trim()) e.title = "Required";
+    if (Number(form.mrp) <= 0) e.mrp = "Invalid MRP";
+    if (Number(form.discount) < 0 || Number(form.discount) > 100)
+      e.discount = "Invalid discount";
+    if (!form.gender) e.gender = "Required";
+    if (!form.category) e.category = "Required";
+    if (!form.images.length) e.images = "Images required";
+    if (!form.description.trim()) e.description = "Required";
 
     form.variants.forEach((v, i) => {
-      if (!v.size.trim()) temp[`size-${i}`] = "Size is required";
-      if (!v.color.trim()) temp[`color-${i}`] = "Color is required";
-      if (!v.sku.trim()) temp[`sku-${i}`] = "SKU is required";
-      if (v.stock === "" || v.stock < 0)
-        temp[`stock-${i}`] = "Stock must be zero or greater";
+      if (!v.size) e[`size-${i}`] = "Required";
+      if (!v.color) e[`color-${i}`] = "Required";
+      if (!v.sku) e[`sku-${i}`] = "Required";
+      if (isNaN(Number(v.stock)) || Number(v.stock) < 0)
+        e[`stock-${i}`] = "Invalid stock";
     });
 
-    setErrors(temp);
-    return Object.keys(temp).length === 0;
+    setErrors(e);
+    return !Object.keys(e).length;
   };
 
+  /* ===========================
+     SUBMIT
+  ============================ */
   const submit = async () => {
     if (!validate()) return;
 
-    // Extract URLs from image objects for submission
-    const imageUrls = form.images.map(img => img.url || img);
-
     const payload = {
       ...form,
-      images: imageUrls,
+      images: form.images.map((i) => i),
       mrp: Number(form.mrp),
       price: Number(form.price),
       discount: Number(form.discount),
-      gender: `gender_${form.gender}`, // Add gender_ prefix back
+      gender: `gender_${form.gender}`,
       variants: form.variants.map((v) => ({
         ...v,
         size: v.size.toUpperCase(),
@@ -258,23 +226,26 @@ export default function ProductForm() {
       })),
     };
 
-    console.log('Submit payload:', payload);
-
     setLoading(true);
     try {
-      if (isEdit) await ProductAPI.updateProduct(id, payload);
-      else await ProductAPI.create(payload);
+      isEdit
+        ? await ProductAPI.updateProduct(id, payload)
+        : await ProductAPI.create(payload);
 
-      showSuccess(`Product ${isEdit ? "updated" : "added"} successfully!`);
+      showSuccess("Product saved");
       navigate("/admin/products");
-    } catch (err) {
-      console.error('Submit error:', err);
-      const message = err?.response?.data?.message || "Failed to save product";
-      showError(message);
+    } catch (e) {
+      console.error(e);
+      showError("Save failed");
     } finally {
       setLoading(false);
     }
   };
+
+  /* ===========================
+     UI
+  ============================ */
+
 
   return (
     <div className="container mx-auto p-6">
@@ -508,7 +479,7 @@ export default function ProductForm() {
             >
               + Add Variant
             </AppButton>
-            <AppButton className="w-40" loading={loading} onClick={submit}>
+            <AppButton className="w-40" loading={loading} onClick={() => submit()}>
               Save Product
             </AppButton>
           </div>
