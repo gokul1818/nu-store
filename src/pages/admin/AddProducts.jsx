@@ -20,6 +20,7 @@ export default function ProductForm() {
 
   const [categories, setCategories] = useState([]);
   const [errors, setErrors] = useState({});
+  console.log('errors: ', errors);
   const [loading, setLoading] = useState(false);
 
   const [form, setForm] = useState({
