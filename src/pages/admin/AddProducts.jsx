@@ -36,7 +36,8 @@ export default function ProductForm() {
     variants: [{ size: "", color: "", sku: "", stock: "" }],
     reviews: [],
   });
-
+  
+  console.log('form: ', form);
   /* ===========================
      SAFE JSON PARSER
   ============================ */
@@ -84,7 +85,7 @@ export default function ProductForm() {
           mrp: product?.mrp || "",
           price: product?.price || "",
           discount: product?.discount || "",
-          gender: product?.gender?.replace("gender_", "") || "",
+          gender: product?.gender || "",
           description: product?.description || "",
           thumbnail: product?.thumbnail || "",
           images,
@@ -218,7 +219,7 @@ export default function ProductForm() {
       mrp: Number(form.mrp),
       price: Number(form.price),
       discount: Number(form.discount),
-      gender: `gender_${form.gender}`,
+      gender: `${form.gender}`,
       variants: form.variants.map((v) => ({
         ...v,
         size: v.size.toUpperCase(),
@@ -320,6 +321,7 @@ export default function ProductForm() {
             label="Gender"
             value={form.gender}
             onChange={(e) => {
+              console.log('e: ', e.target.value);
               setForm({ ...form, gender: e.target.value });
               setErrors((prev) => {
                 const newErrors = { ...prev };
@@ -333,7 +335,7 @@ export default function ProductForm() {
               Select Gender
             </option>
             {genderOptions.map((cat) => (
-              <option key={cat.id} value={cat.id}>
+              <option key={cat.id} value={cat.value}>
                 {cat.label}
               </option>
             ))}

@@ -30,7 +30,7 @@ export const colorOptions = [
 ];
 
 export const genderOptions = [
-  { id: "gender_men", label: "Men", value: "men" },
-  { id: "gender_women", label: "Women", value: "women" },
-  { id: "gender_kids", label: "Kids", value: "kids" },
+  { id: "gender_men", label: "Men", value: "gender_men" },
+  { id: "gender_women", label: "Women", value: "gender_women" },
+  { id: "gender_kids", label: "Kids", value: "gender_kids" },
 ];
